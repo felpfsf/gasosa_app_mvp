@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>155550412551-a6e96q636maf4ail7m5b6f3jd5nhg8oi.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.155550412551-a6e96q636maf4ail7m5b6f3jd5nhg8oi</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>155550412551-1gord8guekvu9p3qcrdmmkcb6ip6jhtd.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyCZvM8j_FeMDwLOHcehuLVVOlsqUB5YPeA</string>
+	<key>GCM_SENDER_ID</key>
+	<string>155550412551</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>dev.etherealcodes.gasosaapp.dev</string>
+	<key>PROJECT_ID</key>
+	<string>etharch-gasosa-app-dev</string>
+	<key>STORAGE_BUCKET</key>
+	<string>etharch-gasosa-app-dev.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:155550412551:ios:064250077e2c61a2d01fa2</string>
+</dict>
+</plist>

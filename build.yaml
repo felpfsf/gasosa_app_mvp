@@ -1,0 +1,9 @@
+# build.yaml
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          data_class_to_companions: true
+          sql:
+            dialect: sqlite

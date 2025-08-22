@@ -39,10 +39,10 @@
               "client_type": 3
             },
             {
-              "client_id": "155550412551-t5l9joov7ss01bj6pqg6ifvjfju471mu.apps.googleusercontent.com",
+              "client_id": "155550412551-a6e96q636maf4ail7m5b6f3jd5nhg8oi.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "dev.etherealcodes.gasosaapp.gasosaApp"
+                "bundle_id": "dev.etherealcodes.gasosaapp.dev"
               }
             }
           ]
@@ -75,10 +75,10 @@
               "client_type": 3
             },
             {
-              "client_id": "155550412551-t5l9joov7ss01bj6pqg6ifvjfju471mu.apps.googleusercontent.com",
+              "client_id": "155550412551-a6e96q636maf4ail7m5b6f3jd5nhg8oi.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "dev.etherealcodes.gasosaapp.gasosaApp"
+                "bundle_id": "dev.etherealcodes.gasosaapp.dev"
               }
             }
           ]

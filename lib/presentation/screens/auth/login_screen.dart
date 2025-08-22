@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gasosa_app/core/di/locator.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
+import 'package:gasosa_app/presentation/screens/auth/viewmodel/login_viewmodel.dart';
 import 'package:gasosa_app/presentation/screens/auth/widgets/auth_google_button.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_button.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_form_field.dart';
@@ -21,6 +23,24 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailEC = TextEditingController();
   final _passwordEC = TextEditingController();
+  late final LoginViewmodel _viewModel;
+
+  @override
+  void initState() {
+    _viewModel = getIt<LoginViewmodel>();
+    super.initState();
+  }
+
+  Future<void> _handleGoogleSignIn() async {
+    final success = await _viewModel.googleSignIn();
+    if (!mounted) {
+      return;
+    }
+    if (success) {
+      context.go(RoutePaths.dashboard);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -35,8 +55,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 children: [
                   const LogoHero(size: 200),
                   Text('Entrar no Gasosa', style: AppTypography.titleLg),
-                  const AuthGoogleButton(),
+                  AuthGoogleButton(
+                    onPressed: _handleGoogleSignIn,
+                  ),
                   _buildDivider(),
+
                   Form(
                     key: _formKey,
                     child: Column(

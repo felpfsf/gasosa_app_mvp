@@ -8,9 +8,19 @@ part 'user_dao.g.dart';
 class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
   UserDao(super.db);
 
-  Future<void> inser(UserRow row) => into(userTable).insert(row);
+  Future<void> insert(UserRow row) => into(userTable).insert(row);
 
   Future<UserRow?> getById(String id) {
     return (select(userTable)..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
+  }
+
+  Future<UserRow?> getByEmail(String email) {
+    return (select(userTable)..where((tbl) => tbl.email.equals(email))).getSingleOrNull();
+  }
+
+  Future<void> updateUser(UserRow row) => update(userTable).replace(row);
+
+  Future<void> deleteUser(String id) {
+    return (delete(userTable)..where((tbl) => tbl.id.equals(id))).go();
   }
 }

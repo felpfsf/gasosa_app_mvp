@@ -11,7 +11,7 @@ import 'package:path_provider/path_provider.dart';
 part 'app_database.g.dart';
 
 @DriftDatabase(
-  tables: [UserTable],
+  tables: [Users],
   daos: [UserDao],
 )
 class AppDatabase extends _$AppDatabase {

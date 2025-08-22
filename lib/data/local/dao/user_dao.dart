@@ -4,23 +4,28 @@ import 'package:gasosa_app/data/local/tables/user_table.dart';
 
 part 'user_dao.g.dart';
 
-@DriftAccessor(tables: [UserTable])
+@DriftAccessor(tables: [Users])
 class UserDao extends DatabaseAccessor<AppDatabase> with _$UserDaoMixin {
   UserDao(super.db);
 
-  Future<void> insert(UserRow row) => into(userTable).insert(row);
+  Future<void> insert(UsersCompanion entity) => into(users).insert(
+    entity,
+    mode: InsertMode.insertOrReplace,
+  );
 
   Future<UserRow?> getById(String id) {
-    return (select(userTable)..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
+    return (select(users)..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
   }
 
   Future<UserRow?> getByEmail(String email) {
-    return (select(userTable)..where((tbl) => tbl.email.equals(email))).getSingleOrNull();
+    return (select(users)..where((tbl) => tbl.email.equals(email))).getSingleOrNull();
   }
 
-  Future<void> updateUser(UserRow row) => update(userTable).replace(row);
+  Future<bool> updateUser(UserRow row) => update(users).replace(row);
 
-  Future<void> deleteUser(String id) {
-    return (delete(userTable)..where((tbl) => tbl.id.equals(id))).go();
-  }
+  Future<int> upsert(UserRow row) => into(users).insertOnConflictUpdate(row);
+
+  Future<int> deleteById(String id) => (delete(users)..where((tbl) => tbl.id.equals(id))).go();
+
+  Stream<UserRow?> watchById(String id) => (select(users)..where((t) => t.id.equals(id))).watchSingleOrNull();
 }

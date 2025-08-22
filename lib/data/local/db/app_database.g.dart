@@ -3,12 +3,11 @@
 part of 'app_database.dart';
 
 // ignore_for_file: type=lint
-class $UserTableTable extends UserTable
-    with TableInfo<$UserTableTable, UserRow> {
+class $UsersTable extends Users with TableInfo<$UsersTable, UserRow> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $UserTableTable(this.attachedDatabase, [this._alias]);
+  $UsersTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<String> id = GeneratedColumn<String>(
@@ -24,6 +23,10 @@ class $UserTableTable extends UserTable
     'email',
     aliasedName,
     false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 255,
+    ),
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
@@ -33,6 +36,10 @@ class $UserTableTable extends UserTable
     'name',
     aliasedName,
     false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 100,
+    ),
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
@@ -56,7 +63,8 @@ class $UserTableTable extends UserTable
     aliasedName,
     false,
     type: DriftSqlType.dateTime,
-    requiredDuringInsert: true,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
   );
   static const VerificationMeta _updatedAtMeta = const VerificationMeta(
     'updatedAt',
@@ -82,7 +90,7 @@ class $UserTableTable extends UserTable
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'user_table';
+  static const String $name = 'users';
   @override
   VerificationContext validateIntegrity(
     Insertable<UserRow> instance, {
@@ -122,8 +130,6 @@ class $UserTableTable extends UserTable
         _createdAtMeta,
         createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
       );
-    } else if (isInserting) {
-      context.missing(_createdAtMeta);
     }
     if (data.containsKey('updated_at')) {
       context.handle(
@@ -168,8 +174,8 @@ class $UserTableTable extends UserTable
   }
 
   @override
-  $UserTableTable createAlias(String alias) {
-    return $UserTableTable(attachedDatabase, alias);
+  $UsersTable createAlias(String alias) {
+    return $UsersTable(attachedDatabase, alias);
   }
 }
 
@@ -204,8 +210,8 @@ class UserRow extends DataClass implements Insertable<UserRow> {
     return map;
   }
 
-  UserTableCompanion toCompanion(bool nullToAbsent) {
-    return UserTableCompanion(
+  UsersCompanion toCompanion(bool nullToAbsent) {
+    return UsersCompanion(
       id: Value(id),
       email: Value(email),
       name: Value(name),
@@ -261,7 +267,7 @@ class UserRow extends DataClass implements Insertable<UserRow> {
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
   );
-  UserRow copyWithCompanion(UserTableCompanion data) {
+  UserRow copyWithCompanion(UsersCompanion data) {
     return UserRow(
       id: data.id.present ? data.id.value : this.id,
       email: data.email.present ? data.email.value : this.email,
@@ -300,7 +306,7 @@ class UserRow extends DataClass implements Insertable<UserRow> {
           other.updatedAt == this.updatedAt);
 }
 
-class UserTableCompanion extends UpdateCompanion<UserRow> {
+class UsersCompanion extends UpdateCompanion<UserRow> {
   final Value<String> id;
   final Value<String> email;
   final Value<String> name;
@@ -308,7 +314,7 @@ class UserTableCompanion extends UpdateCompanion<UserRow> {
   final Value<DateTime> createdAt;
   final Value<DateTime?> updatedAt;
   final Value<int> rowid;
-  const UserTableCompanion({
+  const UsersCompanion({
     this.id = const Value.absent(),
     this.email = const Value.absent(),
     this.name = const Value.absent(),
@@ -317,18 +323,17 @@ class UserTableCompanion extends UpdateCompanion<UserRow> {
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  UserTableCompanion.insert({
+  UsersCompanion.insert({
     required String id,
     required String email,
     required String name,
     this.photoUrl = const Value.absent(),
-    required DateTime createdAt,
+    this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        email = Value(email),
-       name = Value(name),
-       createdAt = Value(createdAt);
+       name = Value(name);
   static Insertable<UserRow> custom({
     Expression<String>? id,
     Expression<String>? email,
@@ -349,7 +354,7 @@ class UserTableCompanion extends UpdateCompanion<UserRow> {
     });
   }
 
-  UserTableCompanion copyWith({
+  UsersCompanion copyWith({
     Value<String>? id,
     Value<String>? email,
     Value<String>? name,
@@ -358,7 +363,7 @@ class UserTableCompanion extends UpdateCompanion<UserRow> {
     Value<DateTime?>? updatedAt,
     Value<int>? rowid,
   }) {
-    return UserTableCompanion(
+    return UsersCompanion(
       id: id ?? this.id,
       email: email ?? this.email,
       name: name ?? this.name,
@@ -398,7 +403,7 @@ class UserTableCompanion extends UpdateCompanion<UserRow> {
 
   @override
   String toString() {
-    return (StringBuffer('UserTableCompanion(')
+    return (StringBuffer('UsersCompanion(')
           ..write('id: $id, ')
           ..write('email: $email, ')
           ..write('name: $name, ')
@@ -414,27 +419,27 @@ class UserTableCompanion extends UpdateCompanion<UserRow> {
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
-  late final $UserTableTable userTable = $UserTableTable(this);
+  late final $UsersTable users = $UsersTable(this);
   late final UserDao userDao = UserDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [userTable];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [users];
 }
 
-typedef $$UserTableTableCreateCompanionBuilder =
-    UserTableCompanion Function({
+typedef $$UsersTableCreateCompanionBuilder =
+    UsersCompanion Function({
       required String id,
       required String email,
       required String name,
       Value<String?> photoUrl,
-      required DateTime createdAt,
+      Value<DateTime> createdAt,
       Value<DateTime?> updatedAt,
       Value<int> rowid,
     });
-typedef $$UserTableTableUpdateCompanionBuilder =
-    UserTableCompanion Function({
+typedef $$UsersTableUpdateCompanionBuilder =
+    UsersCompanion Function({
       Value<String> id,
       Value<String> email,
       Value<String> name,
@@ -444,9 +449,8 @@ typedef $$UserTableTableUpdateCompanionBuilder =
       Value<int> rowid,
     });
 
-class $$UserTableTableFilterComposer
-    extends Composer<_$AppDatabase, $UserTableTable> {
-  $$UserTableTableFilterComposer({
+class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
+  $$UsersTableFilterComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -484,9 +488,9 @@ class $$UserTableTableFilterComposer
   );
 }
 
-class $$UserTableTableOrderingComposer
-    extends Composer<_$AppDatabase, $UserTableTable> {
-  $$UserTableTableOrderingComposer({
+class $$UsersTableOrderingComposer
+    extends Composer<_$AppDatabase, $UsersTable> {
+  $$UsersTableOrderingComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -524,9 +528,9 @@ class $$UserTableTableOrderingComposer
   );
 }
 
-class $$UserTableTableAnnotationComposer
-    extends Composer<_$AppDatabase, $UserTableTable> {
-  $$UserTableTableAnnotationComposer({
+class $$UsersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $UsersTable> {
+  $$UsersTableAnnotationComposer({
     required super.$db,
     required super.$table,
     super.joinBuilder,
@@ -552,32 +556,32 @@ class $$UserTableTableAnnotationComposer
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 }
 
-class $$UserTableTableTableManager
+class $$UsersTableTableManager
     extends
         RootTableManager<
           _$AppDatabase,
-          $UserTableTable,
+          $UsersTable,
           UserRow,
-          $$UserTableTableFilterComposer,
-          $$UserTableTableOrderingComposer,
-          $$UserTableTableAnnotationComposer,
-          $$UserTableTableCreateCompanionBuilder,
-          $$UserTableTableUpdateCompanionBuilder,
-          (UserRow, BaseReferences<_$AppDatabase, $UserTableTable, UserRow>),
+          $$UsersTableFilterComposer,
+          $$UsersTableOrderingComposer,
+          $$UsersTableAnnotationComposer,
+          $$UsersTableCreateCompanionBuilder,
+          $$UsersTableUpdateCompanionBuilder,
+          (UserRow, BaseReferences<_$AppDatabase, $UsersTable, UserRow>),
           UserRow,
           PrefetchHooks Function()
         > {
-  $$UserTableTableTableManager(_$AppDatabase db, $UserTableTable table)
+  $$UsersTableTableManager(_$AppDatabase db, $UsersTable table)
     : super(
         TableManagerState(
           db: db,
           table: table,
           createFilteringComposer: () =>
-              $$UserTableTableFilterComposer($db: db, $table: table),
+              $$UsersTableFilterComposer($db: db, $table: table),
           createOrderingComposer: () =>
-              $$UserTableTableOrderingComposer($db: db, $table: table),
+              $$UsersTableOrderingComposer($db: db, $table: table),
           createComputedFieldComposer: () =>
-              $$UserTableTableAnnotationComposer($db: db, $table: table),
+              $$UsersTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
@@ -587,7 +591,7 @@ class $$UserTableTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
-              }) => UserTableCompanion(
+              }) => UsersCompanion(
                 id: id,
                 email: email,
                 name: name,
@@ -602,10 +606,10 @@ class $$UserTableTableTableManager
                 required String email,
                 required String name,
                 Value<String?> photoUrl = const Value.absent(),
-                required DateTime createdAt,
+                Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
-              }) => UserTableCompanion.insert(
+              }) => UsersCompanion.insert(
                 id: id,
                 email: email,
                 name: name,
@@ -622,17 +626,17 @@ class $$UserTableTableTableManager
       );
 }
 
-typedef $$UserTableTableProcessedTableManager =
+typedef $$UsersTableProcessedTableManager =
     ProcessedTableManager<
       _$AppDatabase,
-      $UserTableTable,
+      $UsersTable,
       UserRow,
-      $$UserTableTableFilterComposer,
-      $$UserTableTableOrderingComposer,
-      $$UserTableTableAnnotationComposer,
-      $$UserTableTableCreateCompanionBuilder,
-      $$UserTableTableUpdateCompanionBuilder,
-      (UserRow, BaseReferences<_$AppDatabase, $UserTableTable, UserRow>),
+      $$UsersTableFilterComposer,
+      $$UsersTableOrderingComposer,
+      $$UsersTableAnnotationComposer,
+      $$UsersTableCreateCompanionBuilder,
+      $$UsersTableUpdateCompanionBuilder,
+      (UserRow, BaseReferences<_$AppDatabase, $UsersTable, UserRow>),
       UserRow,
       PrefetchHooks Function()
     >;
@@ -640,6 +644,6 @@ typedef $$UserTableTableProcessedTableManager =
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
-  $$UserTableTableTableManager get userTable =>
-      $$UserTableTableTableManager(_db, _db.userTable);
+  $$UsersTableTableManager get users =>
+      $$UsersTableTableManager(_db, _db.users);
 }

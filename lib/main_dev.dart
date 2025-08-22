@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:gasosa_app/core/di/locator.dart';
 import 'package:gasosa_app/firebase_options_dev.dart';
 import 'package:gasosa_app/flavor.dart';
 import 'package:gasosa_app/presentation/app.dart';
@@ -15,5 +16,6 @@ Future<void> main() async {
     dbName: 'dev_db',
   );
 
+  await setupDI();
   runApp(const GasosaApp());
 }

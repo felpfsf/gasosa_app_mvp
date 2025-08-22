@@ -7,15 +7,19 @@ import 'package:gasosa_app/presentation/app.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  // Flavors
   Flavor.instance = const Flavor(
     name: 'dev',
     dbName: 'dev_db',
   );
 
+  // Inicia a injeção de dependências
   await setupDI();
+  
   runApp(const GasosaApp());
 }

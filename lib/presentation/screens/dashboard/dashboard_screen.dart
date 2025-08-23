@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -5,18 +6,21 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+    final email = user?.email;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dashboard'),
       ),
-      body: const Center(
+      body: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           spacing: 16,
           children: [
-            Text('Dashboard Item 1'),
-            Text('Dashboard Item 2'),
-            Text('Dashboard Item 3'),
+            Text('Welcome, $email!'),
+            const Text('Dashboard Item 1'),
+            const Text('Dashboard Item 2'),
+            const Text('Dashboard Item 3'),
           ],
         ),
       ),

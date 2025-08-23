@@ -13,7 +13,7 @@ class GasosaButton extends StatelessWidget {
     this.backgroundColor,
     this.textColor,
   });
-  
+
   final String label;
   final VoidCallback? onPressed;
   final bool isExpanded;
@@ -26,8 +26,10 @@ class GasosaButton extends StatelessWidget {
     final child = ElevatedButton(
       onPressed: isDisabled ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: backgroundColor ?? AppColors.primary,
-        foregroundColor: textColor ?? AppColors.text,
+        backgroundColor: isDisabled ? AppColors.primary.withValues(alpha: .4) : (backgroundColor ?? AppColors.primary),
+        foregroundColor: isDisabled
+            ? (textColor ?? AppColors.text).withValues(alpha: .4)
+            : (textColor ?? AppColors.text),
         textStyle: AppTypography.textMdBold,
         shape: const RoundedRectangleBorder(borderRadius: AppSpacing.radiusMd),
         padding: const EdgeInsets.symmetric(
@@ -35,7 +37,25 @@ class GasosaButton extends StatelessWidget {
           horizontal: AppSpacing.lg,
         ),
       ),
-      child: Text(label),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: AppSpacing.md,
+        children: [
+          SizedBox(
+            width: 20,
+            height: 20,
+            child: isDisabled
+                ? CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      (textColor ?? AppColors.text).withValues(alpha: .7),
+                    ),
+                  )
+                : null,
+          ),
+          Text(label),
+        ],
+      ),
     );
 
     if (isExpanded) {

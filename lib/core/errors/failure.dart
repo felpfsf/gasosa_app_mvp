@@ -13,6 +13,10 @@ abstract class Failure implements Exception {
   String toString() => '$runtimeType: $message';
 }
 
+class AuthFailure extends Failure {
+  const AuthFailure(super.message, {super.cause, super.stackTrace});
+}
+
 class DatabaseFailure extends Failure {
   const DatabaseFailure(super.message, {super.cause, super.stackTrace});
 }

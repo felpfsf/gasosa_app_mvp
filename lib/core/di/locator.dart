@@ -7,6 +7,7 @@ import 'package:gasosa_app/data/repositories/firebase_auth_repository.dart';
 import 'package:gasosa_app/data/repositories/user_repository_impl.dart';
 import 'package:gasosa_app/domain/auth/auth_repository.dart';
 import 'package:gasosa_app/domain/repositories/user_repository.dart';
+import 'package:gasosa_app/presentation/screens/auth/viewmodel/login_viewmodel.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -64,7 +65,7 @@ void _registerUseCasesAndCommands() {
 
 /// 6 - ViewModels
 void _registerViewModels() {
-  // getIt.registerFactory(() => LoginViewModel(getIt<LoginWithGoogleCommand>()));
+  getIt.registerFactory(() => LoginViewmodel(getIt<LoginWithGoogleCommand>()));
 }
 
 /// Opcionais

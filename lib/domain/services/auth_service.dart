@@ -4,15 +4,17 @@ class AuthUser {
   const AuthUser(
     this.id,
     this.name,
-    this.email,
-  );
+    this.email, {
+    this.photoUrl = '',
+  });
 
   final String id, name, email;
+  final String? photoUrl;
 }
 
 abstract interface class AuthService {
   FResult<AuthUser> register(String name, String email, String password);
   FResult<AuthUser> loginWithEmail(String email, String password);
-  Future<void> logout();
   FResult<AuthUser> loginWithGoogle();
+  FResult<void> logout();
 }

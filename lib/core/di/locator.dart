@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gasosa_app/application/loggin_with_google_command.dart';
 import 'package:gasosa_app/data/local/db/app_database.dart';
-import 'package:gasosa_app/data/repositories/firebase_auth_repository.dart';
 import 'package:gasosa_app/data/repositories/user_repository_impl.dart';
-import 'package:gasosa_app/domain/auth/auth_repository.dart';
 import 'package:gasosa_app/domain/repositories/user_repository.dart';
+import 'package:gasosa_app/domain/services/auth_service.dart';
+import 'package:gasosa_app/domain/services/firebase_auth_service.dart';
 import 'package:gasosa_app/presentation/screens/auth/viewmodel/login_viewmodel.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -40,8 +40,8 @@ Future<void> _registerFirebase() async {
   unawaited(gsi.attemptLightweightAuthentication());
   getIt.registerLazySingleton<GoogleSignIn>(() => gsi);
 
-  getIt.registerLazySingleton<AuthRepository>(
-    () => FirebaseAuthRepository(
+  getIt.registerLazySingleton<AuthService>(
+    () => FirebaseAuthService(
       auth: getIt<FirebaseAuth>(),
       google: getIt<GoogleSignIn>(),
     ),
@@ -60,7 +60,7 @@ void _registerRepositories() {
 
 /// 5 - Use Cases e Commands
 void _registerUseCasesAndCommands() {
-  getIt.registerFactory(() => LoginWithGoogleCommand(getIt<AuthRepository>()));
+  getIt.registerFactory(() => LoginWithGoogleCommand(getIt<AuthService>()));
 }
 
 /// 6 - ViewModels

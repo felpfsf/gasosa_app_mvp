@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/di/locator.dart';
+import 'package:gasosa_app/domain/services/auth_service.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/screens/auth/viewmodel/login_viewmodel.dart';
 import 'package:gasosa_app/presentation/screens/auth/widgets/auth_google_button.dart';
@@ -25,6 +26,9 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordEC = TextEditingController();
   late final LoginViewmodel _viewModel;
 
+  //
+  late final AuthUser _authUser;
+
   @override
   void initState() {
     _viewModel = getIt<LoginViewmodel>();
@@ -37,59 +41,72 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
     if (success) {
-      context.go(RoutePaths.dashboard);
+      context.go(RoutePaths.dashboard, extra: {'email': _authUser.email});
     }
   }
 
+  Future<void> _handleLoginWithEmailPassword() async {}
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: AppSpacing.paddingMd,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                spacing: AppSpacing.lg,
-                children: [
-                  const LogoHero(size: 200),
-                  Text('Entrar no Gasosa', style: AppTypography.titleLg),
-                  AuthGoogleButton(
-                    onPressed: _handleGoogleSignIn,
-                  ),
-                  _buildDivider(),
+    return AnimatedBuilder(
+      animation: _viewModel,
+      builder: (_, __) {
+        final state = _viewModel.state;
+        return Scaffold(
+          body: SafeArea(
+            child: Center(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: AppSpacing.paddingMd,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    spacing: AppSpacing.lg,
+                    children: [
+                      const LogoHero(size: 200),
+                      Text('Entrar no Gasosa', style: AppTypography.titleLg),
+                      AuthGoogleButton(
+                        onPressed: _handleGoogleSignIn,
+                        isLoading: state.isLoading,
+                      ),
+                      _buildDivider(),
 
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      spacing: AppSpacing.lg,
-                      children: [
-                        GasosaFormField(
-                          label: 'Email',
-                          controller: _emailEC,
-                          keyboardType: TextInputType.emailAddress,
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          spacing: AppSpacing.lg,
+                          children: [
+                            GasosaFormField(
+                              label: 'Email',
+                              controller: _emailEC,
+                              keyboardType: TextInputType.emailAddress,
+                            ),
+                            GasosaPasswordField(
+                              label: 'Senha',
+                              controller: _passwordEC,
+                            ),
+                            GasosaButton(
+                              label: state.isLoading ? 'Entrando...' : 'Entrar',
+                              isDisabled: state.isLoading,
+                              onPressed: state.isLoading ? null : _handleLoginWithEmailPassword,
+                            ),
+                          ],
                         ),
-                        GasosaPasswordField(
-                          label: 'Senha',
-                          controller: _passwordEC,
-                        ),
-                        const GasosaButton(label: 'Entrar'),
-                      ],
-                    ),
+                      ),
+                      _linkRow(
+                        'Não tem uma conta? Cadastre-se',
+                        () {
+                          context.go(RoutePaths.register);
+                        },
+                      ),
+                    ],
                   ),
-                  _linkRow(
-                    'Não tem uma conta? Cadastre-se',
-                    () {
-                      context.go(RoutePaths.register);
-                    },
-                  ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -129,5 +146,6 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
     _emailEC.dispose();
     _passwordEC.dispose();
+    _viewModel.dispose();
   }
 }

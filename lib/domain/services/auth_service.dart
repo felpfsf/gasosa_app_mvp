@@ -16,5 +16,6 @@ abstract interface class AuthService {
   FResult<AuthUser> register(String name, String email, String password);
   FResult<AuthUser> loginWithEmail(String email, String password);
   FResult<AuthUser> loginWithGoogle();
+  FResult<Result<void>> linkGoogleAfterPasswordLogin();
   FResult<void> logout();
 }

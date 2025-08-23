@@ -85,6 +85,28 @@ class FirebaseAuthService implements AuthService {
       return left(AuthFailure('Erro inesperado de autenticação', cause: e, stackTrace: s));
     }
   }
+
+  @override
+  FResult<Result<void>> linkGoogleAfterPasswordLogin() async {
+    try {
+      final account = await _google.authenticate(
+        scopeHint: ['email', 'profile', 'openid'],
+      );
+      final idToken = account.authentication.idToken;
+      if (idToken == null || idToken.isEmpty) {
+        return left(const AuthFailure('Sem credenciais do Google'));
+      }
+      final credential = fb.GoogleAuthProvider.credential(idToken: idToken);
+      
+      await fb.FirebaseAuth.instance.currentUser?.linkWithCredential(credential);
+
+      return right(right(null));
+    } on fb.FirebaseAuthException catch (e, s) {
+      return left(_mapFirebaseAuthError(e, s));
+    } catch (e, s) {
+      return left(AuthFailure('Falha ao vincular com o Google', cause: e, stackTrace: s));
+    }
+  }
 }
 
 Failure _mapFirebaseAuthError(fb.FirebaseAuthException e, StackTrace s) {

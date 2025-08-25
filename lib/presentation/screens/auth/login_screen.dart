@@ -25,6 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailEC = TextEditingController();
   final _passwordEC = TextEditingController();
   late final LoginViewmodel _viewModel;
+  final String errorMessage = '';
 
   //
   late final AuthUser _authUser;
@@ -69,6 +70,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: _handleGoogleSignIn,
                         isLoading: state.isLoading,
                       ),
+                      if (_viewModel.state.errorMessage != null)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: Text(
+                            _viewModel.state.errorMessage!,
+                            style: AppTypography.textMdBold.copyWith(color: AppColors.error),
+                          ),
+                        ),
                       _buildDivider(),
 
                       Form(

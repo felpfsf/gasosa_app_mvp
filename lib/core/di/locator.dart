@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gasosa_app/application/loggin_with_google_command.dart';
+import 'package:gasosa_app/application/login_email_password_command.dart';
+import 'package:gasosa_app/application/register_command.dart';
 import 'package:gasosa_app/data/local/db/app_database.dart';
 import 'package:gasosa_app/data/repositories/user_repository_impl.dart';
 import 'package:gasosa_app/domain/repositories/user_repository.dart';
@@ -61,11 +63,18 @@ void _registerRepositories() {
 /// 5 - Use Cases e Commands
 void _registerUseCasesAndCommands() {
   getIt.registerFactory(() => LoginWithGoogleCommand(getIt<AuthService>()));
+  getIt.registerFactory(() => LoginEmailPasswordCommand(auth: getIt<AuthService>()));
+  getIt.registerFactory(() => RegisterCommand(auth: getIt<AuthService>()));
 }
 
 /// 6 - ViewModels
 void _registerViewModels() {
-  getIt.registerFactory(() => LoginViewmodel(getIt<LoginWithGoogleCommand>()));
+  getIt.registerFactory(
+    () => LoginViewmodel(
+      loginGoogle: getIt<LoginWithGoogleCommand>(),
+      loginEmailPassword: getIt<LoginEmailPasswordCommand>(),
+    ),
+  );
 }
 
 /// Opcionais

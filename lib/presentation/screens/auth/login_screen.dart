@@ -8,6 +8,7 @@ import 'package:gasosa_app/presentation/widgets/gasosa_button.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_form_field.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_password_field.dart';
 import 'package:gasosa_app/presentation/widgets/logo_hero.dart';
+import 'package:gasosa_app/presentation/widgets/messages.dart';
 import 'package:gasosa_app/theme/app_colors.dart';
 import 'package:gasosa_app/theme/app_spacing.dart';
 import 'package:gasosa_app/theme/app_typography.dart';
@@ -42,8 +43,8 @@ class _LoginScreenState extends State<LoginScreen> {
       final email = FirebaseAuth.instance.currentUser?.email ?? '';
       context.go(RoutePaths.dashboard, extra: {'email': email});
     } else {
-      final msg = _viewModel.state.errorMessage ?? 'Erro desconhecido';
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      final message = _viewModel.state.errorMessage ?? 'Erro desconhecido';
+      Messages.showWarning(context, message);
     }
   }
 
@@ -62,8 +63,8 @@ class _LoginScreenState extends State<LoginScreen> {
       final email = FirebaseAuth.instance.currentUser?.email ?? '';
       context.go(RoutePaths.dashboard, extra: {'email': email});
     } else {
-      final msg = _viewModel.state.errorMessage ?? 'Erro desconhecido';
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+      final message = _viewModel.state.errorMessage ?? 'Erro desconhecido';
+      Messages.showError(context, message);
     }
   }
 
@@ -89,14 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: state.isLoading ? null : () => _handleGoogleSignIn(),
                         isLoading: state.isLoading,
                       ),
-                      if (_viewModel.state.errorMessage != null)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 16),
-                          child: Text(
-                            _viewModel.state.errorMessage!,
-                            style: AppTypography.textMdBold.copyWith(color: AppColors.error),
-                          ),
-                        ),
+
                       _buildDivider(),
 
                       Form(

@@ -25,9 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailEC = TextEditingController();
   final _passwordEC = TextEditingController();
   late final LoginViewmodel _viewModel;
-  final String errorMessage = '';
 
-  //
   late final AuthUser _authUser;
 
   @override

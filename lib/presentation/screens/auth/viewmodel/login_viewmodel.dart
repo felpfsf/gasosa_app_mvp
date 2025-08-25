@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/application/loggin_with_google_command.dart';
+import 'package:gasosa_app/application/login_email_password_command.dart';
 
 class LoginState {
   const LoginState({
@@ -21,16 +22,21 @@ class LoginState {
     String? password,
   }) => LoginState(
     isLoading: isLoading ?? this.isLoading,
-    errorMessage: errorMessage ?? this.errorMessage,
+    errorMessage: errorMessage,
     email: email ?? this.email,
     password: password ?? this.password,
   );
 }
 
 class LoginViewmodel extends ChangeNotifier {
-  LoginViewmodel(this._loginGoogle);
+  LoginViewmodel({
+    required LoginWithGoogleCommand loginGoogle,
+    required LoginEmailPasswordCommand loginEmailPassword,
+  }) : _loginGoogle = loginGoogle,
+       _loginEmailPassword = loginEmailPassword;
 
   final LoginWithGoogleCommand _loginGoogle;
+  final LoginEmailPasswordCommand _loginEmailPassword;
 
   LoginState _state = const LoginState();
   LoginState get state => _state;
@@ -42,6 +48,17 @@ class LoginViewmodel extends ChangeNotifier {
 
   void _setError(String message) {
     _state = _state.copyWith(isLoading: false, errorMessage: message);
+    notifyListeners();
+  }
+
+  void setEmail(String email) {
+    _state = _state.copyWith(email: email);
+    notifyListeners();
+  }
+
+  void setPassword(String password) {
+    _state = _state.copyWith(password: password);
+    notifyListeners();
   }
 
   Future<bool> googleSignIn() async {
@@ -49,6 +66,7 @@ class LoginViewmodel extends ChangeNotifier {
     final response = await _loginGoogle();
     return response.fold(
       (failure) {
+        _setLoading(false);
         _setError(failure.message);
         return false;
       },
@@ -59,11 +77,19 @@ class LoginViewmodel extends ChangeNotifier {
     );
   }
 
-  void setEmail(String email) {
-    _state = _state.copyWith(email: email);
-  }
-
-  void setPassword(String password) {
-    _state = _state.copyWith(password: password);
+  Future<bool> loginWithEmailPassword() async {
+    _setLoading(true);
+    final response = await _loginEmailPassword(email: _state.email, password: _state.password);
+    return response.fold(
+      (failure) {
+        _setLoading(false);
+        _setError(failure.message);
+        return false;
+      },
+      (_) {
+        _setLoading(false);
+        return true;
+      },
+    );
   }
 }

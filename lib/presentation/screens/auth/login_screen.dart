@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/di/locator.dart';
+import 'package:gasosa_app/core/validators/user_validators.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/screens/auth/viewmodel/login_viewmodel.dart';
 import 'package:gasosa_app/presentation/screens/auth/widgets/auth_google_button.dart';
@@ -13,7 +14,6 @@ import 'package:gasosa_app/theme/app_colors.dart';
 import 'package:gasosa_app/theme/app_spacing.dart';
 import 'package:gasosa_app/theme/app_typography.dart';
 import 'package:go_router/go_router.dart';
-import 'package:validatorless/validatorless.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -102,19 +102,13 @@ class _LoginScreenState extends State<LoginScreen> {
                               label: 'Email',
                               controller: _emailEC,
                               keyboardType: TextInputType.emailAddress,
-                              validator: Validatorless.multiple([
-                                Validatorless.required('Email obrigatório'),
-                                Validatorless.email('Email inválido'),
-                              ]),
+                              validator: UserValidators.email,
                               onChanged: (value) => _viewModel.setEmail(value),
                             ),
                             GasosaPasswordField(
                               label: 'Senha',
                               controller: _passwordEC,
-                              validator: Validatorless.multiple([
-                                Validatorless.required('Senha obrigatória'),
-                                Validatorless.min(6, 'Senha deve ter pelo menos 6 caracteres'),
-                              ]),
+                              validator: UserValidators.password,
                               onChanged: (value) => _viewModel.setPassword(value),
                             ),
                             GasosaButton(

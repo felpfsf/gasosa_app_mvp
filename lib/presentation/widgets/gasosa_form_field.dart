@@ -19,6 +19,7 @@ class GasosaFormField extends StatelessWidget {
     this.enabled = true,
     this.validator,
     this.inputFormatters,
+    this.onChanged,
   });
 
   final String label;
@@ -33,6 +34,7 @@ class GasosaFormField extends StatelessWidget {
   final bool enabled;
   final String? Function(String?)? validator;
   final List<TextInputFormatter>? inputFormatters;
+  final Function(String)? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +44,7 @@ class GasosaFormField extends StatelessWidget {
       children: [
         Text(label, style: AppTypography.textSmBold),
         TextFormField(
+          onChanged: (value) => onChanged?.call(value),
           onTapOutside: (event) => FocusScope.of(context).unfocus(),
           controller: controller,
           keyboardType: keyboardType,

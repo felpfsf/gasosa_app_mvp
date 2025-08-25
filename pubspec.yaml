@@ -33,6 +33,7 @@ dependencies:
   dartz: ^0.10.1
   mockito: ^5.5.0
   validatorless: ^1.2.4
+  top_snackbar_flutter: ^3.3.0
 
 dev_dependencies:
   flutter_test:

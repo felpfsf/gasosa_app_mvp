@@ -25,7 +25,7 @@ class FirebaseAuthService implements AuthService {
     } on fb.FirebaseAuthException catch (e, s) {
       return left(_mapFirebaseAuthError(e, s));
     } catch (e, s) {
-      return left(AuthFailure('Erro inesperado de autenticação ($e): $s', cause: e, stackTrace: s));
+      return left(AuthFailure('Erro inesperado de autenticação', cause: e, stackTrace: s));
     }
   }
 
@@ -97,7 +97,7 @@ class FirebaseAuthService implements AuthService {
         return left(const AuthFailure('Sem credenciais do Google'));
       }
       final credential = fb.GoogleAuthProvider.credential(idToken: idToken);
-      
+
       await fb.FirebaseAuth.instance.currentUser?.linkWithCredential(credential);
 
       return right(right(null));
@@ -134,16 +134,16 @@ Failure _mapFirebaseAuthError(fb.FirebaseAuthException e, StackTrace s) {
 }
 
 Failure _mapGoogleSignInError(GoogleSignInException e, StackTrace s) {
-  final code = e.code.name;
-  final msg = e.description;
+  // final code = e.code.name;
+  // final msg = e.description;
   switch (e.code) {
     case GoogleSignInExceptionCode.canceled:
-      return AuthFailure('Login cancelado pelo usuário ({$code}): $msg', cause: e, stackTrace: s);
+      return AuthFailure('Login cancelado pelo usuário', cause: e, stackTrace: s);
     case GoogleSignInExceptionCode.interrupted:
-      return AuthFailure('Login interrompido. Tente novamente. ({$code}): $msg', cause: e, stackTrace: s);
+      return AuthFailure('Login interrompido. Tente novamente.', cause: e, stackTrace: s);
     case GoogleSignInExceptionCode.uiUnavailable:
-      return AuthFailure('UI de login indisponível. ({$code}): $msg', cause: e, stackTrace: s);
+      return AuthFailure('UI de login indisponível.', cause: e, stackTrace: s);
     default:
-      return AuthFailure('Falha no Google Sign-In ({$code}): $msg', cause: e, stackTrace: s);
+      return AuthFailure('Falha no Google Sign-In', cause: e, stackTrace: s);
   }
 }

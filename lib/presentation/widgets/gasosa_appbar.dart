@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/theme/app_typography.dart';
+import 'package:go_router/go_router.dart';
 
 class GasosaAppbar extends StatelessWidget implements PreferredSizeWidget {
   const GasosaAppbar({
@@ -9,6 +10,7 @@ class GasosaAppbar extends StatelessWidget implements PreferredSizeWidget {
     this.actions,
     this.leading,
     this.showBackButton = false,
+    this.onBackPressed,
   });
 
   final String title;
@@ -16,13 +18,25 @@ class GasosaAppbar extends StatelessWidget implements PreferredSizeWidget {
   final List<Widget>? actions;
   final Widget? leading;
   final bool showBackButton;
+  final VoidCallback? onBackPressed;
 
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      title: Text(title, style: AppTypography.textSmBold),
+      title: Text(title, style: AppTypography.textLgBold),
       centerTitle: centerTitle,
-      leading: showBackButton ? leading ?? BackButton(onPressed: () => Navigator.of(context).pop) : null,
+      leading: showBackButton
+          ? leading ??
+                BackButton(
+                  onPressed:
+                      onBackPressed ??
+                      () {
+                        if (context.canPop()) {
+                          context.pop();
+                        }
+                      },
+                )
+          : null,
       actions: actions,
       elevation: 0,
     );

@@ -8,11 +8,13 @@ class GasosaPasswordField extends StatefulWidget {
     required this.label,
     required this.controller,
     this.validator,
+    this.onChanged,
   });
 
   final String label;
   final TextEditingController controller;
   final String? Function(String?)? validator;
+  final Function(String)? onChanged;
 
   @override
   State<GasosaPasswordField> createState() => _GasosaPasswordFieldState();
@@ -27,6 +29,7 @@ class _GasosaPasswordFieldState extends State<GasosaPasswordField> {
       label: widget.label,
       controller: widget.controller,
       obscureText: _obscureText,
+      onChanged: (value) => widget.onChanged?.call(value),
       validator: widget.validator,
       suffixIcon: IconButton(
         onPressed: () {

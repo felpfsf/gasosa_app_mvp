@@ -37,7 +37,7 @@ Future<void> _registerFirebase() async {
   await gsi.initialize();
 
   // Login silencioso não deve bloquear o app; disparado em background
-  unawaited(gsi.attemptLightweightAuthentication());
+  // unawaited(gsi.attemptLightweightAuthentication());
   getIt.registerLazySingleton<GoogleSignIn>(() => gsi);
 
   getIt.registerLazySingleton<AuthService>(

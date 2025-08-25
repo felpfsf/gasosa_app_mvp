@@ -49,6 +49,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         );
 
     unawaited(playAndNavigate());
+    // _controller.forward();
   }
 
   Future<void> playAndNavigate() async {

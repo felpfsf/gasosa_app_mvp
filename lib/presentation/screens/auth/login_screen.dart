@@ -1,6 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/di/locator.dart';
-import 'package:gasosa_app/domain/services/auth_service.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/screens/auth/viewmodel/login_viewmodel.dart';
 import 'package:gasosa_app/presentation/screens/auth/widgets/auth_google_button.dart';
@@ -12,6 +12,7 @@ import 'package:gasosa_app/theme/app_colors.dart';
 import 'package:gasosa_app/theme/app_spacing.dart';
 import 'package:gasosa_app/theme/app_typography.dart';
 import 'package:go_router/go_router.dart';
+import 'package:validatorless/validatorless.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -26,8 +27,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordEC = TextEditingController();
   late final LoginViewmodel _viewModel;
 
-  late final AuthUser _authUser;
-
   @override
   void initState() {
     _viewModel = getIt<LoginViewmodel>();
@@ -35,16 +34,38 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleGoogleSignIn() async {
-    final success = await _viewModel.googleSignIn();
+    final ok = await _viewModel.googleSignIn();
     if (!mounted) {
       return;
     }
-    if (success) {
-      context.go(RoutePaths.dashboard, extra: {'email': _authUser.email});
+    if (ok) {
+      final email = FirebaseAuth.instance.currentUser?.email ?? '';
+      context.go(RoutePaths.dashboard, extra: {'email': email});
+    } else {
+      final msg = _viewModel.state.errorMessage ?? 'Erro desconhecido';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
     }
   }
 
-  Future<void> _handleLoginWithEmailPassword() async {}
+  Future<void> _handleLoginWithEmalPassword() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    final ok = await _viewModel.loginWithEmailPassword();
+
+    if (!mounted) {
+      return;
+    }
+
+    if (ok) {
+      final email = FirebaseAuth.instance.currentUser?.email ?? '';
+      context.go(RoutePaths.dashboard, extra: {'email': email});
+    } else {
+      final msg = _viewModel.state.errorMessage ?? 'Erro desconhecido';
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const LogoHero(size: 200),
                       Text('Entrar no Gasosa', style: AppTypography.titleLg),
                       AuthGoogleButton(
-                        onPressed: _handleGoogleSignIn,
+                        onPressed: state.isLoading ? null : () => _handleGoogleSignIn(),
                         isLoading: state.isLoading,
                       ),
                       if (_viewModel.state.errorMessage != null)
@@ -87,15 +108,25 @@ class _LoginScreenState extends State<LoginScreen> {
                               label: 'Email',
                               controller: _emailEC,
                               keyboardType: TextInputType.emailAddress,
+                              validator: Validatorless.multiple([
+                                Validatorless.required('Email obrigatório'),
+                                Validatorless.email('Email inválido'),
+                              ]),
+                              onChanged: (value) => _viewModel.setEmail(value),
                             ),
                             GasosaPasswordField(
                               label: 'Senha',
                               controller: _passwordEC,
+                              validator: Validatorless.multiple([
+                                Validatorless.required('Senha obrigatória'),
+                                Validatorless.min(6, 'Senha deve ter pelo menos 6 caracteres'),
+                              ]),
+                              onChanged: (value) => _viewModel.setPassword(value),
                             ),
                             GasosaButton(
                               label: state.isLoading ? 'Entrando...' : 'Entrar',
                               isDisabled: state.isLoading,
-                              onPressed: state.isLoading ? null : _handleLoginWithEmailPassword,
+                              onPressed: state.isLoading ? null : () => _handleLoginWithEmalPassword(),
                             ),
                           ],
                         ),

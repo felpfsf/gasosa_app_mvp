@@ -58,14 +58,6 @@
       },
       "oauth_client": [
         {
-          "client_id": "155550412551-5a06fjm6bqam15ce0u1j2uoef5oq420g.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "dev.etherealcodes.gasosaapp.dev",
-            "certificate_hash": "7b0baba564d3f0ae758d9f4b8b1143c007ee71dd"
-          }
-        },
-        {
           "client_id": "155550412551-nbpuob2r24bt5j0tt5ta3cuupuel8t4j.apps.googleusercontent.com",
           "client_type": 3
         }

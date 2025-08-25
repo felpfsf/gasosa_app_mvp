@@ -133,14 +133,16 @@ Failure _mapFirebaseAuthError(fb.FirebaseAuthException e, StackTrace s) {
 }
 
 Failure _mapGoogleSignInError(GoogleSignInException e, StackTrace s) {
+  final code = e.code.name;
+  final msg = e.description;
   switch (e.code) {
     case GoogleSignInExceptionCode.canceled:
-      return AuthFailure('Login cancelado pelo usuário', cause: e, stackTrace: s);
+      return AuthFailure('Login cancelado pelo usuário ({$code}): $msg', cause: e, stackTrace: s);
     case GoogleSignInExceptionCode.interrupted:
-      return AuthFailure('Login interrompido. Tente novamente.', cause: e, stackTrace: s);
+      return AuthFailure('Login interrompido. Tente novamente. ({$code}): $msg', cause: e, stackTrace: s);
     case GoogleSignInExceptionCode.uiUnavailable:
-      return AuthFailure('UI de login indisponível.', cause: e, stackTrace: s);
+      return AuthFailure('UI de login indisponível. ({$code}): $msg', cause: e, stackTrace: s);
     default:
-      return AuthFailure('Falha no Google Sign-In (${e.code.name})', cause: e, stackTrace: s);
+      return AuthFailure('Falha no Google Sign-In ({$code}): $msg', cause: e, stackTrace: s);
   }
 }

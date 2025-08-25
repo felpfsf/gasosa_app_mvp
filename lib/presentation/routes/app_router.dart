@@ -18,11 +18,11 @@ String? _authGuard(BuildContext context, GoRouterState state) {
     RoutePaths.register,
   };
 
-  if (isAuthenticated && !publicRoutes.contains(loc)) {
+  if (!isAuthenticated && !publicRoutes.contains(loc)) {
     return RoutePaths.login;
   }
 
-  if (isAuthenticated && (loc == RoutePaths.login || loc == RoutePaths.register)) {
+  if (isAuthenticated && (publicRoutes.contains(loc))) {
     return RoutePaths.dashboard;
   }
 

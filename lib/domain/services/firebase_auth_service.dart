@@ -25,7 +25,7 @@ class FirebaseAuthService implements AuthService {
     } on fb.FirebaseAuthException catch (e, s) {
       return left(_mapFirebaseAuthError(e, s));
     } catch (e, s) {
-      return left(AuthFailure('Erro inesperado de autenticação', cause: e, stackTrace: s));
+      return left(AuthFailure('Erro inesperado de autenticação ($e): $s', cause: e, stackTrace: s));
     }
   }
 
@@ -113,6 +113,7 @@ Failure _mapFirebaseAuthError(fb.FirebaseAuthException e, StackTrace s) {
   switch (e.code) {
     case 'user-not-found':
     case 'wrong-password':
+    case 'invalid-credential':
       return AuthFailure('Email ou senha inválidos', cause: e, stackTrace: s);
     case 'email-already-in-use':
       return AuthFailure('Email já está em uso', cause: e, stackTrace: s);

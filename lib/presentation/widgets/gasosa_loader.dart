@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/theme/app_colors.dart';
 import 'package:gasosa_app/theme/app_spacing.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class GasosaLoader {
   static OverlayEntry? _entry;
@@ -64,16 +65,9 @@ class _FullScreenSpinner extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Positioned.fill(child: ModalBarrier(color: AppColors.background.withValues(alpha: 0.25), dismissible: false)),
-        const Center(
-          child: SizedBox(
-            width: 60,
-            height: 60,
-            child: CircularProgressIndicator(
-              strokeWidth: 3,
-              color: AppColors.warning,
-            ),
-          ),
+        Positioned.fill(child: ModalBarrier(color: AppColors.background.withValues(alpha: 0.8), dismissible: false)),
+        Center(
+          child: LoadingAnimationWidget.waveDots(color: AppColors.primary, size: 60),
         ),
       ],
     );

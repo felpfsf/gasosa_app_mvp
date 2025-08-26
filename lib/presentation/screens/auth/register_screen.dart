@@ -7,6 +7,7 @@ import 'package:gasosa_app/presentation/screens/auth/viewmodel/register_viewmode
 import 'package:gasosa_app/presentation/widgets/gasosa_appbar.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_button.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_form_field.dart';
+import 'package:gasosa_app/presentation/widgets/gasosa_loader.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_password_field.dart';
 import 'package:gasosa_app/presentation/widgets/logo_hero.dart';
 import 'package:gasosa_app/presentation/widgets/messages.dart';
@@ -37,22 +38,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _handleRegister() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+    if (!_formKey.currentState!.validate()) return;
+    GasosaLoader.show(context);
+    try {
+      final ok = await _viewModel.register();
 
-    final ok = await _viewModel.register();
+      if (!mounted) return;
 
-    if (!mounted) {
-      return;
-    }
-
-    if (ok) {
-      final email = FirebaseAuth.instance.currentUser?.email ?? '';
-      context.go('/dashboard', extra: {'email': email});
-    } else {
-      final message = _viewModel.state.errorMessage ?? 'Erro desconhecido';
-      Messages.showError(context, message);
+      if (ok) {
+        final email = FirebaseAuth.instance.currentUser?.email ?? '';
+        context.go(RoutePaths.dashboard, extra: {'email': email});
+      } else {
+        final message = _viewModel.state.errorMessage ?? 'Erro desconhecido';
+        Messages.showError(context, message);
+      }
+    } finally {
+      GasosaLoader.hide();
     }
   }
 
@@ -134,5 +135,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _emailEC.dispose();
     _passwordEC.dispose();
     _confirmPasswordEC.dispose();
+    _viewModel.dispose();
   }
 }

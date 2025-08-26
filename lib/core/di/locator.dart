@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gasosa_app/application/loggin_with_google_command.dart';
 import 'package:gasosa_app/application/login_email_password_command.dart';
 import 'package:gasosa_app/application/register_command.dart';
+import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
 import 'package:gasosa_app/data/local/db/app_database.dart';
 import 'package:gasosa_app/data/repositories/user_repository_impl.dart';
 import 'package:gasosa_app/domain/repositories/user_repository.dart';
@@ -29,6 +30,7 @@ Future<void> setupDI() async {
 void _registerCore() {
   // AppConfig, Logger, Analytics...
   // Ex: getI.registerLazySingleton<AppConfig>(() => AppConfig.fromEnv());
+  getIt.registerLazySingleton<LoadingController>(() => LoadingController());
 }
 
 /// 2 - Firebase/Auth
@@ -71,14 +73,16 @@ void _registerUseCasesAndCommands() {
 /// 6 - ViewModels
 void _registerViewModels() {
   getIt.registerFactory(
-    () => LoginViewmodel(
+    () => LoginViewModel(
       loginGoogle: getIt<LoginWithGoogleCommand>(),
       loginEmailPassword: getIt<LoginEmailPasswordCommand>(),
+      loading: getIt<LoadingController>(),
     ),
   );
   getIt.registerFactory(
-    () => RegisterViewmodel(
+    () => RegisterViewModel(
       registerCommand: getIt<RegisterCommand>(),
+      loading: getIt<LoadingController>(),
     ),
   );
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/presentation/routes/app_router.dart';
+import 'package:gasosa_app/presentation/widgets/global_loader_overlay.dart';
 import 'package:gasosa_app/theme/app_theme.dart';
 
 class GasosaApp extends StatelessWidget {
@@ -12,6 +13,7 @@ class GasosaApp extends StatelessWidget {
       theme: AppTheme.dark,
       routerConfig: appRouter,
       debugShowCheckedModeBanner: false,
+      builder: (context, child) => GlobalLoaderOverlay(child: child ?? const SizedBox.shrink()),
     );
   }
 }

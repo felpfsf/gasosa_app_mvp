@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:gasosa_app/application/loggin_with_google_command.dart';
 import 'package:gasosa_app/application/login_email_password_command.dart';
+import 'package:gasosa_app/core/viewmodel/base_viewmodel.dart';
+import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
 
 class LoginState {
   const LoginState({
@@ -28,12 +29,14 @@ class LoginState {
   );
 }
 
-class LoginViewmodel extends ChangeNotifier {
-  LoginViewmodel({
+class LoginViewModel extends BaseViewModel {
+  LoginViewModel({
     required LoginWithGoogleCommand loginGoogle,
     required LoginEmailPasswordCommand loginEmailPassword,
+    required LoadingController loading,
   }) : _loginGoogle = loginGoogle,
-       _loginEmailPassword = loginEmailPassword;
+      _loginEmailPassword = loginEmailPassword,
+      super(loading);
 
   final LoginWithGoogleCommand _loginGoogle;
   final LoginEmailPasswordCommand _loginEmailPassword;
@@ -41,7 +44,8 @@ class LoginViewmodel extends ChangeNotifier {
   LoginState _state = const LoginState();
   LoginState get state => _state;
 
-  void _setLoading(bool value) {
+  @override
+  void setViewLoading({bool value = false}) {
     _state = _state.copyWith(isLoading: value);
     notifyListeners();
   }
@@ -62,34 +66,58 @@ class LoginViewmodel extends ChangeNotifier {
   }
 
   Future<bool> googleSignIn() async {
-    _setLoading(true);
-    final response = await _loginGoogle();
-    return response.fold(
-      (failure) {
-        _setLoading(false);
-        _setError(failure.message);
-        return false;
-      },
-      (_) {
-        _setLoading(false);
-        return true;
-      },
-    );
+    // _setLoading(true);
+    // final response = await _loginGoogle();
+    // return response.fold(
+    //   (failure) {
+    //     _setLoading(false);
+    //     _setError(failure.message);
+    //     return false;
+    //   },
+    //   (_) {
+    //     _setLoading(false);
+    //     return true;
+    //   },
+    // );
+    return track(() async {
+      final response = await _loginGoogle();
+      return response.fold(
+        (failure) {
+          _setError(failure.message);
+          return false;
+        },
+        (_) {
+          return true;
+        },
+      );
+    });
   }
 
   Future<bool> loginWithEmailPassword() async {
-    _setLoading(true);
-    final response = await _loginEmailPassword(email: _state.email, password: _state.password);
-    return response.fold(
-      (failure) {
-        _setLoading(false);
-        _setError(failure.message);
-        return false;
-      },
-      (_) {
-        _setLoading(false);
-        return true;
-      },
-    );
+    // _setLoading(true);
+    // final response = await _loginEmailPassword(email: _state.email, password: _state.password);
+    // return response.fold(
+    //   (failure) {
+    //     _setLoading(false);
+    //     _setError(failure.message);
+    //     return false;
+    //   },
+    //   (_) {
+    //     _setLoading(false);
+    //     return true;
+    //   },
+    // );
+    return track(() async {
+      final response = await _loginEmailPassword(email: _state.email, password: _state.password);
+      return response.fold(
+        (failure) {
+          _setError(failure.message);
+          return false;
+        },
+        (_) {
+          return true;
+        },
+      );
+    });
   }
 }

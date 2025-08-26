@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:gasosa_app/application/register_command.dart';
+import 'package:gasosa_app/core/viewmodel/base_viewmodel.dart';
+import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
 
 class RegisterState {
   const RegisterState({
@@ -29,15 +30,20 @@ class RegisterState {
   );
 }
 
-class RegisterViewmodel extends ChangeNotifier {
-  RegisterViewmodel({required RegisterCommand registerCommand}) : _registerCommand = registerCommand;
+class RegisterViewModel extends BaseViewModel {
+  RegisterViewModel({
+    required RegisterCommand registerCommand,
+    required LoadingController loading,
+  }) : _registerCommand = registerCommand,
+       super(loading);
 
   final RegisterCommand _registerCommand;
 
   RegisterState _state = const RegisterState();
   RegisterState get state => _state;
 
-  void _setLoading(bool value) {
+  @override
+  void setViewLoading({bool value = false}) {
     _state = _state.copyWith(isLoading: value);
     notifyListeners();
   }
@@ -63,17 +69,35 @@ class RegisterViewmodel extends ChangeNotifier {
   }
 
   Future<bool> register() async {
-    _setLoading(true);
-    final response = await _registerCommand(email: _state.email, name: _state.name, password: _state.password);
-    return response.fold(
-      (failure) {
-        _setLoading(false);
-        _setError(failure.message);
-        return false;
-      },
-      (_) {
-        _setLoading(false);
-        return true;
+    // _setLoading(true);
+    // final response = await _registerCommand(email: _state.email, name: _state.name, password: _state.password);
+    // return response.fold(
+    //   (failure) {
+    //     _setLoading(false);
+    //     _setError(failure.message);
+    //     return false;
+    //   },
+    //   (_) {
+    //     _setLoading(false);
+    //     return true;
+    //   },
+    // );
+    return track(
+      () async {
+        final response = await _registerCommand(
+          email: _state.email,
+          name: _state.name,
+          password: _state.password,
+        );
+        return response.fold(
+          (failure) {
+            _setError(failure.message);
+            return false;
+          },
+          (_) {
+            return true;
+          },
+        );
       },
     );
   }

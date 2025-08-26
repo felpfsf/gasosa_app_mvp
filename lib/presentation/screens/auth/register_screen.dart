@@ -7,7 +7,6 @@ import 'package:gasosa_app/presentation/screens/auth/viewmodel/register_viewmode
 import 'package:gasosa_app/presentation/widgets/gasosa_appbar.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_button.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_form_field.dart';
-import 'package:gasosa_app/presentation/widgets/gasosa_loader.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_password_field.dart';
 import 'package:gasosa_app/presentation/widgets/logo_hero.dart';
 import 'package:gasosa_app/presentation/widgets/messages.dart';
@@ -29,32 +28,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _passwordEC = TextEditingController();
   final _confirmPasswordEC = TextEditingController();
 
-  late final RegisterViewmodel _viewModel;
+  late final RegisterViewModel _viewModel;
 
   @override
   void initState() {
     super.initState();
-    _viewModel = getIt<RegisterViewmodel>();
+    _viewModel = getIt<RegisterViewModel>();
   }
 
   Future<void> _handleRegister() async {
     if (_viewModel.state.isLoading) return;
     if (!_formKey.currentState!.validate()) return;
-    GasosaLoader.show(context);
-    try {
-      final ok = await _viewModel.register();
+    final ok = await _viewModel.register();
 
-      if (!mounted) return;
+    if (!mounted) return;
 
-      if (ok) {
-        final email = FirebaseAuth.instance.currentUser?.email ?? '';
-        context.go(RoutePaths.dashboard, extra: {'email': email});
-      } else {
-        final message = _viewModel.state.errorMessage ?? 'Erro desconhecido';
-        Messages.showError(context, message);
-      }
-    } finally {
-      GasosaLoader.hide();
+    if (ok) {
+      final email = FirebaseAuth.instance.currentUser?.email ?? '';
+      context.go(RoutePaths.dashboard, extra: {'email': email});
+    } else {
+      final message = _viewModel.state.errorMessage ?? 'Erro desconhecido';
+      Messages.showError(context, message);
     }
   }
 

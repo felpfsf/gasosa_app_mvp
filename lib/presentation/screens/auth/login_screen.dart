@@ -48,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Future<void> _handleLoginWithEmalPassword() async {
+  Future<void> _handleLoginWithEmailPassword() async {
     if (_viewModel.state.isLoading) return;
     if (!_formKey.currentState!.validate()) return;
 
@@ -109,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             GasosaButton(
                               label: 'Entrar',
                               isDisabled: state.isLoading,
-                              onPressed: state.isLoading ? null : () => _handleLoginWithEmalPassword(),
+                              onPressed: state.isLoading ? null : () => _handleLoginWithEmailPassword(),
                             ),
                           ],
                         ),

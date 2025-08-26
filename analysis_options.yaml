@@ -45,7 +45,7 @@ linter:
   rules:
     # ===== Estilo e consistência =====
     always_declare_return_types: true
-    always_put_control_body_on_new_line: true
+    always_put_control_body_on_new_line: false
     annotate_overrides: true
     prefer_single_quotes: true
     prefer_final_locals: true

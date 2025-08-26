@@ -10,6 +10,7 @@ class GasosaButton extends StatelessWidget {
     this.onPressed,
     this.isExpanded = true,
     this.isDisabled = false,
+    this.isLoading = false,
     this.backgroundColor,
     this.textColor,
   });
@@ -18,16 +19,19 @@ class GasosaButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool isExpanded;
   final bool isDisabled;
+  final bool isLoading;
   final Color? backgroundColor;
   final Color? textColor;
 
   @override
   Widget build(BuildContext context) {
+    final isButtonDisabled = isDisabled || isLoading;
+    
     final child = ElevatedButton(
-      onPressed: isDisabled ? null : onPressed,
+      onPressed: isButtonDisabled ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: isDisabled ? AppColors.primary.withValues(alpha: .4) : (backgroundColor ?? AppColors.primary),
-        foregroundColor: isDisabled
+        backgroundColor: isButtonDisabled ? AppColors.primary.withValues(alpha: .4) : (backgroundColor ?? AppColors.primary),
+        foregroundColor: isButtonDisabled
             ? (textColor ?? AppColors.text).withValues(alpha: .4)
             : (textColor ?? AppColors.text),
         textStyle: AppTypography.textMdBold,
@@ -41,18 +45,17 @@ class GasosaButton extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         spacing: AppSpacing.md,
         children: [
-          SizedBox(
-            width: 20,
-            height: 20,
-            child: isDisabled
-                ? CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      (textColor ?? AppColors.text).withValues(alpha: .7),
-                    ),
-                  )
-                : null,
-          ),
+          if (isLoading)
+            SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  (textColor ?? AppColors.text).withValues(alpha: .7),
+                ),
+              ),
+            ),
           Text(label),
         ],
       ),

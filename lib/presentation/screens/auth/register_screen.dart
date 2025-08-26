@@ -38,6 +38,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _handleRegister() async {
+    if (_viewModel.state.isLoading) return;
     if (!_formKey.currentState!.validate()) return;
     GasosaLoader.show(context);
     try {

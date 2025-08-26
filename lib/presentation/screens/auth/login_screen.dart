@@ -7,7 +7,6 @@ import 'package:gasosa_app/presentation/screens/auth/viewmodel/login_viewmodel.d
 import 'package:gasosa_app/presentation/screens/auth/widgets/auth_google_button.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_button.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_form_field.dart';
-import 'package:gasosa_app/presentation/widgets/gasosa_loader.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_password_field.dart';
 import 'package:gasosa_app/presentation/widgets/logo_hero.dart';
 import 'package:gasosa_app/presentation/widgets/messages.dart';
@@ -27,52 +26,42 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailEC = TextEditingController();
   final _passwordEC = TextEditingController();
-  late final LoginViewmodel _viewModel;
+  late final LoginViewModel _viewModel;
 
   @override
   void initState() {
-    _viewModel = getIt<LoginViewmodel>();
+    _viewModel = getIt<LoginViewModel>();
     super.initState();
   }
 
   Future<void> _handleGoogleSignIn() async {
     if (_viewModel.state.isLoading) return;
-    GasosaLoader.show(context);
-    try {
-      final ok = await _viewModel.googleSignIn();
-      if (!mounted) return;
-      if (ok) {
-        final email = FirebaseAuth.instance.currentUser?.email ?? '';
-        context.go(RoutePaths.dashboard, extra: {'email': email});
-      } else {
-        final message = _viewModel.state.errorMessage ?? 'Erro desconhecido';
-        Messages.showWarning(context, message);
-      }
-    } finally {
-      GasosaLoader.hide();
+
+    final ok = await _viewModel.googleSignIn();
+    if (!mounted) return;
+    if (ok) {
+      final email = FirebaseAuth.instance.currentUser?.email ?? '';
+      context.go(RoutePaths.dashboard, extra: {'email': email});
+    } else {
+      final message = _viewModel.state.errorMessage ?? 'Erro desconhecido';
+      Messages.showWarning(context, message);
     }
   }
 
   Future<void> _handleLoginWithEmalPassword() async {
     if (_viewModel.state.isLoading) return;
     if (!_formKey.currentState!.validate()) return;
-    GasosaLoader.show(context);
-    try {
-      final ok = await _viewModel.loginWithEmailPassword();
 
-      if (!mounted) return;
+    final ok = await _viewModel.loginWithEmailPassword();
 
-      if (ok) {
-        GasosaLoader.hide();
-        final email = FirebaseAuth.instance.currentUser?.email ?? '';
-        context.go(RoutePaths.dashboard, extra: {'email': email});
-      } else {
-        GasosaLoader.hide();
-        final message = _viewModel.state.errorMessage ?? 'Erro desconhecido';
-        Messages.showError(context, message);
-      }
-    } finally {
-      GasosaLoader.hide();
+    if (!mounted) return;
+
+    if (ok) {
+      final email = FirebaseAuth.instance.currentUser?.email ?? '';
+      context.go(RoutePaths.dashboard, extra: {'email': email});
+    } else {
+      final message = _viewModel.state.errorMessage ?? 'Erro desconhecido';
+      Messages.showError(context, message);
     }
   }
 

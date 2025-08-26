@@ -4,6 +4,7 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:gasosa_app/data/local/dao/user_dao.dart';
 import 'package:gasosa_app/data/local/tables/user_table.dart';
+import 'package:gasosa_app/data/local/tables/vehicle_table.dart';
 import 'package:gasosa_app/flavor.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -11,7 +12,7 @@ import 'package:path_provider/path_provider.dart';
 part 'app_database.g.dart';
 
 @DriftDatabase(
-  tables: [Users],
+  tables: [Users, Vehicles],
   daos: [UserDao],
 )
 class AppDatabase extends _$AppDatabase {

@@ -25,7 +25,7 @@ class AuthGoogleButton extends StatelessWidget {
               ),
             )
           : Image.asset('assets/images/google_logo.png', width: 20, height: 20),
-      label: Text(isLoading ? 'Carregando...' : 'Entrar com Google'),
+      label: const Text('Entrar com Google'),
       style: ElevatedButton.styleFrom(
         minimumSize: const Size.fromHeight(48),
         backgroundColor: AppColors.text,

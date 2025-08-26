@@ -6,6 +6,7 @@ import 'package:gasosa_app/presentation/screens/auth/login_screen.dart';
 import 'package:gasosa_app/presentation/screens/auth/register_screen.dart';
 import 'package:gasosa_app/presentation/screens/dashboard/dashboard_screen.dart';
 import 'package:gasosa_app/presentation/screens/splash/splash_screen.dart';
+import 'package:gasosa_app/presentation/screens/vehicle/manage_vehicle_screen.dart';
 import 'package:go_router/go_router.dart';
 
 String? _authGuard(BuildContext context, GoRouterState state) {
@@ -57,6 +58,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: RoutePaths.dashboard,
       builder: (_, __) => const DashboardScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.vehicleManageCreate,
+      builder: (_, __) => const ManageVehicleScreen(),
     ),
   ],
 );

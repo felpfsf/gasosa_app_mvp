@@ -24,6 +24,7 @@ class GlobalLoaderOverlay extends StatelessWidget {
               child: AnimatedOpacity(
                 opacity: visible ? 1 : 0,
                 duration: const Duration(milliseconds: 120),
+                curve: Curves.easeOut,
                 child: Stack(
                   children: [
                     Positioned.fill(child: ModalBarrier(color: AppColors.background.withValues(alpha: 0.8), dismissible: false)),

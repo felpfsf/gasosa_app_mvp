@@ -39,8 +39,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void _goToCreateVehicle() {
-    // context.push(RoutePaths.addVehicle);
+    context.push(RoutePaths.vehicleManageCreate);
   }
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;

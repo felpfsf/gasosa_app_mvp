@@ -36,6 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleGoogleSignIn() async {
+    if (_viewModel.state.isLoading) return;
     GasosaLoader.show(context);
     try {
       final ok = await _viewModel.googleSignIn();
@@ -53,6 +54,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLoginWithEmalPassword() async {
+    if (_viewModel.state.isLoading) return;
     if (!_formKey.currentState!.validate()) return;
     GasosaLoader.show(context);
     try {
@@ -96,9 +98,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: state.isLoading ? null : () => _handleGoogleSignIn(),
                         isLoading: state.isLoading,
                       ),
-
                       _buildDivider(),
-
                       Form(
                         key: _formKey,
                         child: Column(
@@ -118,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               onChanged: (value) => _viewModel.setPassword(value),
                             ),
                             GasosaButton(
-                              label: state.isLoading ? 'Entrando...' : 'Entrar',
+                              label: 'Entrar',
                               isDisabled: state.isLoading,
                               onPressed: state.isLoading ? null : () => _handleLoginWithEmalPassword(),
                             ),

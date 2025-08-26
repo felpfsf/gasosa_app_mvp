@@ -19,6 +19,7 @@ import 'package:gasosa_app/domain/services/firebase_auth_service.dart';
 import 'package:gasosa_app/presentation/screens/auth/viewmodel/login_viewmodel.dart';
 import 'package:gasosa_app/presentation/screens/auth/viewmodel/register_viewmodel.dart';
 import 'package:gasosa_app/presentation/screens/dashboard/viewmodel/dashboard_viewmodel.dart';
+import 'package:gasosa_app/presentation/screens/vehicle/viewmodel/manage_vehicle_viewmodel.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -102,6 +103,15 @@ void _registerViewModels() {
   getIt.registerFactory(
     () => DashboardViewModel(
       loadVehicles: getIt<LoadVehiclesCommand>(),
+      loading: getIt<LoadingController>(),
+    ),
+  );
+
+  getIt.registerFactory(
+    () => ManageVehicleViewModel(
+      saveVehicle: getIt<CreateOrUpdateVehicleCommand>(),
+      deleteVehicle: getIt<DeleteVehicleCommand>(),
+      repository: getIt<VehicleRepository>(),
       loading: getIt<LoadingController>(),
     ),
   );

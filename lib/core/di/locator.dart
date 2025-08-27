@@ -103,6 +103,7 @@ void _registerViewModels() {
   getIt.registerFactory(
     () => DashboardViewModel(
       loadVehicles: getIt<LoadVehiclesCommand>(),
+      deleteVehicle: getIt<DeleteVehicleCommand>(),
       loading: getIt<LoadingController>(),
     ),
   );

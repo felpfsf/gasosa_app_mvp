@@ -18,17 +18,37 @@ class GasosaPhotoPicker extends StatefulWidget {
 }
 
 class _GasosaPhotoPickerState extends State<GasosaPhotoPicker> {
+  File? _localImage;
   final _picker = ImagePicker();
   bool _isPicking = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _localImage = widget.image;
+  }
+
+  @override
+  void didUpdateWidget(covariant GasosaPhotoPicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Sincroniza _localImage com o widget.image sempre que o widget for atualizado
+    if (widget.image?.path != oldWidget.image?.path) {
+      setState(() {
+        _localImage = widget.image;
+      });
+    }
+  }
 
   Future<void> pick(ImageSource source) async {
     if (_isPicking) return;
     setState(() => _isPicking = true);
     try {
-      final pickeFile = await _picker.pickImage(source: source, maxWidth: 1600, maxHeight: 1600, imageQuality: 80);
+      final pickedFile = await _picker.pickImage(source: source, maxWidth: 1600, maxHeight: 1600, imageQuality: 80);
       if (!mounted) return;
-      if (pickeFile != null) {
-        final file = File(pickeFile.path);
+      if (pickedFile != null) {
+        final file = File(pickedFile.path);
+        // Atualiza _localImage imediatamente para preview otimista
+        setState(() => _localImage = file);
         widget.onFileSelected(file);
       }
     } catch (e) {
@@ -40,13 +60,13 @@ class _GasosaPhotoPickerState extends State<GasosaPhotoPicker> {
   }
 
   void _remove() {
+    setState(() => _localImage = null);
     widget.onFileSelected(null);
-    setState(() {});
   }
 
   void _preview() {
-    final image = widget.image;
-    if (image == null) return;
+    final image = _localImage ?? widget.image;
+    if (image == null || !image.existsSync()) return;
     showDialog(
       context: context,
       barrierColor: AppColors.background.withValues(alpha: 0.9),
@@ -85,7 +105,7 @@ class _GasosaPhotoPickerState extends State<GasosaPhotoPicker> {
 
   @override
   Widget build(BuildContext context) {
-    final image = widget.image;
+    final image = _localImage ?? widget.image;
 
     Widget buildPreview() {
       final hasImage = image != null && image.existsSync();
@@ -100,7 +120,12 @@ class _GasosaPhotoPickerState extends State<GasosaPhotoPicker> {
                 child: hasImage
                     ? Hero(
                         tag: image.path,
-                        child: Image.file(image, width: double.infinity, height: 180, fit: BoxFit.cover),
+                        child: Image.file(
+                          image,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          gaplessPlayback: true,
+                        ),
                       )
                     : Container(
                         color: AppColors.surface,

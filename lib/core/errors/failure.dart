@@ -28,3 +28,7 @@ class NotFoundFailure extends Failure {
 class BusinessFailure extends Failure {
   const BusinessFailure(super.message);
 }
+
+class StorageFailure extends Failure {
+  const StorageFailure(super.message, {super.cause, super.stackTrace});
+}

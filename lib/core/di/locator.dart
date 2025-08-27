@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:gasosa_app/application/commands/photos/delete_vehicle_photo_command.dart';
+import 'package:gasosa_app/application/commands/photos/save_vehicle_photo_command.dart';
 import 'package:gasosa_app/application/commands/vehicles/create_or_update_vehicle_command.dart';
 import 'package:gasosa_app/application/commands/vehicles/delete_vehicle_command.dart';
 import 'package:gasosa_app/application/commands/vehicles/load_vehicles_command.dart';
@@ -16,6 +18,8 @@ import 'package:gasosa_app/domain/repositories/vehicle_repository.dart';
 import 'package:gasosa_app/domain/repositories/vehicle_repository_impl.dart';
 import 'package:gasosa_app/domain/services/auth_service.dart';
 import 'package:gasosa_app/domain/services/firebase_auth_service.dart';
+import 'package:gasosa_app/domain/services/local_photo_storage.dart';
+import 'package:gasosa_app/domain/services/local_photo_storage_impl.dart';
 import 'package:gasosa_app/presentation/screens/auth/viewmodel/login_viewmodel.dart';
 import 'package:gasosa_app/presentation/screens/auth/viewmodel/register_viewmodel.dart';
 import 'package:gasosa_app/presentation/screens/dashboard/viewmodel/dashboard_viewmodel.dart';
@@ -32,6 +36,7 @@ Future<void> setupDI() async {
   _registerRepositories();
   _registerUseCasesAndCommands();
   _registerViewModels();
+  _registerPhotoServices();
 }
 
 /// 1 - Core/Config
@@ -110,12 +115,20 @@ void _registerViewModels() {
 
   getIt.registerFactory(
     () => ManageVehicleViewModel(
+      repository: getIt<VehicleRepository>(),
       saveVehicle: getIt<CreateOrUpdateVehicleCommand>(),
       deleteVehicle: getIt<DeleteVehicleCommand>(),
-      repository: getIt<VehicleRepository>(),
+      savePhoto: getIt<SaveVehiclePhotoCommand>(),
+      deletePhoto: getIt<DeleteVehiclePhotoCommand>(),
       loading: getIt<LoadingController>(),
     ),
   );
+}
+
+void _registerPhotoServices() {
+  getIt.registerLazySingleton<LocalPhotoStorage>(() => LocalPhotoStorageImpl());
+  getIt.registerFactory(() => SaveVehiclePhotoCommand(getIt<LocalPhotoStorage>()));
+  getIt.registerFactory(() => DeleteVehiclePhotoCommand(getIt<LocalPhotoStorage>()));
 }
 
 /// Opcionais

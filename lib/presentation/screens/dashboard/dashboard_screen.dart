@@ -13,6 +13,7 @@ import 'package:gasosa_app/theme/app_colors.dart';
 import 'package:gasosa_app/theme/app_spacing.dart';
 import 'package:gasosa_app/theme/app_typography.dart';
 import 'package:go_router/go_router.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -73,12 +74,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
         builder: (_, __) {
           final state = _viewModel.state;
 
-          if (state.vehicles.isEmpty) {
-            return GasosaEmptyStateWidget(
-              title: 'Nenhum veículo cadastrado',
-              message: 'Cadastre seu primeiro veículo para começar a usar o app.',
-              actionLabel: 'Cadastrar veículo',
-              onPressed: _goToCreateVehicle,
+          if (state.isLoading) {
+            return ColoredBox(
+              color: AppColors.background.withValues(alpha: 0.8),
+              child: Center(
+                child: LoadingAnimationWidget.waveDots(color: AppColors.primary, size: 48),
+              ),
             );
           }
 
@@ -86,6 +87,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
             return GasosaErrorStateWidget(
               errorMessage: state.errorMessage!,
               onPressed: _viewModel.retry,
+            );
+          }
+
+          if (state.vehicles.isEmpty) {
+            return GasosaEmptyStateWidget(
+              title: 'Nenhum veículo cadastrado',
+              message: 'Cadastre seu primeiro veículo para começar a usar o app.',
+              actionLabel: 'Cadastrar veículo',
+              onPressed: _goToCreateVehicle,
             );
           }
 
@@ -97,8 +107,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               final vehicle = state.vehicles[index];
               return VehicleCard(
                 vehicle: vehicle,
-                onTap: () => {},
-                onEdit: () => {},
+                onTap: () => {
+                  context.go(RoutePaths.vehicleManageEdit(vehicle.id)),
+                },
+                onEdit: () => {
+                  context.go(RoutePaths.vehicleManageEdit(vehicle.id)),
+                },
                 onDelete: () async {},
                 enableSwipe: true,
               );

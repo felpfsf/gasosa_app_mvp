@@ -43,6 +43,7 @@ class DashboardViewModel extends BaseViewModel {
   DashboardState get state => _state;
 
   StreamSubscription<Either<Failure, List<VehicleEntity>>>? _sub;
+  bool _awaitingFirstEmission = false;
 
   Future<void> init() async {
     final uid = FirebaseAuth.instance.currentUser?.uid;
@@ -50,13 +51,20 @@ class DashboardViewModel extends BaseViewModel {
       _setError('Usuário não autenticado');
       return;
     }
+    _awaitingFirstEmission = true;
+    setViewLoading(value: true);
 
+    await Future.delayed(const Duration(milliseconds: 300));
     _sub = _loadVehicles
         .watchAllByUserId(uid)
         .listen(
           (either) {
+            if (_awaitingFirstEmission) {
+              _awaitingFirstEmission = false;
+              setViewLoading();
+            }
             either.fold(
-              (failure) => _setError(''),
+              (failure) => _setError('Erro ao carregar veículos: ${failure.message}'),
               (vehicles) {
                 _state = _state.copyWith(
                   isLoading: false,
@@ -67,6 +75,10 @@ class DashboardViewModel extends BaseViewModel {
             );
           },
           onError: (err, stack) {
+            if (_awaitingFirstEmission) {
+              _awaitingFirstEmission = false;
+              setViewLoading();
+            }
             _setError('Erro ao carregar veículos $err: $stack');
           },
         );
@@ -74,12 +86,16 @@ class DashboardViewModel extends BaseViewModel {
 
   @override
   void setViewLoading({bool value = false}) {
-    _state = DashboardState(isLoading: value);
+    _state = _state.copyWith(isLoading: value);
     notifyListeners();
   }
 
   void _setError(String message) {
-    _state = DashboardState(errorMessage: message);
+    _state = _state.copyWith(
+      isLoading: false,
+      errorMessage: message.isEmpty ? 'Erro inesperado' : message ,
+      vehicles: [],
+    );
     notifyListeners();
   }
 

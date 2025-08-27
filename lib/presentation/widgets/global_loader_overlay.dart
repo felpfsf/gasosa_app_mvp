@@ -5,43 +5,34 @@ import 'package:gasosa_app/theme/app_colors.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class GlobalLoaderOverlay extends StatelessWidget {
-  const GlobalLoaderOverlay({super.key, required this.child});
+  const GlobalLoaderOverlay({
+    super.key,
+    required this.controller,
+    this.child,
+  });
 
-  final Widget child;
+  final LoadingController controller;
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) {
     final controller = getIt<LoadingController>();
-    return Stack(
-      children: [
-        child,
-        AnimatedBuilder(
-          animation: controller,
-          builder: (_, __) {
-            final visible = controller.isLoading;
-            return IgnorePointer(
-              ignoring: !visible,
-              child: AnimatedOpacity(
-                opacity: visible ? 1 : 0,
-                duration: const Duration(milliseconds: 120),
-                curve: Curves.easeOut,
-                child: Stack(
-                  children: [
-                    Positioned.fill(child: ModalBarrier(color: AppColors.background.withValues(alpha: 0.8), dismissible: false)),
-                    Center(
-                      child: SizedBox(
-                        width: 48,
-                        height: 48,
-                        child: LoadingAnimationWidget.waveDots(color: AppColors.primary, size: 48),
-                      ),
-                    ),
-                  ],
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (_, __) {
+        return Stack(
+          children: [
+            if (child != null) child!,
+            if (controller.visible)
+              ColoredBox(
+                color: AppColors.background.withValues(alpha: 0.8),
+                child: Center(
+                  child: LoadingAnimationWidget.waveDots(color: AppColors.primary, size: 48),
                 ),
               ),
-            );
-          },
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 }

@@ -1,27 +1,18 @@
 import 'package:flutter/material.dart';
 
 class LoadingController extends ChangeNotifier {
-  int _count = 0;
-  bool get isLoading => _count > 0;
+  bool _visible = false;
+  bool get visible => _visible;
 
   void show() {
-    _count++;
+    if (_visible) return;
+    _visible = true;
     notifyListeners();
   }
 
   void hide() {
-    if (_count > 0) {
-      _count--;
-      notifyListeners();
-    }
-  }
-
-  Future<T> track<T>(Future<T> Function() action) async {
-    show();
-    try {
-      return await action();
-    } finally {
-      hide();
-    }
+    if (!_visible) return;
+    _visible = false;
+    notifyListeners();
   }
 }

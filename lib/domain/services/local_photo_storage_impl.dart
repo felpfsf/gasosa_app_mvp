@@ -11,7 +11,7 @@ class LocalPhotoStorageImpl implements LocalPhotoStorage {
   Future<Directory> _ensureDir() async {
     final base = await getApplicationDocumentsDirectory();
     final dir = Directory(p.join(base.path, _folder));
-    if (await dir.exists()) await dir.create(recursive: true);
+    if (!await dir.exists()) await dir.create(recursive: true);
     return dir;
   }
 

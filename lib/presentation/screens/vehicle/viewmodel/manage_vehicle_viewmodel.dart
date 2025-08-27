@@ -92,7 +92,6 @@ class ManageVehicleViewModel extends BaseViewModel {
   Future<void> onPickLocalPhoto(File file) async {
     await track(() async {
       final old = state.photoPath;
-      // oldPath: path anterior para limpar dentro do command
       final response = await _savePhoto(file: file, oldPath: old);
 
       response.fold(
@@ -107,7 +106,6 @@ class ManageVehicleViewModel extends BaseViewModel {
   }
 
   void onRemovePhoto() {
-    // Marca a foto atual para apagar após salvar com sucesso
     _stagedToDeletePhotoPath = state.photoPath;
     _state = _state.copyWith(clearPhotoPath: true);
     notifyListeners();
@@ -198,20 +196,28 @@ class ManageVehicleViewModel extends BaseViewModel {
   }
 
   Future<Either<Failure, Unit>> save() async {
+    _state = _state.copyWith(isLoading: true);
+    notifyListeners();
+
     final entity = _buildEntity();
     final response = await _saveVehicle(entity);
+
     response.fold(_setFailure, (_) {
       _state = _state.copyWith(isLoading: false);
       notifyListeners();
-      // Limpeza pós-commit (não expõe para a UI)
-      final toDelete = _stagedToDeletePhotoPath;
-      if (toDelete != null && toDelete.isNotEmpty) {
-        // best-effort: não deixe falha de IO quebrar a UX
-        _deletePhoto(toDelete).catchError((_) {});
-        _stagedToDeletePhotoPath = null;
-      }
+
+      _cleanupStagedPhoto();
     });
+
     return response;
+  }
+
+  void _cleanupStagedPhoto() {
+    final toDelete = _stagedToDeletePhotoPath;
+    if (toDelete != null && toDelete.isNotEmpty) {
+      _deletePhoto(toDelete).ignore();
+      _stagedToDeletePhotoPath = null;
+    }
   }
 
   Future<Either<Failure, Unit>> delete() async {

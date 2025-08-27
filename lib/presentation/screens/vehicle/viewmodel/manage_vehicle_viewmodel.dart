@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:gasosa_app/application/commands/vehicles/create_or_update_vehicle_command.dart';
 import 'package:gasosa_app/application/commands/vehicles/delete_vehicle_command.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
+import 'package:gasosa_app/core/helpers/uuid.dart';
 import 'package:gasosa_app/core/viewmodel/base_viewmodel.dart';
 import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
 import 'package:gasosa_app/domain/entities/vehicle.dart';
@@ -149,7 +150,7 @@ class ManageVehicleViewModel extends BaseViewModel {
     final isEdit = state.isEdit && state.initial != null;
 
     return VehicleEntity(
-      id: isEdit ? state.initial!.id : UniqueKey().toString(),
+      id: isEdit ? state.initial!.id : UuidHelper.generate(),
       userId: uid,
       name: state.name.trim(),
       plate: state.plate.trim().isEmpty ? null : state.plate.trim(),
@@ -176,6 +177,8 @@ class ManageVehicleViewModel extends BaseViewModel {
       _setFailure(failure);
       return left(failure);
     }
+    _state = _state.copyWith(isLoading: true);
+
     final response = await _deleteVehicle(state.initial!.id);
     response.fold(_setFailure, (_) {
       _state = _state.copyWith(isLoading: false);

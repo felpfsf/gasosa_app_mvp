@@ -74,7 +74,7 @@ class VehicleCard extends StatelessWidget {
     return [
       if (onEdit != null)
         SlidableAction(
-          onPressed: (_) => onEdit,
+          onPressed: (_) => onEdit?.call(),
           backgroundColor: AppColors.surface,
           foregroundColor: AppColors.primary,
           icon: Icons.edit_outlined,
@@ -82,7 +82,7 @@ class VehicleCard extends StatelessWidget {
         ),
       if (onDelete != null)
         SlidableAction(
-          onPressed: (_) => onDelete,
+          onPressed: (_) => onDelete?.call(),
           backgroundColor: AppColors.surface,
           foregroundColor: AppColors.error,
           icon: Icons.delete_outline,

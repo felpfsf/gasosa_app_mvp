@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:gasosa_app/application/commands/vehicles/delete_vehicle_command.dart';
 import 'package:gasosa_app/application/commands/vehicles/load_vehicles_command.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/core/viewmodel/base_viewmodel.dart';
@@ -34,10 +35,13 @@ class DashboardViewModel extends BaseViewModel {
   DashboardViewModel({
     required LoadVehiclesCommand loadVehicles,
     required LoadingController loading,
+    required DeleteVehicleCommand deleteVehicle,
   }) : _loadVehicles = loadVehicles,
+       _deleteVehicle = deleteVehicle,
        super(loading);
 
   final LoadVehiclesCommand _loadVehicles;
+  final DeleteVehicleCommand _deleteVehicle;
 
   DashboardState _state = DashboardState();
   DashboardState get state => _state;
@@ -84,6 +88,14 @@ class DashboardViewModel extends BaseViewModel {
         );
   }
 
+  Future<void> deleteVehicle(String vehicleId) async {
+    final response = await track(() => _deleteVehicle.call(vehicleId));
+    response.fold(
+      (failure) => _setError(failure.message),
+      (_) => {},
+    );
+  }
+
   @override
   void setViewLoading({bool value = false}) {
     _state = _state.copyWith(isLoading: value);
@@ -93,7 +105,7 @@ class DashboardViewModel extends BaseViewModel {
   void _setError(String message) {
     _state = _state.copyWith(
       isLoading: false,
-      errorMessage: message.isEmpty ? 'Erro inesperado' : message ,
+      errorMessage: message.isEmpty ? 'Erro inesperado' : message,
       vehicles: [],
     );
     notifyListeners();

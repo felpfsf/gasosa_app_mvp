@@ -109,8 +109,6 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
                           ],
                         ),
 
-                        Text('photo: ${_viewmodel.state.photoPath ?? ''}'),
-
                         GasosaPhotoPicker(
                           label: 'Foto do Veículo - opcional',
                           image: currentImage,

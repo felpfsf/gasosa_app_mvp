@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
+import 'package:gasosa_app/application/commands/photos/delete_vehicle_photo_command.dart';
+import 'package:gasosa_app/application/commands/photos/save_vehicle_photo_command.dart';
 import 'package:gasosa_app/application/commands/vehicles/create_or_update_vehicle_command.dart';
 import 'package:gasosa_app/application/commands/vehicles/delete_vehicle_command.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
@@ -57,18 +61,25 @@ class ManageVehicleState {
 
 class ManageVehicleViewModel extends BaseViewModel {
   ManageVehicleViewModel({
+    required VehicleRepository repository,
     required CreateOrUpdateVehicleCommand saveVehicle,
     required DeleteVehicleCommand deleteVehicle,
-    required VehicleRepository repository,
+    required SaveVehiclePhotoCommand savePhoto,
+    required DeleteVehiclePhotoCommand deletePhoto,
     required LoadingController loading,
   }) : _saveVehicle = saveVehicle,
        _deleteVehicle = deleteVehicle,
        _repository = repository,
+       _savePhoto = savePhoto,
+       _deletePhoto = deletePhoto,
        super(loading);
+
+  final VehicleRepository _repository;
 
   final CreateOrUpdateVehicleCommand _saveVehicle;
   final DeleteVehicleCommand _deleteVehicle;
-  final VehicleRepository _repository;
+  final SaveVehiclePhotoCommand _savePhoto;
+  final DeleteVehiclePhotoCommand _deletePhoto;
 
   ManageVehicleState _state = const ManageVehicleState();
   ManageVehicleState get state => _state;
@@ -76,6 +87,31 @@ class ManageVehicleViewModel extends BaseViewModel {
   final nameEC = TextEditingController();
   final plateEC = TextEditingController();
   final tankCapacityEC = TextEditingController();
+  String? _stagedToDeletePhotoPath;
+
+  Future<void> onPickLocalPhoto(File file) async {
+    await track(() async {
+      final old = state.photoPath;
+      // oldPath: path anterior para limpar dentro do command
+      final response = await _savePhoto(file: file, oldPath: old);
+
+      response.fold(
+        (failure) => _setFailure(failure),
+        (newPath) async {
+          _stagedToDeletePhotoPath = null;
+          _state = _state.copyWith(photoPath: newPath);
+          notifyListeners();
+        },
+      );
+    });
+  }
+
+  void onRemovePhoto() {
+    // Marca a foto atual para apagar após salvar com sucesso
+    _stagedToDeletePhotoPath = state.photoPath;
+    _state = _state.copyWith(clearPhotoPath: true);
+    notifyListeners();
+  }
 
   Future<void> init({String? vehicleId}) async {
     if (vehicleId != null && vehicleId.isNotEmpty) {
@@ -113,7 +149,7 @@ class ManageVehicleViewModel extends BaseViewModel {
   }
 
   void _setFailure(Failure failure) {
-    _state = _state.copyWith(errorMessage: failure.message);
+    _state = _state.copyWith(isLoading: false, errorMessage: failure.message);
     notifyListeners();
   }
 
@@ -167,6 +203,13 @@ class ManageVehicleViewModel extends BaseViewModel {
     response.fold(_setFailure, (_) {
       _state = _state.copyWith(isLoading: false);
       notifyListeners();
+      // Limpeza pós-commit (não expõe para a UI)
+      final toDelete = _stagedToDeletePhotoPath;
+      if (toDelete != null && toDelete.isNotEmpty) {
+        // best-effort: não deixe falha de IO quebrar a UX
+        _deletePhoto(toDelete).catchError((_) {});
+        _stagedToDeletePhotoPath = null;
+      }
     });
     return response;
   }

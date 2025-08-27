@@ -106,10 +106,18 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
                           ],
                         ),
 
+                        Text('photo: ${_viewmodel.state.photoPath ?? ''}'),
+
                         GasosaPhotoPicker(
                           label: 'Foto do Veículo - opcional',
                           image: currentImage,
-                          onFileSelected: (file) => _viewmodel.updatePhotoPath(file?.path),
+                          onFileSelected: (file) async {
+                            if (file == null) {
+                              _viewmodel.onRemovePhoto();
+                            } else {
+                              await _viewmodel.onPickLocalPhoto(file);
+                            }
+                          },
                         ),
 
                         AppSpacing.gap4,

@@ -63,5 +63,12 @@ final GoRouter appRouter = GoRouter(
       path: RoutePaths.vehicleManageCreate,
       builder: (_, __) => const ManageVehicleScreen(),
     ),
+    GoRoute(
+      path: RoutePaths.vehicleManageEdit(':id'),
+      builder: (context, state) {
+        final vehicleId = state.pathParameters['id']!;
+        return ManageVehicleScreen(vehicleId: vehicleId);
+      },
+    ),
   ],
 );

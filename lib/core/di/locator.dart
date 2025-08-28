@@ -24,6 +24,7 @@ import 'package:gasosa_app/presentation/screens/auth/viewmodel/login_viewmodel.d
 import 'package:gasosa_app/presentation/screens/auth/viewmodel/register_viewmodel.dart';
 import 'package:gasosa_app/presentation/screens/dashboard/viewmodel/dashboard_viewmodel.dart';
 import 'package:gasosa_app/presentation/screens/vehicle/viewmodel/manage_vehicle_viewmodel.dart';
+import 'package:gasosa_app/presentation/screens/vehicle/viewmodel/vehicle_detail_viewmodel.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -120,6 +121,14 @@ void _registerViewModels() {
       deleteVehicle: getIt<DeleteVehicleCommand>(),
       savePhoto: getIt<SaveVehiclePhotoCommand>(),
       deletePhoto: getIt<DeleteVehiclePhotoCommand>(),
+      loading: getIt<LoadingController>(),
+    ),
+  );
+
+  getIt.registerFactory(
+    () => VehicleDetailViewModel(
+      repository: getIt<VehicleRepository>(),
+      delete: getIt<DeleteVehicleCommand>(),
       loading: getIt<LoadingController>(),
     ),
   );

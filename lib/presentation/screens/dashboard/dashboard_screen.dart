@@ -108,7 +108,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               final vehicle = state.vehicles[index];
               return VehicleCard(
                 vehicle: vehicle,
-                onTap: () => context.go(RoutePaths.vehicleManageEdit(vehicle.id)),
+                onTap: () => context.go(RoutePaths.vehicleDetail(vehicle.id)),
                 onEdit: () => context.go(RoutePaths.vehicleManageEdit(vehicle.id)),
                 onDelete: () async {
                   final confirmed = await showDeleteVehicleConfirmDialog(context, vehicleName: vehicle.name);

@@ -90,6 +90,7 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
                           controller: _viewmodel.nameEC,
                           onChanged: _viewmodel.updateName,
                           validator: VehicleValidators.name,
+                          captitalText: TextCapitalization.sentences,
                         ),
                         GasosaFormField(
                           label: 'Placa (opcional)',

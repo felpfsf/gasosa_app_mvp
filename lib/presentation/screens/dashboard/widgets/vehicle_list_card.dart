@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:gasosa_app/domain/entities/vehicle.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_card.dart';
 import 'package:gasosa_app/theme/app_colors.dart';
@@ -15,14 +14,12 @@ class VehicleCard extends StatelessWidget {
     this.onTap,
     this.onEdit,
     this.onDelete,
-    this.enableSwipe = false,
   });
 
   final VehicleEntity vehicle;
   final VoidCallback? onTap;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
-  final bool enableSwipe;
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +32,6 @@ class VehicleCard extends StatelessWidget {
 
     return GasosaCard(
       onTap: onTap,
-      enableSwipeActions: enableSwipe && (onEdit != null || onDelete != null),
-      swipeActions: _buildSwipeActions(context),
       child: Row(
         spacing: AppSpacing.md,
         children: [
@@ -63,32 +58,32 @@ class VehicleCard extends StatelessWidget {
               ],
             ),
           ),
-          const Icon(Icons.chevron_right_rounded, color: AppColors.border),
+
+          Row(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.edit_outlined),
+                tooltip: 'Editar',
+                color: AppColors.text,
+                onPressed: onEdit?.call,
+              ),
+              IconButton(
+                icon: const Icon(Icons.delete_outline),
+                tooltip: 'Excluir',
+                color: AppColors.text,
+                onPressed: onDelete?.call,
+              ),
+              IconButton(
+                icon: const Icon(Icons.chevron_right_rounded),
+                tooltip: 'Ver detalhes',
+                color: AppColors.text,
+                onPressed: onTap,
+              ),
+            ],
+          ),
         ],
       ),
     );
-  }
-
-  List<Widget>? _buildSwipeActions(BuildContext context) {
-    if (!(enableSwipe && (onEdit != null || onDelete != null))) return null;
-    return [
-      if (onEdit != null)
-        SlidableAction(
-          onPressed: (_) => onEdit?.call(),
-          backgroundColor: AppColors.surface,
-          foregroundColor: AppColors.primary,
-          icon: Icons.edit_outlined,
-          label: 'Editar',
-        ),
-      if (onDelete != null)
-        SlidableAction(
-          onPressed: (_) => onDelete?.call(),
-          backgroundColor: AppColors.surface,
-          foregroundColor: AppColors.error,
-          icon: Icons.delete_outline,
-          label: 'Excluir',
-        ),
-    ];
   }
 }
 

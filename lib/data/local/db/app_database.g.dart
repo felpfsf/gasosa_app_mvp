@@ -954,18 +954,6 @@ class $RefuelsTable extends Refuels with TableInfo<$RefuelsTable, RefuelRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
-  @override
-  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
-    'user_id',
-    aliasedName,
-    false,
-    type: DriftSqlType.string,
-    requiredDuringInsert: true,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'REFERENCES users (id)',
-    ),
-  );
   static const VerificationMeta _vehicleIdMeta = const VerificationMeta(
     'vehicleId',
   );
@@ -1082,12 +1070,12 @@ class $RefuelsTable extends Refuels with TableInfo<$RefuelsTable, RefuelRow> {
     requiredDuringInsert: false,
     defaultValue: currentDateAndTime,
   );
-  static const VerificationMeta _updateAtMeta = const VerificationMeta(
-    'updateAt',
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
   );
   @override
-  late final GeneratedColumn<DateTime> updateAt = GeneratedColumn<DateTime>(
-    'update_at',
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
     aliasedName,
     true,
     type: DriftSqlType.dateTime,
@@ -1096,7 +1084,6 @@ class $RefuelsTable extends Refuels with TableInfo<$RefuelsTable, RefuelRow> {
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    userId,
     vehicleId,
     refuelDate,
     fuelType,
@@ -1107,7 +1094,7 @@ class $RefuelsTable extends Refuels with TableInfo<$RefuelsTable, RefuelRow> {
     coldStartValue,
     receiptPath,
     createdAt,
-    updateAt,
+    updatedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1125,14 +1112,6 @@ class $RefuelsTable extends Refuels with TableInfo<$RefuelsTable, RefuelRow> {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     } else if (isInserting) {
       context.missing(_idMeta);
-    }
-    if (data.containsKey('user_id')) {
-      context.handle(
-        _userIdMeta,
-        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
-      );
-    } else if (isInserting) {
-      context.missing(_userIdMeta);
     }
     if (data.containsKey('vehicle_id')) {
       context.handle(
@@ -1215,10 +1194,10 @@ class $RefuelsTable extends Refuels with TableInfo<$RefuelsTable, RefuelRow> {
         createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
       );
     }
-    if (data.containsKey('update_at')) {
+    if (data.containsKey('updated_at')) {
       context.handle(
-        _updateAtMeta,
-        updateAt.isAcceptableOrUnknown(data['update_at']!, _updateAtMeta),
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
       );
     }
     return context;
@@ -1233,10 +1212,6 @@ class $RefuelsTable extends Refuels with TableInfo<$RefuelsTable, RefuelRow> {
       id: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}id'],
-      )!,
-      userId: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}user_id'],
       )!,
       vehicleId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
@@ -1278,9 +1253,9 @@ class $RefuelsTable extends Refuels with TableInfo<$RefuelsTable, RefuelRow> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
       )!,
-      updateAt: attachedDatabase.typeMapping.read(
+      updatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
-        data['${effectivePrefix}update_at'],
+        data['${effectivePrefix}updated_at'],
       ),
     );
   }
@@ -1293,7 +1268,6 @@ class $RefuelsTable extends Refuels with TableInfo<$RefuelsTable, RefuelRow> {
 
 class RefuelRow extends DataClass implements Insertable<RefuelRow> {
   final String id;
-  final String userId;
   final String vehicleId;
   final DateTime refuelDate;
   final String fuelType;
@@ -1304,10 +1278,9 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
   final double? coldStartValue;
   final String? receiptPath;
   final DateTime createdAt;
-  final DateTime? updateAt;
+  final DateTime? updatedAt;
   const RefuelRow({
     required this.id,
-    required this.userId,
     required this.vehicleId,
     required this.refuelDate,
     required this.fuelType,
@@ -1318,13 +1291,12 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
     this.coldStartValue,
     this.receiptPath,
     required this.createdAt,
-    this.updateAt,
+    this.updatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['user_id'] = Variable<String>(userId);
     map['vehicle_id'] = Variable<String>(vehicleId);
     map['refuel_date'] = Variable<DateTime>(refuelDate);
     map['fuel_type'] = Variable<String>(fuelType);
@@ -1341,8 +1313,8 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
       map['receipt_path'] = Variable<String>(receiptPath);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
-    if (!nullToAbsent || updateAt != null) {
-      map['update_at'] = Variable<DateTime>(updateAt);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
     }
     return map;
   }
@@ -1350,7 +1322,6 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
   RefuelsCompanion toCompanion(bool nullToAbsent) {
     return RefuelsCompanion(
       id: Value(id),
-      userId: Value(userId),
       vehicleId: Value(vehicleId),
       refuelDate: Value(refuelDate),
       fuelType: Value(fuelType),
@@ -1367,9 +1338,9 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
           ? const Value.absent()
           : Value(receiptPath),
       createdAt: Value(createdAt),
-      updateAt: updateAt == null && nullToAbsent
+      updatedAt: updatedAt == null && nullToAbsent
           ? const Value.absent()
-          : Value(updateAt),
+          : Value(updatedAt),
     );
   }
 
@@ -1380,7 +1351,6 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return RefuelRow(
       id: serializer.fromJson<String>(json['id']),
-      userId: serializer.fromJson<String>(json['userId']),
       vehicleId: serializer.fromJson<String>(json['vehicleId']),
       refuelDate: serializer.fromJson<DateTime>(json['refuelDate']),
       fuelType: serializer.fromJson<String>(json['fuelType']),
@@ -1391,7 +1361,7 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
       coldStartValue: serializer.fromJson<double?>(json['coldStartValue']),
       receiptPath: serializer.fromJson<String?>(json['receiptPath']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
-      updateAt: serializer.fromJson<DateTime?>(json['updateAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
     );
   }
   @override
@@ -1399,7 +1369,6 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'userId': serializer.toJson<String>(userId),
       'vehicleId': serializer.toJson<String>(vehicleId),
       'refuelDate': serializer.toJson<DateTime>(refuelDate),
       'fuelType': serializer.toJson<String>(fuelType),
@@ -1410,13 +1379,12 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
       'coldStartValue': serializer.toJson<double?>(coldStartValue),
       'receiptPath': serializer.toJson<String?>(receiptPath),
       'createdAt': serializer.toJson<DateTime>(createdAt),
-      'updateAt': serializer.toJson<DateTime?>(updateAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
     };
   }
 
   RefuelRow copyWith({
     String? id,
-    String? userId,
     String? vehicleId,
     DateTime? refuelDate,
     String? fuelType,
@@ -1427,10 +1395,9 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
     Value<double?> coldStartValue = const Value.absent(),
     Value<String?> receiptPath = const Value.absent(),
     DateTime? createdAt,
-    Value<DateTime?> updateAt = const Value.absent(),
+    Value<DateTime?> updatedAt = const Value.absent(),
   }) => RefuelRow(
     id: id ?? this.id,
-    userId: userId ?? this.userId,
     vehicleId: vehicleId ?? this.vehicleId,
     refuelDate: refuelDate ?? this.refuelDate,
     fuelType: fuelType ?? this.fuelType,
@@ -1445,12 +1412,11 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
         : this.coldStartValue,
     receiptPath: receiptPath.present ? receiptPath.value : this.receiptPath,
     createdAt: createdAt ?? this.createdAt,
-    updateAt: updateAt.present ? updateAt.value : this.updateAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
   );
   RefuelRow copyWithCompanion(RefuelsCompanion data) {
     return RefuelRow(
       id: data.id.present ? data.id.value : this.id,
-      userId: data.userId.present ? data.userId.value : this.userId,
       vehicleId: data.vehicleId.present ? data.vehicleId.value : this.vehicleId,
       refuelDate: data.refuelDate.present
           ? data.refuelDate.value
@@ -1471,7 +1437,7 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
           ? data.receiptPath.value
           : this.receiptPath,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
-      updateAt: data.updateAt.present ? data.updateAt.value : this.updateAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
 
@@ -1479,7 +1445,6 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
   String toString() {
     return (StringBuffer('RefuelRow(')
           ..write('id: $id, ')
-          ..write('userId: $userId, ')
           ..write('vehicleId: $vehicleId, ')
           ..write('refuelDate: $refuelDate, ')
           ..write('fuelType: $fuelType, ')
@@ -1490,7 +1455,7 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
           ..write('coldStartValue: $coldStartValue, ')
           ..write('receiptPath: $receiptPath, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updateAt: $updateAt')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
@@ -1498,7 +1463,6 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
   @override
   int get hashCode => Object.hash(
     id,
-    userId,
     vehicleId,
     refuelDate,
     fuelType,
@@ -1509,14 +1473,13 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
     coldStartValue,
     receiptPath,
     createdAt,
-    updateAt,
+    updatedAt,
   );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is RefuelRow &&
           other.id == this.id &&
-          other.userId == this.userId &&
           other.vehicleId == this.vehicleId &&
           other.refuelDate == this.refuelDate &&
           other.fuelType == this.fuelType &&
@@ -1527,12 +1490,11 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
           other.coldStartValue == this.coldStartValue &&
           other.receiptPath == this.receiptPath &&
           other.createdAt == this.createdAt &&
-          other.updateAt == this.updateAt);
+          other.updatedAt == this.updatedAt);
 }
 
 class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
   final Value<String> id;
-  final Value<String> userId;
   final Value<String> vehicleId;
   final Value<DateTime> refuelDate;
   final Value<String> fuelType;
@@ -1543,11 +1505,10 @@ class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
   final Value<double?> coldStartValue;
   final Value<String?> receiptPath;
   final Value<DateTime> createdAt;
-  final Value<DateTime?> updateAt;
+  final Value<DateTime?> updatedAt;
   final Value<int> rowid;
   const RefuelsCompanion({
     this.id = const Value.absent(),
-    this.userId = const Value.absent(),
     this.vehicleId = const Value.absent(),
     this.refuelDate = const Value.absent(),
     this.fuelType = const Value.absent(),
@@ -1558,12 +1519,11 @@ class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
     this.coldStartValue = const Value.absent(),
     this.receiptPath = const Value.absent(),
     this.createdAt = const Value.absent(),
-    this.updateAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   RefuelsCompanion.insert({
     required String id,
-    required String userId,
     required String vehicleId,
     required DateTime refuelDate,
     required String fuelType,
@@ -1574,10 +1534,9 @@ class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
     this.coldStartValue = const Value.absent(),
     this.receiptPath = const Value.absent(),
     this.createdAt = const Value.absent(),
-    this.updateAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
-       userId = Value(userId),
        vehicleId = Value(vehicleId),
        refuelDate = Value(refuelDate),
        fuelType = Value(fuelType),
@@ -1586,7 +1545,6 @@ class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
        liters = Value(liters);
   static Insertable<RefuelRow> custom({
     Expression<String>? id,
-    Expression<String>? userId,
     Expression<String>? vehicleId,
     Expression<DateTime>? refuelDate,
     Expression<String>? fuelType,
@@ -1597,12 +1555,11 @@ class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
     Expression<double>? coldStartValue,
     Expression<String>? receiptPath,
     Expression<DateTime>? createdAt,
-    Expression<DateTime>? updateAt,
+    Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (userId != null) 'user_id': userId,
       if (vehicleId != null) 'vehicle_id': vehicleId,
       if (refuelDate != null) 'refuel_date': refuelDate,
       if (fuelType != null) 'fuel_type': fuelType,
@@ -1613,14 +1570,13 @@ class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
       if (coldStartValue != null) 'cold_start_value': coldStartValue,
       if (receiptPath != null) 'receipt_path': receiptPath,
       if (createdAt != null) 'created_at': createdAt,
-      if (updateAt != null) 'update_at': updateAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
   RefuelsCompanion copyWith({
     Value<String>? id,
-    Value<String>? userId,
     Value<String>? vehicleId,
     Value<DateTime>? refuelDate,
     Value<String>? fuelType,
@@ -1631,12 +1587,11 @@ class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
     Value<double?>? coldStartValue,
     Value<String?>? receiptPath,
     Value<DateTime>? createdAt,
-    Value<DateTime?>? updateAt,
+    Value<DateTime?>? updatedAt,
     Value<int>? rowid,
   }) {
     return RefuelsCompanion(
       id: id ?? this.id,
-      userId: userId ?? this.userId,
       vehicleId: vehicleId ?? this.vehicleId,
       refuelDate: refuelDate ?? this.refuelDate,
       fuelType: fuelType ?? this.fuelType,
@@ -1647,7 +1602,7 @@ class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
       coldStartValue: coldStartValue ?? this.coldStartValue,
       receiptPath: receiptPath ?? this.receiptPath,
       createdAt: createdAt ?? this.createdAt,
-      updateAt: updateAt ?? this.updateAt,
+      updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1657,9 +1612,6 @@ class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<String>(id.value);
-    }
-    if (userId.present) {
-      map['user_id'] = Variable<String>(userId.value);
     }
     if (vehicleId.present) {
       map['vehicle_id'] = Variable<String>(vehicleId.value);
@@ -1691,8 +1643,8 @@ class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
-    if (updateAt.present) {
-      map['update_at'] = Variable<DateTime>(updateAt.value);
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -1704,7 +1656,6 @@ class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
   String toString() {
     return (StringBuffer('RefuelsCompanion(')
           ..write('id: $id, ')
-          ..write('userId: $userId, ')
           ..write('vehicleId: $vehicleId, ')
           ..write('refuelDate: $refuelDate, ')
           ..write('fuelType: $fuelType, ')
@@ -1715,7 +1666,7 @@ class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
           ..write('coldStartValue: $coldStartValue, ')
           ..write('receiptPath: $receiptPath, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updateAt: $updateAt, ')
+          ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1792,25 +1743,6 @@ final class $$UsersTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
-
-  static MultiTypedResultKey<$RefuelsTable, List<RefuelRow>> _refuelsRefsTable(
-    _$AppDatabase db,
-  ) => MultiTypedResultKey.fromTable(
-    db.refuels,
-    aliasName: $_aliasNameGenerator(db.users.id, db.refuels.userId),
-  );
-
-  $$RefuelsTableProcessedTableManager get refuelsRefs {
-    final manager = $$RefuelsTableTableManager(
-      $_db,
-      $_db.refuels,
-    ).filter((f) => f.userId.id.sqlEquals($_itemColumn<String>('id')!));
-
-    final cache = $_typedResult.readTableOrNull(_refuelsRefsTable($_db));
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: cache),
-    );
-  }
 }
 
 class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
@@ -1867,31 +1799,6 @@ class $$UsersTableFilterComposer extends Composer<_$AppDatabase, $UsersTable> {
           }) => $$VehiclesTableFilterComposer(
             $db: $db,
             $table: $db.vehicles,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
-
-  Expression<bool> refuelsRefs(
-    Expression<bool> Function($$RefuelsTableFilterComposer f) f,
-  ) {
-    final $$RefuelsTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.refuels,
-      getReferencedColumn: (t) => t.userId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$RefuelsTableFilterComposer(
-            $db: $db,
-            $table: $db.refuels,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -1993,31 +1900,6 @@ class $$UsersTableAnnotationComposer
     );
     return f(composer);
   }
-
-  Expression<T> refuelsRefs<T extends Object>(
-    Expression<T> Function($$RefuelsTableAnnotationComposer a) f,
-  ) {
-    final $$RefuelsTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.id,
-      referencedTable: $db.refuels,
-      getReferencedColumn: (t) => t.userId,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$RefuelsTableAnnotationComposer(
-            $db: $db,
-            $table: $db.refuels,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return f(composer);
-  }
 }
 
 class $$UsersTableTableManager
@@ -2033,7 +1915,7 @@ class $$UsersTableTableManager
           $$UsersTableUpdateCompanionBuilder,
           (UserRow, $$UsersTableReferences),
           UserRow,
-          PrefetchHooks Function({bool vehiclesRefs, bool refuelsRefs})
+          PrefetchHooks Function({bool vehiclesRefs})
         > {
   $$UsersTableTableManager(_$AppDatabase db, $UsersTable table)
     : super(
@@ -2088,13 +1970,10 @@ class $$UsersTableTableManager
                     (e.readTable(table), $$UsersTableReferences(db, table, e)),
               )
               .toList(),
-          prefetchHooksCallback: ({vehiclesRefs = false, refuelsRefs = false}) {
+          prefetchHooksCallback: ({vehiclesRefs = false}) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [
-                if (vehiclesRefs) db.vehicles,
-                if (refuelsRefs) db.refuels,
-              ],
+              explicitlyWatchedTables: [if (vehiclesRefs) db.vehicles],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
                 return [
@@ -2105,18 +1984,6 @@ class $$UsersTableTableManager
                           ._vehiclesRefsTable(db),
                       managerFromTypedResult: (p0) =>
                           $$UsersTableReferences(db, table, p0).vehiclesRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.userId == item.id),
-                      typedResults: items,
-                    ),
-                  if (refuelsRefs)
-                    await $_getPrefetchedData<UserRow, $UsersTable, RefuelRow>(
-                      currentTable: table,
-                      referencedTable: $$UsersTableReferences._refuelsRefsTable(
-                        db,
-                      ),
-                      managerFromTypedResult: (p0) =>
-                          $$UsersTableReferences(db, table, p0).refuelsRefs,
                       referencedItemsForCurrentItem: (item, referencedItems) =>
                           referencedItems.where((e) => e.userId == item.id),
                       typedResults: items,
@@ -2141,7 +2008,7 @@ typedef $$UsersTableProcessedTableManager =
       $$UsersTableUpdateCompanionBuilder,
       (UserRow, $$UsersTableReferences),
       UserRow,
-      PrefetchHooks Function({bool vehiclesRefs, bool refuelsRefs})
+      PrefetchHooks Function({bool vehiclesRefs})
     >;
 typedef $$VehiclesTableCreateCompanionBuilder =
     VehiclesCompanion Function({
@@ -2608,7 +2475,6 @@ typedef $$VehiclesTableProcessedTableManager =
 typedef $$RefuelsTableCreateCompanionBuilder =
     RefuelsCompanion Function({
       required String id,
-      required String userId,
       required String vehicleId,
       required DateTime refuelDate,
       required String fuelType,
@@ -2619,13 +2485,12 @@ typedef $$RefuelsTableCreateCompanionBuilder =
       Value<double?> coldStartValue,
       Value<String?> receiptPath,
       Value<DateTime> createdAt,
-      Value<DateTime?> updateAt,
+      Value<DateTime?> updatedAt,
       Value<int> rowid,
     });
 typedef $$RefuelsTableUpdateCompanionBuilder =
     RefuelsCompanion Function({
       Value<String> id,
-      Value<String> userId,
       Value<String> vehicleId,
       Value<DateTime> refuelDate,
       Value<String> fuelType,
@@ -2636,31 +2501,13 @@ typedef $$RefuelsTableUpdateCompanionBuilder =
       Value<double?> coldStartValue,
       Value<String?> receiptPath,
       Value<DateTime> createdAt,
-      Value<DateTime?> updateAt,
+      Value<DateTime?> updatedAt,
       Value<int> rowid,
     });
 
 final class $$RefuelsTableReferences
     extends BaseReferences<_$AppDatabase, $RefuelsTable, RefuelRow> {
   $$RefuelsTableReferences(super.$_db, super.$_table, super.$_typedResult);
-
-  static $UsersTable _userIdTable(_$AppDatabase db) => db.users.createAlias(
-    $_aliasNameGenerator(db.refuels.userId, db.users.id),
-  );
-
-  $$UsersTableProcessedTableManager get userId {
-    final $_column = $_itemColumn<String>('user_id')!;
-
-    final manager = $$UsersTableTableManager(
-      $_db,
-      $_db.users,
-    ).filter((f) => f.id.sqlEquals($_column));
-    final item = $_typedResult.readTableOrNull(_userIdTable($_db));
-    if (item == null) return manager;
-    return ProcessedTableManager(
-      manager.$state.copyWith(prefetchedData: [item]),
-    );
-  }
 
   static $VehiclesTable _vehicleIdTable(_$AppDatabase db) => db.vehicles
       .createAlias($_aliasNameGenerator(db.refuels.vehicleId, db.vehicles.id));
@@ -2739,33 +2586,10 @@ class $$RefuelsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get updateAt => $composableBuilder(
-    column: $table.updateAt,
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
     builder: (column) => ColumnFilters(column),
   );
-
-  $$UsersTableFilterComposer get userId {
-    final $$UsersTableFilterComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.userId,
-      referencedTable: $db.users,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$UsersTableFilterComposer(
-            $db: $db,
-            $table: $db.users,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 
   $$VehiclesTableFilterComposer get vehicleId {
     final $$VehiclesTableFilterComposer composer = $composerBuilder(
@@ -2850,33 +2674,10 @@ class $$RefuelsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<DateTime> get updateAt => $composableBuilder(
-    column: $table.updateAt,
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
-
-  $$UsersTableOrderingComposer get userId {
-    final $$UsersTableOrderingComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.userId,
-      referencedTable: $db.users,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$UsersTableOrderingComposer(
-            $db: $db,
-            $table: $db.users,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
 
   $$VehiclesTableOrderingComposer get vehicleId {
     final $$VehiclesTableOrderingComposer composer = $composerBuilder(
@@ -2951,31 +2752,8 @@ class $$RefuelsTableAnnotationComposer
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get updateAt =>
-      $composableBuilder(column: $table.updateAt, builder: (column) => column);
-
-  $$UsersTableAnnotationComposer get userId {
-    final $$UsersTableAnnotationComposer composer = $composerBuilder(
-      composer: this,
-      getCurrentColumn: (t) => t.userId,
-      referencedTable: $db.users,
-      getReferencedColumn: (t) => t.id,
-      builder:
-          (
-            joinBuilder, {
-            $addJoinBuilderToRootComposer,
-            $removeJoinBuilderFromRootComposer,
-          }) => $$UsersTableAnnotationComposer(
-            $db: $db,
-            $table: $db.users,
-            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
-            joinBuilder: joinBuilder,
-            $removeJoinBuilderFromRootComposer:
-                $removeJoinBuilderFromRootComposer,
-          ),
-    );
-    return composer;
-  }
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
   $$VehiclesTableAnnotationComposer get vehicleId {
     final $$VehiclesTableAnnotationComposer composer = $composerBuilder(
@@ -3014,7 +2792,7 @@ class $$RefuelsTableTableManager
           $$RefuelsTableUpdateCompanionBuilder,
           (RefuelRow, $$RefuelsTableReferences),
           RefuelRow,
-          PrefetchHooks Function({bool userId, bool vehicleId})
+          PrefetchHooks Function({bool vehicleId})
         > {
   $$RefuelsTableTableManager(_$AppDatabase db, $RefuelsTable table)
     : super(
@@ -3030,7 +2808,6 @@ class $$RefuelsTableTableManager
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
-                Value<String> userId = const Value.absent(),
                 Value<String> vehicleId = const Value.absent(),
                 Value<DateTime> refuelDate = const Value.absent(),
                 Value<String> fuelType = const Value.absent(),
@@ -3041,11 +2818,10 @@ class $$RefuelsTableTableManager
                 Value<double?> coldStartValue = const Value.absent(),
                 Value<String?> receiptPath = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime?> updateAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RefuelsCompanion(
                 id: id,
-                userId: userId,
                 vehicleId: vehicleId,
                 refuelDate: refuelDate,
                 fuelType: fuelType,
@@ -3056,13 +2832,12 @@ class $$RefuelsTableTableManager
                 coldStartValue: coldStartValue,
                 receiptPath: receiptPath,
                 createdAt: createdAt,
-                updateAt: updateAt,
+                updatedAt: updatedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
               ({
                 required String id,
-                required String userId,
                 required String vehicleId,
                 required DateTime refuelDate,
                 required String fuelType,
@@ -3073,11 +2848,10 @@ class $$RefuelsTableTableManager
                 Value<double?> coldStartValue = const Value.absent(),
                 Value<String?> receiptPath = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
-                Value<DateTime?> updateAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RefuelsCompanion.insert(
                 id: id,
-                userId: userId,
                 vehicleId: vehicleId,
                 refuelDate: refuelDate,
                 fuelType: fuelType,
@@ -3088,7 +2862,7 @@ class $$RefuelsTableTableManager
                 coldStartValue: coldStartValue,
                 receiptPath: receiptPath,
                 createdAt: createdAt,
-                updateAt: updateAt,
+                updatedAt: updatedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -3099,7 +2873,7 @@ class $$RefuelsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({userId = false, vehicleId = false}) {
+          prefetchHooksCallback: ({vehicleId = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [],
@@ -3119,19 +2893,6 @@ class $$RefuelsTableTableManager
                       dynamic
                     >
                   >(state) {
-                    if (userId) {
-                      state =
-                          state.withJoin(
-                                currentTable: table,
-                                currentColumn: table.userId,
-                                referencedTable: $$RefuelsTableReferences
-                                    ._userIdTable(db),
-                                referencedColumn: $$RefuelsTableReferences
-                                    ._userIdTable(db)
-                                    .id,
-                              )
-                              as T;
-                    }
                     if (vehicleId) {
                       state =
                           state.withJoin(
@@ -3169,7 +2930,7 @@ typedef $$RefuelsTableProcessedTableManager =
       $$RefuelsTableUpdateCompanionBuilder,
       (RefuelRow, $$RefuelsTableReferences),
       RefuelRow,
-      PrefetchHooks Function({bool userId, bool vehicleId})
+      PrefetchHooks Function({bool vehicleId})
     >;
 
 class $AppDatabaseManager {

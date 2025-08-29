@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/di/locator.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
+import 'package:gasosa_app/presentation/screens/dashboard/widgets/show_delete_vehicle_confirm_dialog.dart';
 import 'package:gasosa_app/presentation/screens/vehicle/viewmodel/vehicle_detail_viewmodel.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_appbar.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_card.dart';
@@ -31,14 +32,29 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
     _viewModel.init(widget.vehicleId);
   }
 
+  Future<void> _goToEditVehicle() async {
+    context.push(RoutePaths.vehicleManageEdit(widget.vehicleId));
+  }
+
+  Future<void> _deleteVehicle() async {
+    final confirmed = await showDeleteVehicleConfirmDialog(
+      context,
+      vehicleName: _viewModel.state.vehicle?.name,
+    );
+    if (confirmed) {
+      _viewModel.deleteVehicle();
+      if (mounted) context.go(RoutePaths.dashboard);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GasosaAppbar(
         title: 'Detalhes do Veículo',
         actions: [
-          IconButton(tooltip: 'Editar', onPressed: () {}, icon: const Icon(Icons.edit_outlined)),
-          IconButton(tooltip: 'Excluir', onPressed: () {}, icon: const Icon(Icons.delete_outline)),
+          IconButton(tooltip: 'Editar', onPressed: _goToEditVehicle, icon: const Icon(Icons.edit_outlined)),
+          IconButton(tooltip: 'Excluir', onPressed: _deleteVehicle, icon: const Icon(Icons.delete_outline)),
         ],
         onBackPressed: () => context.go(RoutePaths.dashboard),
         showBackButton: true,
@@ -80,13 +96,13 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
             );
           }
 
-            final vehicle = state.vehicle!;
-            final plate = (vehicle.plate ?? '').toUpperCase();
-            final cap = vehicle.tankCapacity?.toStringAsFixed(0) ?? 'N/A';
-            final subtitle = [
+          final vehicle = state.vehicle!;
+          final plate = (vehicle.plate ?? '').toUpperCase();
+          final cap = vehicle.tankCapacity?.toStringAsFixed(0) ?? 'N/A';
+          final subtitle = [
             if (plate.isNotEmpty) 'Placa: $plate',
             'Capacidade do tanque: $cap${vehicle.tankCapacity != null ? ' L' : ''}',
-            ].join(' • ');
+          ].join(' • ');
 
           return ListView(
             padding: AppSpacing.paddingMd,
@@ -112,6 +128,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                   ],
                 ),
               ),
+
               /// Fim Header
               AppSpacing.gap16,
               const GasosaCard(

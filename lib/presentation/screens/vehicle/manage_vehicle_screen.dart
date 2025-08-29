@@ -14,6 +14,7 @@ import 'package:gasosa_app/presentation/widgets/messages.dart';
 import 'package:gasosa_app/theme/app_colors.dart';
 import 'package:gasosa_app/theme/app_spacing.dart';
 import 'package:go_router/go_router.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 
 class ManageVehicleScreen extends StatefulWidget {
   const ManageVehicleScreen({super.key, this.vehicleId});
@@ -90,24 +91,25 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
                           controller: _viewmodel.nameEC,
                           onChanged: _viewmodel.updateName,
                           validator: VehicleValidators.name,
-                          captitalText: TextCapitalization.sentences,
                         ),
                         GasosaFormField(
                           label: 'Placa (opcional)',
                           controller: _viewmodel.plateEC,
                           onChanged: _viewmodel.updatePlate,
-                          validator: VehicleValidators.plate,
+                          validator: (value) {
+                            if (value != null && value.isNotEmpty) {
+                              return VehicleValidators.plate(value);
+                            }
+                            return null;
+                          },
                         ),
                         GasosaFormField(
                           label: 'Capacidade do Tanque (L) — opcional',
                           controller: _viewmodel.tankCapacityEC,
                           onChanged: _viewmodel.updateTankCapacity,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          // inputFormatters aqui (DigitDecimalInputFormatter)
                           validator: VehicleValidators.tankCapacity,
-                          inputFormatters: [
-                            DigitDecimalInputFormatter(),
-                          ],
+                          inputFormatters: [DigitDecimalInputFormatter()],
                         ),
 
                         GasosaPhotoPicker(
@@ -151,7 +153,12 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
               if (s.isLoading)
                 Container(
                   color: Colors.black.withValues(alpha: .08),
-                  child: const Center(child: CircularProgressIndicator()),
+                  child: ColoredBox(
+                    color: AppColors.background.withValues(alpha: 0.8),
+                    child: Center(
+                      child: LoadingAnimationWidget.waveDots(color: AppColors.primary, size: 48),
+                    ),
+                  ),
                 ),
             ],
           );

@@ -9,4 +9,9 @@ abstract interface class RefuelRepository {
   Future<Either<Failure, List<RefuelEntity>>> getAllByVehicleId(String vehicleId);
   Stream<Either<Failure, List<RefuelEntity>>> watchAllByVehicleId(String vehicleId);
   Future<Either<Failure, Unit>> deleteRefuel(String id);
+  Future<Either<Failure, RefuelEntity?>> getPreviousByVehicleId(
+    String vehicleId, {
+    required DateTime createdAt,
+    required int mileage,
+  });
 }

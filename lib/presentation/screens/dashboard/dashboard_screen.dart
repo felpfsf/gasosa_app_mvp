@@ -116,7 +116,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     _viewModel.deleteVehicle(vehicle.id);
                   }
                 },
-                enableSwipe: true,
               );
             },
           );

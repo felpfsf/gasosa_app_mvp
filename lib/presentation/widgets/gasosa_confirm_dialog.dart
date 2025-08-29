@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gasosa_app/theme/app_colors.dart';
 import 'package:gasosa_app/theme/app_spacing.dart';
 import 'package:gasosa_app/theme/app_typography.dart';
 
@@ -31,9 +32,10 @@ class GasosaConfirmDialog extends StatelessWidget {
       actionsPadding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       title: Row(
         spacing: AppSpacing.sm,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(danger ? Icons.warning_amber_rounded : Icons.help_outline_rounded),
-          Expanded(child: Text(title, style: AppTypography.textSmBold)),
+          Icon(danger ? Icons.warning_amber_rounded : Icons.help_outline_rounded, color: AppColors.error.withValues(alpha: 0.8)),
+          Text(title, style: AppTypography.textSmBold.copyWith(color: AppColors.error)),
         ],
       ),
       content: Text(content, style: AppTypography.textSmRegular.copyWith(color: scheme.onSurfaceVariant)),

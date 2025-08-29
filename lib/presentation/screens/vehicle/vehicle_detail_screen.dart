@@ -158,17 +158,81 @@ class _HeaderImage extends StatelessWidget {
     );
     final hasPath = imageUrl != null && imageUrl!.isNotEmpty && File(imageUrl!).existsSync();
 
-    return ClipRRect(
-      borderRadius: radius,
-      child: AspectRatio(
-        aspectRatio: 16 / 9,
-        child: hasPath
-            ? Image.file(File(imageUrl!), fit: BoxFit.cover)
-            : Container(
-                color: AppColors.surface,
-                alignment: Alignment.center,
-                child: const Icon(Icons.directions_car_filled_outlined, size: 64, color: AppColors.primary),
+    void previewImage() {
+      if (!hasPath) return;
+      showDialog(
+        context: context,
+        builder: (context) => Dialog(
+          backgroundColor: AppColors.background,
+          insetPadding: AppSpacing.paddingHorizontalSm,
+          child: Stack(
+            children: [
+              ClipRRect(
+                borderRadius: AppSpacing.radiusMd,
+                child: InteractiveViewer(
+                  minScale: 0.5,
+                  maxScale: 3.0,
+                  child: Hero(
+                    tag: '$imageUrl-vehicle',
+                    child: Image.file(
+                      File(imageUrl!),
+                      fit: BoxFit.contain,
+                      gaplessPlayback: true,
+                    ),
+                  ),
+                ),
               ),
+              Positioned(
+                top: 8,
+                right: 8,
+                child: CircleAvatar(
+                  backgroundColor: AppColors.surface,
+                  child: IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close_outlined, color: AppColors.text),
+                    tooltip: 'Fechar',
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return GestureDetector(
+      onTap: hasPath ? previewImage : null,
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: radius,
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: hasPath
+                  ? Hero(
+                      tag: '$imageUrl-vehicle',
+                      child: Image.file(File(imageUrl!), fit: BoxFit.cover),
+                    )
+                  : Container(
+                      color: AppColors.surface,
+                      alignment: Alignment.center,
+                      child: const Icon(Icons.directions_car_filled_outlined, size: 64, color: AppColors.primary),
+                    ),
+            ),
+          ),
+          if (hasPath)
+            Positioned(
+              top: 8,
+              right: 8,
+              child: CircleAvatar(
+                backgroundColor: AppColors.surface,
+                child: IconButton(
+                  onPressed: hasPath ? previewImage : null,
+                  icon: const Icon(Icons.zoom_in, color: AppColors.text),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

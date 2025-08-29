@@ -4,7 +4,6 @@ import 'package:gasosa_app/core/di/locator.dart';
 import 'package:gasosa_app/domain/services/auth_service.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/screens/dashboard/viewmodel/dashboard_viewmodel.dart';
-import 'package:gasosa_app/presentation/screens/dashboard/widgets/show_delete_vehicle_confirm_dialog.dart';
 import 'package:gasosa_app/presentation/screens/dashboard/widgets/vehicle_list_card.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_appbar.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_avatar.dart';
@@ -109,13 +108,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
               return VehicleCard(
                 vehicle: vehicle,
                 onTap: () => context.go(RoutePaths.vehicleDetail(vehicle.id)),
-                onEdit: () => context.go(RoutePaths.vehicleManageEdit(vehicle.id)),
-                onDelete: () async {
-                  final confirmed = await showDeleteVehicleConfirmDialog(context, vehicleName: vehicle.name);
-                  if (confirmed) {
-                    _viewModel.deleteVehicle(vehicle.id);
-                  }
-                },
+                // onEdit: () => context.go(RoutePaths.vehicleManageEdit(vehicle.id)),
+                // onDelete: () async {
+                //   final confirmed = await showDeleteVehicleConfirmDialog(context, vehicleName: vehicle.name);
+                //   if (confirmed) {
+                //     _viewModel.deleteVehicle(vehicle.id);
+                //   }
+                // },
               );
             },
           );

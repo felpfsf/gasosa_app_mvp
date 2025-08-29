@@ -82,28 +82,36 @@ class VehicleCard extends StatelessWidget {
               ),
             ),
 
-            Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit_outlined),
-                  tooltip: 'Editar',
-                  color: AppColors.text,
-                  onPressed: onEdit?.call,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete_outline),
-                  tooltip: 'Excluir',
-                  color: AppColors.text,
-                  onPressed: onDelete?.call,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.chevron_right_rounded),
-                  tooltip: 'Ver detalhes',
-                  color: AppColors.text,
-                  onPressed: onTap,
-                ),
-              ],
+            IconButton(
+              icon: const Icon(Icons.chevron_right_rounded),
+              tooltip: 'Ver detalhes',
+              color: AppColors.text,
+              onPressed: onTap,
             ),
+
+            /// Action buttons
+            // Row(
+            //   children: [
+            //     IconButton(
+            //       icon: const Icon(Icons.edit_outlined),
+            //       tooltip: 'Editar',
+            //       color: AppColors.text,
+            //       onPressed: onEdit?.call,
+            //     ),
+            //     IconButton(
+            //       icon: const Icon(Icons.delete_outline),
+            //       tooltip: 'Excluir',
+            //       color: AppColors.text,
+            //       onPressed: onDelete?.call,
+            //     ),
+            //     IconButton(
+            //       icon: const Icon(Icons.chevron_right_rounded),
+            //       tooltip: 'Ver detalhes',
+            //       color: AppColors.text,
+            //       onPressed: onTap,
+            //     ),
+            //   ],
+            // ),
           ],
         ),
       ),

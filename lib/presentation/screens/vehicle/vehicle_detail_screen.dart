@@ -229,6 +229,7 @@ class _HeaderImage extends StatelessWidget {
                 child: IconButton(
                   onPressed: hasPath ? previewImage : null,
                   icon: const Icon(Icons.zoom_in, color: AppColors.text),
+                  tooltip: 'Visualizar imagem',
                 ),
               ),
             ),

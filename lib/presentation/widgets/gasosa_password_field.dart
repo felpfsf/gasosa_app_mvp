@@ -37,6 +37,7 @@ class _GasosaPasswordFieldState extends State<GasosaPasswordField> {
         },
         icon: Icon(_obscureText ? Icons.visibility_off : Icons.visibility),
         color: AppColors.text.withValues(alpha: .6),
+        tooltip: _obscureText ? 'Mostrar senha' : 'Ocultar senha',
       ),
     );
   }

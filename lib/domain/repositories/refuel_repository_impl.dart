@@ -71,4 +71,18 @@ class RefuelRepositoryImpl implements RefuelRepository {
           return Stream.value(left<Failure, List<RefuelEntity>>(DatabaseFailure('Stream reabastecimentos falhou: $e')));
         });
   }
+
+  @override
+  Future<Either<Failure, RefuelEntity?>> getPreviousByVehicleId(
+    String vehicleId, {
+    required DateTime createdAt,
+    required int mileage,
+  }) async {
+    try {
+      final result = await _dao.getPreviousByVehicleId(vehicleId, createdAt: createdAt, mileage: mileage);
+      return right(result == null ? null : RefuelMapper.toDomain(result));
+    } catch (e) {
+      return left(DatabaseFailure('Erro ao buscar reabastecimento anterior', cause: e));
+    }
+  }
 }

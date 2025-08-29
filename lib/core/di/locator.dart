@@ -13,9 +13,11 @@ import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
 import 'package:gasosa_app/data/local/dao/vehicle_dao.dart';
 import 'package:gasosa_app/data/local/db/app_database.dart';
 import 'package:gasosa_app/data/repositories/user_repository_impl.dart';
+import 'package:gasosa_app/data/repositories/vehicle_repository_impl.dart';
+import 'package:gasosa_app/domain/repositories/refuel_repository.dart';
+import 'package:gasosa_app/domain/repositories/refuel_repository_impl.dart';
 import 'package:gasosa_app/domain/repositories/user_repository.dart';
 import 'package:gasosa_app/domain/repositories/vehicle_repository.dart';
-import 'package:gasosa_app/domain/repositories/vehicle_repository_impl.dart';
 import 'package:gasosa_app/domain/services/auth_service.dart';
 import 'package:gasosa_app/domain/services/firebase_auth_service.dart';
 import 'package:gasosa_app/domain/services/local_photo_storage.dart';
@@ -77,6 +79,7 @@ void _registerDatabaseAndDaos() {
 void _registerRepositories() {
   getIt.registerLazySingleton<UserRepository>(() => UserRepositoryImpl(getIt()));
   getIt.registerLazySingleton<VehicleRepository>(() => VehicleRepositoryImpl(getIt()));
+  getIt.registerLazySingleton<RefuelRepository>(() => RefuelRepositoryImpl(getIt()));
 }
 
 /// 5 - Use Cases e Commands

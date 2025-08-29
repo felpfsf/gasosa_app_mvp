@@ -31,4 +31,35 @@ class RefuelDao extends DatabaseAccessor<AppDatabase> with _$RefuelDaoMixin {
       (select(refuels)..where((r) => r.vehicleId.equals(vehicleId))).get();
 
   Future<int> deleteById(String id) => (delete(refuels)..where((r) => r.id.equals(id))).go();
+
+  // Future<RefuelRow?> getPreviousByVehicleId(String vehicleId, {required int mileage}) {
+  //   return (select(refuels)
+  //         ..where((r) => r.vehicleId.equals(vehicleId))
+  //         ..where((r) => r.mileage.isBiggerThanValue(mileage))
+  //         ..orderBy([(r) => OrderingTerm.desc(r.createdAt)])
+  //         ..limit(1))
+  //       .getSingleOrNull();
+  // }
+
+  Future<RefuelRow?> getPreviousByVehicleId(
+    String vehicleId, {
+    required DateTime createdAt,
+    required int mileage,
+  }) async {
+    final byMileage =
+        await (select(refuels)
+              ..where((r) => r.vehicleId.equals(vehicleId))
+              ..where((r) => r.mileage.isBiggerThanValue(mileage))
+              ..orderBy([(r) => OrderingTerm.desc(r.createdAt)])
+              ..limit(1))
+            .getSingleOrNull();
+    final byDate =
+        await (select(refuels)
+              ..where((r) => r.vehicleId.equals(vehicleId))
+              ..where((r) => r.createdAt.isSmallerThanValue(createdAt))
+              ..orderBy([(r) => OrderingTerm.desc(r.createdAt)])
+              ..limit(1))
+            .getSingleOrNull();
+    return byMileage ?? byDate;
+  }
 }

@@ -30,58 +30,82 @@ class VehicleCard extends StatelessWidget {
       if (capacity != null) '${capacity.toStringAsFixed(0)} L',
     ].join(' • ');
 
-    return GasosaCard(
-      onTap: onTap,
-      child: Row(
-        spacing: AppSpacing.md,
-        children: [
-          _VehicleThumbnail(vehicle.photoPath),
-          AppSpacing.gap16,
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: AppSpacing.xs,
-              children: [
-                Text(
-                  vehicle.name,
-                  style: AppTypography.textMdBold,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                if (subtitle.isNotEmpty)
+    return Dismissible(
+      key: Key('vehicle_${vehicle.id}'),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: AppSpacing.lg),
+        decoration: BoxDecoration(
+          color: AppColors.error,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: const Icon(
+          Icons.delete_outline,
+          color: Colors.white,
+          size: 24,
+        ),
+      ),
+      confirmDismiss: (direction) async {
+        onDelete?.call();
+        return true;
+      },
+      onDismissed: (direction) {
+        onDelete?.call();
+      },
+      child: GasosaCard(
+        onTap: onTap,
+        child: Row(
+          spacing: AppSpacing.md,
+          children: [
+            _VehicleThumbnail(vehicle.photoPath),
+            AppSpacing.gap16,
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: AppSpacing.xs,
+                children: [
                   Text(
-                    subtitle,
-                    style: AppTypography.textSmRegular.copyWith(color: AppColors.warning),
+                    vehicle.name,
+                    style: AppTypography.textMdBold,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
+                  if (subtitle.isNotEmpty)
+                    Text(
+                      subtitle,
+                      style: AppTypography.textSmRegular.copyWith(color: AppColors.warning),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                ],
+              ),
+            ),
+
+            Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit_outlined),
+                  tooltip: 'Editar',
+                  color: AppColors.text,
+                  onPressed: onEdit?.call,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  tooltip: 'Excluir',
+                  color: AppColors.text,
+                  onPressed: onDelete?.call,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.chevron_right_rounded),
+                  tooltip: 'Ver detalhes',
+                  color: AppColors.text,
+                  onPressed: onTap,
+                ),
               ],
             ),
-          ),
-
-          Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.edit_outlined),
-                tooltip: 'Editar',
-                color: AppColors.text,
-                onPressed: onEdit?.call,
-              ),
-              IconButton(
-                icon: const Icon(Icons.delete_outline),
-                tooltip: 'Excluir',
-                color: AppColors.text,
-                onPressed: onDelete?.call,
-              ),
-              IconButton(
-                icon: const Icon(Icons.chevron_right_rounded),
-                tooltip: 'Ver detalhes',
-                color: AppColors.text,
-                onPressed: onTap,
-              ),
-            ],
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

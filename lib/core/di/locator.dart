@@ -13,7 +13,6 @@ import 'package:gasosa_app/application/commands/refuel/load_refuels_by_vehicle_c
 import 'package:gasosa_app/application/commands/vehicles/create_or_update_vehicle_command.dart';
 import 'package:gasosa_app/application/commands/vehicles/delete_vehicle_command.dart';
 import 'package:gasosa_app/application/commands/vehicles/load_vehicles_command.dart';
-import 'package:gasosa_app/application/commands/vehicles/vehicle_photo_command.dart';
 import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
 import 'package:gasosa_app/data/local/dao/vehicle_dao.dart';
 import 'package:gasosa_app/data/local/db/app_database.dart';
@@ -132,8 +131,8 @@ void _registerViewModels() {
       repository: getIt<VehicleRepository>(),
       saveVehicle: getIt<CreateOrUpdateVehicleCommand>(),
       deleteVehicle: getIt<DeleteVehicleCommand>(),
-      savePhoto: getIt<SaveVehiclePhotoCommand>(),
-      deletePhoto: getIt<DeleteVehiclePhotoCommand>(),
+      savePhoto: getIt<SavePhotoCommand>(),
+      deletePhoto: getIt<DeletePhotoCommand>(),
       loading: getIt<LoadingController>(),
     ),
   );

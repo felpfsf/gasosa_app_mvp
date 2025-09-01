@@ -60,7 +60,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
         showBackButton: true,
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: null,
+        onPressed: () => context.go(RoutePaths.refuelManageCreate),
         icon: const Icon(Icons.local_gas_station_rounded, color: AppColors.text),
         label: Text(
           'Novo abastecimento',

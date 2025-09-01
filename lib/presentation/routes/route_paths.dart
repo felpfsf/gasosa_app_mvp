@@ -7,5 +7,6 @@ class RoutePaths {
   static const vehicleManageCreate = '/vehicle/manage';
   static String vehicleManageEdit(String id) => '/vehicle/$id/manage';
   static String vehicleDetail(String id) => '/vehicle/$id';
-  static String refuelManage(String id) => '/refuel/$id/manage';
+  static const refuelManageCreate = '/refuel/manage';
+  static String refuelManageEdit(String id) => '/refuel/$id/manage';
 }

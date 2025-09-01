@@ -5,9 +5,13 @@ import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/screens/auth/login_screen.dart';
 import 'package:gasosa_app/presentation/screens/auth/register_screen.dart';
 import 'package:gasosa_app/presentation/screens/dashboard/dashboard_screen.dart';
+import 'package:gasosa_app/presentation/screens/refuel/manage_refuel_screen.dart';
 import 'package:gasosa_app/presentation/screens/splash/splash_screen.dart';
 import 'package:gasosa_app/presentation/screens/vehicle/manage_vehicle_screen.dart';
 import 'package:gasosa_app/presentation/screens/vehicle/vehicle_detail_screen.dart';
+import 'package:gasosa_app/theme/app_colors.dart';
+import 'package:gasosa_app/theme/app_spacing.dart';
+import 'package:gasosa_app/theme/app_typography.dart';
 import 'package:go_router/go_router.dart';
 
 String? _authGuard(BuildContext context, GoRouterState state) {
@@ -43,6 +47,24 @@ final GoRouter appRouter = GoRouter(
   initialLocation: RoutePaths.splash,
   refreshListenable: AuthRefreshNotifier(),
   redirect: _authGuard,
+  errorBuilder: (context, state) => Scaffold(
+    body: Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        spacing: AppSpacing.md,
+        children: [
+          const Icon(Icons.error_outline_rounded, size: 64, color: AppColors.error),
+          Text('Página não encontrada', style: AppTypography.titleLg),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () => context.go(RoutePaths.dashboard),
+            child: const Text('Ir para a Dashboard'),
+          ),
+        ],
+      ),
+    ),
+  ),
   routes: [
     GoRoute(
       path: RoutePaths.splash,
@@ -71,6 +93,14 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: RoutePaths.vehicleDetail(':id'),
       builder: (context, state) => VehicleDetailScreen(vehicleId: state.pathParameters['id']!),
+    ),
+    GoRoute(
+      path: RoutePaths.refuelManageCreate,
+      builder: (_, __) => const ManageRefuelScreen(),
+    ),
+    GoRoute(
+      path: RoutePaths.refuelManageEdit(':id'),
+      builder: (context, state) => ManageRefuelScreen(refuelId: state.pathParameters['id']!),
     ),
   ],
 );

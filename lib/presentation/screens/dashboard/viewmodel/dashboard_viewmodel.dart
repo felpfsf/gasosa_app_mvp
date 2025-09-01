@@ -57,8 +57,8 @@ class DashboardViewModel extends BaseViewModel {
     }
     _awaitingFirstEmission = true;
     setViewLoading(value: true);
-    
-    /// TODO: delaying for testing purpose
+
+    // TODO(felipe): delaying for testing purpose
     await Future.delayed(const Duration(milliseconds: 300));
     _sub = _loadVehicles
         .watchAllByUserId(uid)

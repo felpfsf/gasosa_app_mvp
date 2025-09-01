@@ -88,13 +88,13 @@ void _registerRepositories() {
 
 /// 5 - Use Cases e Commands
 void _registerUseCasesAndCommands() {
-  getIt.registerFactory(() => LoginWithGoogleCommand(getIt<AuthService>()));
+  getIt.registerFactory(() => LoginWithGoogleCommand(auth: getIt<AuthService>()));
   getIt.registerFactory(() => LoginEmailPasswordCommand(auth: getIt<AuthService>()));
   getIt.registerFactory(() => RegisterCommand(auth: getIt<AuthService>()));
 
-  getIt.registerFactory(() => CreateOrUpdateVehicleCommand(getIt<VehicleRepository>()));
-  getIt.registerFactory(() => LoadVehiclesCommand(getIt<VehicleRepository>()));
-  getIt.registerFactory(() => DeleteVehicleCommand(getIt<VehicleRepository>()));
+  getIt.registerFactory(() => CreateOrUpdateVehicleCommand(repository: getIt<VehicleRepository>()));
+  getIt.registerFactory(() => LoadVehiclesCommand(repository: getIt<VehicleRepository>()));
+  getIt.registerFactory(() => DeleteVehicleCommand(repository: getIt<VehicleRepository>()));
 
   getIt.registerFactory(() => CreateOrUpdateRefuelCommand(repository: getIt<RefuelRepository>()));
   getIt.registerFactory(() => LoadRefuelsByVehicleCommand(repository: getIt<RefuelRepository>()));

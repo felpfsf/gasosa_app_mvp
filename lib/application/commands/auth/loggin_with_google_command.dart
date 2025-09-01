@@ -3,7 +3,7 @@ import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/domain/services/auth_service.dart';
 
 class LoginWithGoogleCommand {
-  LoginWithGoogleCommand(this._auth);
+  LoginWithGoogleCommand({required AuthService auth}) : _auth = auth;
 
   final AuthService _auth;
 

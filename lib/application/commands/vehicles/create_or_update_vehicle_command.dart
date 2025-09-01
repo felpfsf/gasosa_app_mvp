@@ -4,7 +4,7 @@ import 'package:gasosa_app/domain/entities/vehicle.dart';
 import 'package:gasosa_app/domain/repositories/vehicle_repository.dart';
 
 class CreateOrUpdateVehicleCommand {
-  CreateOrUpdateVehicleCommand(this._repository);
+  CreateOrUpdateVehicleCommand({required VehicleRepository repository}) : _repository = repository;
 
   final VehicleRepository _repository;
 

@@ -3,7 +3,7 @@ import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/domain/repositories/vehicle_repository.dart';
 
 class DeleteVehicleCommand {
-  DeleteVehicleCommand(this._repository);
+  DeleteVehicleCommand({required VehicleRepository repository}) : _repository = repository;
 
   final VehicleRepository _repository;
 

@@ -4,7 +4,8 @@ import 'package:gasosa_app/domain/entities/vehicle.dart';
 import 'package:gasosa_app/domain/repositories/vehicle_repository.dart';
 
 class LoadVehiclesCommand {
-  LoadVehiclesCommand(this._repository);
+  LoadVehiclesCommand({required VehicleRepository repository}) : _repository = repository;
+  
   final VehicleRepository _repository;
 
   Stream<Either<Failure, List<VehicleEntity>>> watchAllByUserId(String userId) => _repository.watchAllByUserId(userId);

@@ -1,14 +1,18 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:gasosa_app/application/commands/photos/delete_vehicle_photo_command.dart';
-import 'package:gasosa_app/application/commands/photos/save_vehicle_photo_command.dart';
-import 'package:gasosa_app/application/commands/vehicles/create_or_update_vehicle_command.dart';
-import 'package:gasosa_app/application/commands/vehicles/delete_vehicle_command.dart';
-import 'package:gasosa_app/application/commands/vehicles/load_vehicles_command.dart';
 import 'package:gasosa_app/application/commands/auth/loggin_with_google_command.dart';
 import 'package:gasosa_app/application/commands/auth/login_email_password_command.dart';
 import 'package:gasosa_app/application/commands/auth/register_command.dart';
+import 'package:gasosa_app/application/commands/photos/delete_vehicle_photo_command.dart';
+import 'package:gasosa_app/application/commands/photos/save_vehicle_photo_command.dart';
+import 'package:gasosa_app/application/commands/refuel/calculate_consumption_command.dart';
+import 'package:gasosa_app/application/commands/refuel/create_or_update_refuel_command.dart';
+import 'package:gasosa_app/application/commands/refuel/delete_refuel_command.dart';
+import 'package:gasosa_app/application/commands/refuel/load_refuels_by_vehicle_command.dart';
+import 'package:gasosa_app/application/commands/vehicles/create_or_update_vehicle_command.dart';
+import 'package:gasosa_app/application/commands/vehicles/delete_vehicle_command.dart';
+import 'package:gasosa_app/application/commands/vehicles/load_vehicles_command.dart';
 import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
 import 'package:gasosa_app/data/local/dao/vehicle_dao.dart';
 import 'package:gasosa_app/data/local/db/app_database.dart';
@@ -91,6 +95,11 @@ void _registerUseCasesAndCommands() {
   getIt.registerFactory(() => CreateOrUpdateVehicleCommand(getIt<VehicleRepository>()));
   getIt.registerFactory(() => LoadVehiclesCommand(getIt<VehicleRepository>()));
   getIt.registerFactory(() => DeleteVehicleCommand(getIt<VehicleRepository>()));
+
+  getIt.registerFactory(() => CreateOrUpdateRefuelCommand(repository: getIt<RefuelRepository>()));
+  getIt.registerFactory(() => LoadRefuelsByVehicleCommand(repository: getIt<RefuelRepository>()));
+  getIt.registerFactory(() => DeleteRefuelCommand(repository: getIt<RefuelRepository>()));
+  getIt.registerFactory(() => CalculateConsumptionCommand(repository: getIt<RefuelRepository>()));
 }
 
 /// 6 - ViewModels

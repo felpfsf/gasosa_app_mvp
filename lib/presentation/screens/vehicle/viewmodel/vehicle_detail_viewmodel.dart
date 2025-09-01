@@ -47,7 +47,8 @@ class VehicleDetailViewModel extends BaseViewModel {
   Future<void> init(String vehicleId) async {
     setViewLoading(value: true);
     final response = await _repository.getVehicleById(vehicleId);
-    /// TODO: delaying for testing purpose
+    
+    // TODO(felipe): delaying for testing purpose
     await Future.delayed(const Duration(milliseconds: 500));
     response.fold(
       (failure) {

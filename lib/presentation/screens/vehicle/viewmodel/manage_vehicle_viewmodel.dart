@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/widgets.dart';
-import 'package:gasosa_app/application/commands/photos/delete_vehicle_photo_command.dart';
-import 'package:gasosa_app/application/commands/photos/save_vehicle_photo_command.dart';
+import 'package:gasosa_app/application/commands/photos/delete_photo_command.dart';
+import 'package:gasosa_app/application/commands/photos/save_photo_command.dart';
 import 'package:gasosa_app/application/commands/vehicles/create_or_update_vehicle_command.dart';
 import 'package:gasosa_app/application/commands/vehicles/delete_vehicle_command.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
@@ -64,8 +64,8 @@ class ManageVehicleViewModel extends BaseViewModel {
     required VehicleRepository repository,
     required CreateOrUpdateVehicleCommand saveVehicle,
     required DeleteVehicleCommand deleteVehicle,
-    required SaveVehiclePhotoCommand savePhoto,
-    required DeleteVehiclePhotoCommand deletePhoto,
+    required SavePhotoCommand savePhoto,
+    required DeletePhotoCommand deletePhoto,
     required LoadingController loading,
   }) : _saveVehicle = saveVehicle,
        _deleteVehicle = deleteVehicle,
@@ -78,8 +78,8 @@ class ManageVehicleViewModel extends BaseViewModel {
 
   final CreateOrUpdateVehicleCommand _saveVehicle;
   final DeleteVehicleCommand _deleteVehicle;
-  final SaveVehiclePhotoCommand _savePhoto;
-  final DeleteVehiclePhotoCommand _deletePhoto;
+  final SavePhotoCommand _savePhoto;
+  final DeletePhotoCommand _deletePhoto;
 
   ManageVehicleState _state = const ManageVehicleState();
   ManageVehicleState get state => _state;

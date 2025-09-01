@@ -4,8 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:gasosa_app/application/commands/auth/loggin_with_google_command.dart';
 import 'package:gasosa_app/application/commands/auth/login_email_password_command.dart';
 import 'package:gasosa_app/application/commands/auth/register_command.dart';
-import 'package:gasosa_app/application/commands/photos/delete_vehicle_photo_command.dart';
-import 'package:gasosa_app/application/commands/photos/save_vehicle_photo_command.dart';
+import 'package:gasosa_app/application/commands/photos/delete_photo_command.dart';
+import 'package:gasosa_app/application/commands/photos/save_photo_command.dart';
 import 'package:gasosa_app/application/commands/refuel/calculate_consumption_command.dart';
 import 'package:gasosa_app/application/commands/refuel/create_or_update_refuel_command.dart';
 import 'package:gasosa_app/application/commands/refuel/delete_refuel_command.dart';
@@ -13,6 +13,7 @@ import 'package:gasosa_app/application/commands/refuel/load_refuels_by_vehicle_c
 import 'package:gasosa_app/application/commands/vehicles/create_or_update_vehicle_command.dart';
 import 'package:gasosa_app/application/commands/vehicles/delete_vehicle_command.dart';
 import 'package:gasosa_app/application/commands/vehicles/load_vehicles_command.dart';
+import 'package:gasosa_app/application/commands/vehicles/vehicle_photo_command.dart';
 import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
 import 'package:gasosa_app/data/local/dao/vehicle_dao.dart';
 import 'package:gasosa_app/data/local/db/app_database.dart';
@@ -148,8 +149,9 @@ void _registerViewModels() {
 
 void _registerPhotoServices() {
   getIt.registerLazySingleton<LocalPhotoStorage>(() => LocalPhotoStorageImpl());
-  getIt.registerFactory(() => SaveVehiclePhotoCommand(getIt<LocalPhotoStorage>()));
-  getIt.registerFactory(() => DeleteVehiclePhotoCommand(getIt<LocalPhotoStorage>()));
+
+  getIt.registerFactory(() => SavePhotoCommand(getIt<LocalPhotoStorage>()));
+  getIt.registerFactory(() => DeletePhotoCommand(getIt<LocalPhotoStorage>()));
 }
 
 /// Opcionais

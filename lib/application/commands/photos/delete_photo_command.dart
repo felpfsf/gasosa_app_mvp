@@ -2,8 +2,8 @@ import 'package:dartz/dartz.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/domain/services/local_photo_storage.dart';
 
-class DeleteVehiclePhotoCommand {
-  DeleteVehiclePhotoCommand(this._storage);
+class DeletePhotoCommand {
+  DeletePhotoCommand(this._storage);
   final LocalPhotoStorage _storage;
 
   Future<Either<Failure, void>> call(String path) async {

@@ -1,4 +1,4 @@
-import 'package:gasosa_app/application/register_command.dart';
+import 'package:gasosa_app/application/commands/auth/register_command.dart';
 import 'package:gasosa_app/core/viewmodel/base_viewmodel.dart';
 import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
 

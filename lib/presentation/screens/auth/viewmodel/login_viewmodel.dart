@@ -1,5 +1,5 @@
-import 'package:gasosa_app/application/loggin_with_google_command.dart';
-import 'package:gasosa_app/application/login_email_password_command.dart';
+import 'package:gasosa_app/application/commands/auth/loggin_with_google_command.dart';
+import 'package:gasosa_app/application/commands/auth/login_email_password_command.dart';
 import 'package:gasosa_app/core/viewmodel/base_viewmodel.dart';
 import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
 

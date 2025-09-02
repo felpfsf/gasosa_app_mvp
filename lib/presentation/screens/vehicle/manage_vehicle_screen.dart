@@ -4,10 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/di/locator.dart';
 import 'package:gasosa_app/core/helpers/formatters.dart';
 import 'package:gasosa_app/core/validators/vehicle_validators.dart';
+import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/screens/vehicle/viewmodel/manage_vehicle_viewmodel.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_appbar.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_button.dart';
+import 'package:gasosa_app/presentation/widgets/gasosa_dropdown_field.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_form_field.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_photo_picker.dart';
 import 'package:gasosa_app/presentation/widgets/messages.dart';
@@ -111,7 +113,23 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
                           validator: VehicleValidators.tankCapacity,
                           inputFormatters: [DigitDecimalInputFormatter()],
                         ),
-
+                        GasosaDropdownField(
+                          label: 'Tipo de Combustível',
+                          value: s.fuelType,
+                          onChanged: (value) {
+                            if (value != null) {
+                              _viewmodel.updateFuelType(value);
+                            }
+                          },
+                          items: FuelType.values
+                              .map(
+                                (e) => DropdownMenuItem(
+                                  value: e,
+                                  child: Text(e.displayName),
+                                ),
+                              )
+                              .toList(),
+                        ),
                         GasosaPhotoPicker(
                           label: 'Foto do Veículo - opcional',
                           image: currentImage,
@@ -128,12 +146,12 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
                         const Divider(thickness: 1, color: AppColors.border),
 
                         Row(
+                          spacing: AppSpacing.md,
                           children: [
                             Expanded(
                               child: GasosaButton(label: 'Salvar', onPressed: s.isLoading ? null : _onSave),
                             ),
                             if (s.isEdit) ...[
-                              const SizedBox(width: 12),
                               Expanded(
                                 child: GasosaButton(
                                   label: 'Excluir',

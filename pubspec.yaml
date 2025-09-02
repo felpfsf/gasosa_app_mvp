@@ -42,6 +42,7 @@ dependencies:
   intl: ^0.20.2
   flutter_localizations:
     sdk: flutter
+  dropdown_button2: ^2.3.9
 
 dev_dependencies:
   flutter_test:

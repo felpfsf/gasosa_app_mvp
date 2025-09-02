@@ -20,14 +20,19 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_open());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) async => m.createAll(),
     onUpgrade: (m, from, to) async {
-      // if(from == 1) {
-      //   await m.addColumn(users, users.newColumn);
+      // if (from == 1 && to == 2) {
+      //   await m.addColumn(vehicles, vehicles.fuelType);
+
+      //   await customStatement(
+      //     'UPDATE vehicles SET fuel_type = ? WHERE fuel_type IS NULL OR fuel_type = ""',
+      //     ['flex'],
+      //   );
       // }
     },
   );

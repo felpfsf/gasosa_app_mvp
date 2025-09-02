@@ -480,6 +480,18 @@ class $VehiclesTable extends Vehicles
     type: DriftSqlType.double,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _fuelTypeMeta = const VerificationMeta(
+    'fuelType',
+  );
+  @override
+  late final GeneratedColumn<String> fuelType = GeneratedColumn<String>(
+    'fuel_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('flex'),
+  );
   static const VerificationMeta _photoPathMeta = const VerificationMeta(
     'photoPath',
   );
@@ -521,6 +533,7 @@ class $VehiclesTable extends Vehicles
     name,
     plate,
     tankCapacity,
+    fuelType,
     photoPath,
     createdAt,
     updatedAt,
@@ -573,6 +586,12 @@ class $VehiclesTable extends Vehicles
         ),
       );
     }
+    if (data.containsKey('fuel_type')) {
+      context.handle(
+        _fuelTypeMeta,
+        fuelType.isAcceptableOrUnknown(data['fuel_type']!, _fuelTypeMeta),
+      );
+    }
     if (data.containsKey('photo_path')) {
       context.handle(
         _photoPathMeta,
@@ -620,6 +639,10 @@ class $VehiclesTable extends Vehicles
         DriftSqlType.double,
         data['${effectivePrefix}tank_capacity'],
       ),
+      fuelType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}fuel_type'],
+      )!,
       photoPath: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}photo_path'],
@@ -647,6 +670,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
   final String name;
   final String? plate;
   final double? tankCapacity;
+  final String fuelType;
   final String? photoPath;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -656,6 +680,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
     required this.name,
     this.plate,
     this.tankCapacity,
+    required this.fuelType,
     this.photoPath,
     required this.createdAt,
     this.updatedAt,
@@ -672,6 +697,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
     if (!nullToAbsent || tankCapacity != null) {
       map['tank_capacity'] = Variable<double>(tankCapacity);
     }
+    map['fuel_type'] = Variable<String>(fuelType);
     if (!nullToAbsent || photoPath != null) {
       map['photo_path'] = Variable<String>(photoPath);
     }
@@ -693,6 +719,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
       tankCapacity: tankCapacity == null && nullToAbsent
           ? const Value.absent()
           : Value(tankCapacity),
+      fuelType: Value(fuelType),
       photoPath: photoPath == null && nullToAbsent
           ? const Value.absent()
           : Value(photoPath),
@@ -714,6 +741,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
       name: serializer.fromJson<String>(json['name']),
       plate: serializer.fromJson<String?>(json['plate']),
       tankCapacity: serializer.fromJson<double?>(json['tankCapacity']),
+      fuelType: serializer.fromJson<String>(json['fuelType']),
       photoPath: serializer.fromJson<String?>(json['photoPath']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
@@ -728,6 +756,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
       'name': serializer.toJson<String>(name),
       'plate': serializer.toJson<String?>(plate),
       'tankCapacity': serializer.toJson<double?>(tankCapacity),
+      'fuelType': serializer.toJson<String>(fuelType),
       'photoPath': serializer.toJson<String?>(photoPath),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
@@ -740,6 +769,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
     String? name,
     Value<String?> plate = const Value.absent(),
     Value<double?> tankCapacity = const Value.absent(),
+    String? fuelType,
     Value<String?> photoPath = const Value.absent(),
     DateTime? createdAt,
     Value<DateTime?> updatedAt = const Value.absent(),
@@ -749,6 +779,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
     name: name ?? this.name,
     plate: plate.present ? plate.value : this.plate,
     tankCapacity: tankCapacity.present ? tankCapacity.value : this.tankCapacity,
+    fuelType: fuelType ?? this.fuelType,
     photoPath: photoPath.present ? photoPath.value : this.photoPath,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
@@ -762,6 +793,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
       tankCapacity: data.tankCapacity.present
           ? data.tankCapacity.value
           : this.tankCapacity,
+      fuelType: data.fuelType.present ? data.fuelType.value : this.fuelType,
       photoPath: data.photoPath.present ? data.photoPath.value : this.photoPath,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
@@ -776,6 +808,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
           ..write('name: $name, ')
           ..write('plate: $plate, ')
           ..write('tankCapacity: $tankCapacity, ')
+          ..write('fuelType: $fuelType, ')
           ..write('photoPath: $photoPath, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
@@ -790,6 +823,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
     name,
     plate,
     tankCapacity,
+    fuelType,
     photoPath,
     createdAt,
     updatedAt,
@@ -803,6 +837,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
           other.name == this.name &&
           other.plate == this.plate &&
           other.tankCapacity == this.tankCapacity &&
+          other.fuelType == this.fuelType &&
           other.photoPath == this.photoPath &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
@@ -814,6 +849,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
   final Value<String> name;
   final Value<String?> plate;
   final Value<double?> tankCapacity;
+  final Value<String> fuelType;
   final Value<String?> photoPath;
   final Value<DateTime> createdAt;
   final Value<DateTime?> updatedAt;
@@ -824,6 +860,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
     this.name = const Value.absent(),
     this.plate = const Value.absent(),
     this.tankCapacity = const Value.absent(),
+    this.fuelType = const Value.absent(),
     this.photoPath = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -835,6 +872,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
     required String name,
     this.plate = const Value.absent(),
     this.tankCapacity = const Value.absent(),
+    this.fuelType = const Value.absent(),
     this.photoPath = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
@@ -848,6 +886,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
     Expression<String>? name,
     Expression<String>? plate,
     Expression<double>? tankCapacity,
+    Expression<String>? fuelType,
     Expression<String>? photoPath,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
@@ -859,6 +898,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
       if (name != null) 'name': name,
       if (plate != null) 'plate': plate,
       if (tankCapacity != null) 'tank_capacity': tankCapacity,
+      if (fuelType != null) 'fuel_type': fuelType,
       if (photoPath != null) 'photo_path': photoPath,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
@@ -872,6 +912,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
     Value<String>? name,
     Value<String?>? plate,
     Value<double?>? tankCapacity,
+    Value<String>? fuelType,
     Value<String?>? photoPath,
     Value<DateTime>? createdAt,
     Value<DateTime?>? updatedAt,
@@ -883,6 +924,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
       name: name ?? this.name,
       plate: plate ?? this.plate,
       tankCapacity: tankCapacity ?? this.tankCapacity,
+      fuelType: fuelType ?? this.fuelType,
       photoPath: photoPath ?? this.photoPath,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -908,6 +950,9 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
     if (tankCapacity.present) {
       map['tank_capacity'] = Variable<double>(tankCapacity.value);
     }
+    if (fuelType.present) {
+      map['fuel_type'] = Variable<String>(fuelType.value);
+    }
     if (photoPath.present) {
       map['photo_path'] = Variable<String>(photoPath.value);
     }
@@ -931,6 +976,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
           ..write('name: $name, ')
           ..write('plate: $plate, ')
           ..write('tankCapacity: $tankCapacity, ')
+          ..write('fuelType: $fuelType, ')
           ..write('photoPath: $photoPath, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
@@ -2017,6 +2063,7 @@ typedef $$VehiclesTableCreateCompanionBuilder =
       required String name,
       Value<String?> plate,
       Value<double?> tankCapacity,
+      Value<String> fuelType,
       Value<String?> photoPath,
       Value<DateTime> createdAt,
       Value<DateTime?> updatedAt,
@@ -2029,6 +2076,7 @@ typedef $$VehiclesTableUpdateCompanionBuilder =
       Value<String> name,
       Value<String?> plate,
       Value<double?> tankCapacity,
+      Value<String> fuelType,
       Value<String?> photoPath,
       Value<DateTime> createdAt,
       Value<DateTime?> updatedAt,
@@ -2103,6 +2151,11 @@ class $$VehiclesTableFilterComposer
 
   ColumnFilters<double> get tankCapacity => $composableBuilder(
     column: $table.tankCapacity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get fuelType => $composableBuilder(
+    column: $table.fuelType,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2199,6 +2252,11 @@ class $$VehiclesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get fuelType => $composableBuilder(
+    column: $table.fuelType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get photoPath => $composableBuilder(
     column: $table.photoPath,
     builder: (column) => ColumnOrderings(column),
@@ -2260,6 +2318,9 @@ class $$VehiclesTableAnnotationComposer
     column: $table.tankCapacity,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get fuelType =>
+      $composableBuilder(column: $table.fuelType, builder: (column) => column);
 
   GeneratedColumn<String> get photoPath =>
       $composableBuilder(column: $table.photoPath, builder: (column) => column);
@@ -2352,6 +2413,7 @@ class $$VehiclesTableTableManager
                 Value<String> name = const Value.absent(),
                 Value<String?> plate = const Value.absent(),
                 Value<double?> tankCapacity = const Value.absent(),
+                Value<String> fuelType = const Value.absent(),
                 Value<String?> photoPath = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
@@ -2362,6 +2424,7 @@ class $$VehiclesTableTableManager
                 name: name,
                 plate: plate,
                 tankCapacity: tankCapacity,
+                fuelType: fuelType,
                 photoPath: photoPath,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
@@ -2374,6 +2437,7 @@ class $$VehiclesTableTableManager
                 required String name,
                 Value<String?> plate = const Value.absent(),
                 Value<double?> tankCapacity = const Value.absent(),
+                Value<String> fuelType = const Value.absent(),
                 Value<String?> photoPath = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
@@ -2384,6 +2448,7 @@ class $$VehiclesTableTableManager
                 name: name,
                 plate: plate,
                 tankCapacity: tankCapacity,
+                fuelType: fuelType,
                 photoPath: photoPath,
                 createdAt: createdAt,
                 updatedAt: updatedAt,

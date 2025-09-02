@@ -11,6 +11,7 @@ import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/core/helpers/uuid.dart';
 import 'package:gasosa_app/core/viewmodel/base_viewmodel.dart';
 import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
+import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/domain/entities/vehicle.dart';
 import 'package:gasosa_app/domain/repositories/vehicle_repository.dart';
 
@@ -22,6 +23,7 @@ class ManageVehicleState {
     this.name = '',
     this.plate = '',
     this.tankCapacity = '',
+    this.fuelType = FuelType.flex,
     this.photoPath = '',
     this.isEdit = false,
   });
@@ -32,6 +34,7 @@ class ManageVehicleState {
   final String name;
   final String plate;
   final String tankCapacity;
+  final FuelType fuelType;
   final String? photoPath;
   final bool isEdit;
 
@@ -42,6 +45,7 @@ class ManageVehicleState {
     String? name,
     String? plate,
     String? tankCapacity,
+    FuelType? fuelType,
     String? photoPath,
     bool clearPhotoPath = false,
     bool? isEdit,
@@ -54,6 +58,7 @@ class ManageVehicleState {
       plate: plate ?? this.plate,
       tankCapacity: tankCapacity ?? this.tankCapacity,
       photoPath: clearPhotoPath ? null : (photoPath ?? this.photoPath),
+      fuelType: fuelType ?? this.fuelType,
       isEdit: isEdit ?? this.isEdit,
     );
   }
@@ -89,6 +94,102 @@ class ManageVehicleViewModel extends BaseViewModel {
   final tankCapacityEC = TextEditingController();
   String? _stagedToDeletePhotoPath;
 
+  FuelType get fuelType => state.fuelType;
+
+  @override
+  void setViewLoading({bool value = false}) {
+    _state = _state.copyWith(isLoading: value);
+    notifyListeners();
+  }
+
+  Future<void> init({String? vehicleId}) async {
+    if (vehicleId != null && vehicleId.isNotEmpty) {
+      setViewLoading(value: true);
+      final either = await _repository.getVehicleById(vehicleId);
+      either.fold(
+        _setFailure,
+        (vehicle) {
+          if (vehicle == null) {
+            _setFailure(const BusinessFailure('Veículo não encontrado'));
+            return;
+          }
+          _state = _state.copyWith(
+            isLoading: false,
+            isEdit: true,
+            initial: vehicle,
+            name: vehicle.name,
+            plate: vehicle.plate ?? '',
+            tankCapacity: vehicle.tankCapacity?.toString() ?? '',
+            fuelType: vehicle.fuelType,
+            photoPath: vehicle.photoPath ?? '',
+          );
+          nameEC.text = _state.name;
+          plateEC.text = _state.plate;
+          tankCapacityEC.text = _state.tankCapacity;
+          notifyListeners();
+        },
+      );
+    }
+  }
+
+  VehicleEntity _buildEntity() {
+    final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+    final isEdit = state.isEdit && state.initial != null;
+
+    return VehicleEntity(
+      id: isEdit ? state.initial!.id : UuidHelper.generate(),
+      userId: uid,
+      name: state.name.trim(),
+      plate: state.plate.trim().isEmpty ? null : state.plate.trim(),
+      tankCapacity: _parseCapacity(state.tankCapacity.trim()),
+      fuelType: state.fuelType,
+      photoPath: state.photoPath,
+      createdAt: isEdit ? state.initial!.createdAt : DateTime.now(),
+      updatedAt: isEdit ? DateTime.now() : null,
+    );
+  }
+
+  double? _parseCapacity(String value) {
+    final trimmed = value.trim();
+    if (trimmed.isEmpty) return null;
+    final normalized = trimmed.replaceAll(',', '.');
+    final parsed = double.tryParse(normalized);
+    return parsed;
+  }
+
+  Future<Either<Failure, Unit>> save() async {
+    _state = _state.copyWith(isLoading: true);
+    notifyListeners();
+
+    final entity = _buildEntity();
+    final response = await _saveVehicle(entity);
+
+    response.fold(_setFailure, (_) {
+      _state = _state.copyWith(isLoading: false);
+      notifyListeners();
+
+      _cleanupStagedPhoto();
+    });
+
+    return response;
+  }
+
+  Future<Either<Failure, Unit>> delete() async {
+    if (!state.isEdit || state.initial == null) {
+      const failure = BusinessFailure('Não é possível deletar um veículo que não foi salvo.');
+      _setFailure(failure);
+      return left(failure);
+    }
+    _state = _state.copyWith(isLoading: true);
+
+    final response = await _deleteVehicle(state.initial!.id);
+    response.fold(_setFailure, (_) {
+      _state = _state.copyWith(isLoading: false);
+      notifyListeners();
+    });
+    return response;
+  }
+
   Future<void> onPickLocalPhoto(File file) async {
     await track(() async {
       final old = state.photoPath;
@@ -111,39 +212,12 @@ class ManageVehicleViewModel extends BaseViewModel {
     notifyListeners();
   }
 
-  Future<void> init({String? vehicleId}) async {
-    if (vehicleId != null && vehicleId.isNotEmpty) {
-      setViewLoading(value: true);
-      final either = await _repository.getVehicleById(vehicleId);
-      either.fold(
-        _setFailure,
-        (vehicle) {
-          if (vehicle == null) {
-            _setFailure(const BusinessFailure('Veículo não encontrado'));
-            return;
-          }
-          _state = _state.copyWith(
-            isLoading: false,
-            isEdit: true,
-            initial: vehicle,
-            name: vehicle.name,
-            plate: vehicle.plate ?? '',
-            tankCapacity: vehicle.tankCapacity?.toString() ?? '',
-            photoPath: vehicle.photoPath ?? '',
-          );
-          nameEC.text = _state.name;
-          plateEC.text = _state.plate;
-          tankCapacityEC.text = _state.tankCapacity;
-          notifyListeners();
-        },
-      );
+  void _cleanupStagedPhoto() {
+    final toDelete = _stagedToDeletePhotoPath;
+    if (toDelete != null && toDelete.isNotEmpty) {
+      _deletePhoto(toDelete).ignore();
+      _stagedToDeletePhotoPath = null;
     }
-  }
-
-  @override
-  void setViewLoading({bool value = false}) {
-    _state = _state.copyWith(isLoading: value);
-    notifyListeners();
   }
 
   void _setFailure(Failure failure) {
@@ -166,74 +240,14 @@ class ManageVehicleViewModel extends BaseViewModel {
     notifyListeners();
   }
 
+  void updateFuelType(FuelType value) {
+    _state = _state.copyWith(fuelType: value);
+    notifyListeners();
+  }
+
   void updatePhotoPath(String? value) {
     _state = _state.copyWith(photoPath: value, clearPhotoPath: value == null);
     notifyListeners();
-  }
-
-  double? _parseCapacity(String value) {
-    final trimmed = value.trim();
-    if (trimmed.isEmpty) return null;
-    final normalized = trimmed.replaceAll(',', '.');
-    final parsed = double.tryParse(normalized);
-    return parsed;
-  }
-
-  VehicleEntity _buildEntity() {
-    final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
-    final isEdit = state.isEdit && state.initial != null;
-
-    return VehicleEntity(
-      id: isEdit ? state.initial!.id : UuidHelper.generate(),
-      userId: uid,
-      name: state.name.trim(),
-      plate: state.plate.trim().isEmpty ? null : state.plate.trim(),
-      tankCapacity: _parseCapacity(state.tankCapacity.trim()),
-      photoPath: state.photoPath,
-      createdAt: isEdit ? state.initial!.createdAt : DateTime.now(),
-      updatedAt: isEdit ? DateTime.now() : null,
-    );
-  }
-
-  Future<Either<Failure, Unit>> save() async {
-    _state = _state.copyWith(isLoading: true);
-    notifyListeners();
-
-    final entity = _buildEntity();
-    final response = await _saveVehicle(entity);
-
-    response.fold(_setFailure, (_) {
-      _state = _state.copyWith(isLoading: false);
-      notifyListeners();
-
-      _cleanupStagedPhoto();
-    });
-
-    return response;
-  }
-
-  void _cleanupStagedPhoto() {
-    final toDelete = _stagedToDeletePhotoPath;
-    if (toDelete != null && toDelete.isNotEmpty) {
-      _deletePhoto(toDelete).ignore();
-      _stagedToDeletePhotoPath = null;
-    }
-  }
-
-  Future<Either<Failure, Unit>> delete() async {
-    if (!state.isEdit || state.initial == null) {
-      const failure = BusinessFailure('Não é possível deletar um veículo que não foi salvo.');
-      _setFailure(failure);
-      return left(failure);
-    }
-    _state = _state.copyWith(isLoading: true);
-
-    final response = await _deleteVehicle(state.initial!.id);
-    response.fold(_setFailure, (_) {
-      _state = _state.copyWith(isLoading: false);
-      notifyListeners();
-    });
-    return response;
   }
 
   @override

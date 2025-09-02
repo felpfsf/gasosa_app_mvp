@@ -14,6 +14,7 @@ import 'package:gasosa_app/application/commands/vehicles/create_or_update_vehicl
 import 'package:gasosa_app/application/commands/vehicles/delete_vehicle_command.dart';
 import 'package:gasosa_app/application/commands/vehicles/load_vehicles_command.dart';
 import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
+import 'package:gasosa_app/data/local/dao/refuel_dao.dart';
 import 'package:gasosa_app/data/local/dao/vehicle_dao.dart';
 import 'package:gasosa_app/data/local/db/app_database.dart';
 import 'package:gasosa_app/data/repositories/refuel_repository_impl.dart';
@@ -29,6 +30,7 @@ import 'package:gasosa_app/domain/services/local_photo_storage_impl.dart';
 import 'package:gasosa_app/presentation/screens/auth/viewmodel/login_viewmodel.dart';
 import 'package:gasosa_app/presentation/screens/auth/viewmodel/register_viewmodel.dart';
 import 'package:gasosa_app/presentation/screens/dashboard/viewmodel/dashboard_viewmodel.dart';
+import 'package:gasosa_app/presentation/screens/refuel/viewmodel/manage_refuel_viewmodel.dart';
 import 'package:gasosa_app/presentation/screens/vehicle/viewmodel/manage_vehicle_viewmodel.dart';
 import 'package:gasosa_app/presentation/screens/vehicle/viewmodel/vehicle_detail_viewmodel.dart';
 import 'package:get_it/get_it.dart';
@@ -77,6 +79,7 @@ Future<void> _registerFirebase() async {
 void _registerDatabaseAndDaos() {
   getIt.registerLazySingleton<AppDatabase>(() => AppDatabase());
   getIt.registerLazySingleton<VehicleDao>(() => VehicleDao(getIt<AppDatabase>()));
+  getIt.registerLazySingleton<RefuelDao>(() => RefuelDao(getIt<AppDatabase>()));
 }
 
 /// 4 - Repositories
@@ -142,6 +145,18 @@ void _registerViewModels() {
       repository: getIt<VehicleRepository>(),
       delete: getIt<DeleteVehicleCommand>(),
       loading: getIt<LoadingController>(),
+    ),
+  );
+
+  getIt.registerFactory(
+    () => ManageRefuelViewmodel(
+      repository: getIt<RefuelRepository>(),
+      vehicleRepository: getIt<VehicleRepository>(),
+      loading: getIt<LoadingController>(),
+      saveRefuel: getIt<CreateOrUpdateRefuelCommand>(),
+      deleteRefuel: getIt<DeleteRefuelCommand>(),
+      saveReceiptPhoto: getIt<SavePhotoCommand>(),
+      deleteReceiptPhoto: getIt<DeletePhotoCommand>(),
     ),
   );
 }

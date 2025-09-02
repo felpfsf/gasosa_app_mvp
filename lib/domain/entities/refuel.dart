@@ -1,5 +1,7 @@
 // id, userId, vehicleId, refuelDate, fuelType, totalValue, mileage, liters, coldStartLiters?, coldStartValue?, receiptPath?, createdAt, updateAt?
 
+import 'package:gasosa_app/domain/entities/fuel_type.dart';
+
 class RefuelEntity {
   RefuelEntity({
     required this.id,
@@ -19,7 +21,7 @@ class RefuelEntity {
   final String id;
   final String vehicleId;
   final DateTime refuelDate;
-  final String fuelType;
+  final FuelType fuelType;
   final double totalValue;
   final int mileage;
   final double liters;

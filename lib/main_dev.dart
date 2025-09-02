@@ -4,6 +4,7 @@ import 'package:gasosa_app/core/di/locator.dart';
 import 'package:gasosa_app/firebase_options_dev.dart';
 import 'package:gasosa_app/flavor.dart';
 import 'package:gasosa_app/presentation/app.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -11,6 +12,8 @@ Future<void> main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  await initializeDateFormatting('pt_BR');
 
   // Flavors
   Flavor.instance = const Flavor(
@@ -20,6 +23,6 @@ Future<void> main() async {
 
   // Inicia a injeção de dependências
   await setupDI();
-  
+
   runApp(const GasosaApp());
 }

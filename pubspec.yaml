@@ -39,6 +39,9 @@ dependencies:
   flutter_slidable: ^4.0.1
   image_picker: ^1.2.0
   uuid: ^4.5.1
+  intl: ^0.20.2
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:

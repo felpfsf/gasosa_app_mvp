@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:gasosa_app/data/local/db/app_database.dart';
+import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/domain/entities/refuel.dart';
 
 class RefuelMapper {
@@ -7,7 +8,7 @@ class RefuelMapper {
     id: Value(e.id),
     vehicleId: Value(e.vehicleId),
     refuelDate: Value(e.refuelDate),
-    fuelType: Value(e.fuelType),
+    fuelType: Value(e.fuelType.name),
     totalValue: Value(e.totalValue),
     mileage: Value(e.mileage),
     liters: Value(e.liters),
@@ -22,7 +23,7 @@ class RefuelMapper {
     id: row.id,
     vehicleId: row.vehicleId,
     refuelDate: row.refuelDate,
-    fuelType: row.fuelType,
+    fuelType: FuelType.values.firstWhere((e) => e.name == row.fuelType),
     totalValue: row.totalValue,
     mileage: row.mileage,
     liters: row.liters,

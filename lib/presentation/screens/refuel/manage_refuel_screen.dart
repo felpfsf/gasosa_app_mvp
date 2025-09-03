@@ -177,16 +177,23 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                         ),
                       ],
                     ],
-                    GasosaPhotoPicker(
-                      label: 'Comprovante de Abastecimento',
-                      onFileSelected: (file) async {
-                        if (file == null) {
-                          _viewmodel.onRemovePhoto();
-                        } else {
-                          await _viewmodel.onPickLocalPhoto(file);
-                        }
-                      },
+                    GasosaCheckbox(
+                      title: 'Comprovante de Abastecimento?',
+                      value: _viewmodel.hasReceiptPhoto,
+                      onChanged: (value) => setState(() => _viewmodel.hasReceiptPhoto = value ?? false),
                     ),
+                    if (_viewmodel.shouldShowReceiptPhotoInput) ...[
+                      GasosaPhotoPicker(
+                        label: 'Comprovante de Abastecimento',
+                        onFileSelected: (file) async {
+                          if (file == null) {
+                            _viewmodel.onRemovePhoto();
+                          } else {
+                            await _viewmodel.onPickLocalPhoto(file);
+                          }
+                        },
+                      ),
+                    ],
 
                     AppSpacing.gap4,
                     const Divider(thickness: 1, color: AppColors.border),

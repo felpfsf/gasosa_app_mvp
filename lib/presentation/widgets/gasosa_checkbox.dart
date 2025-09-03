@@ -20,7 +20,7 @@ class GasosaCheckbox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
       child: CheckboxListTile(
         contentPadding: EdgeInsets.zero,
         title: Text(title, style: AppTypography.textSmBold),
@@ -30,6 +30,7 @@ class GasosaCheckbox extends StatelessWidget {
         activeColor: AppColors.primary,
         checkColor: AppColors.text,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.md)),
+        dense: true,
         controlAffinity: ListTileControlAffinity.leading,
       ),
     );

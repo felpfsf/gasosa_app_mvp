@@ -60,4 +60,16 @@ class AppSpacing {
 
   /// 24 - Espaçamento entre widgets
   static const SizedBox gap24 = SizedBox(height: 24);
+
+  /// 4 - Espaçamento entre widgets
+  static const SizedBox gapX4 = SizedBox(width: 4);
+
+  /// 8 - Espaçamento entre widgets
+  static const SizedBox gapX8 = SizedBox(width: 8);
+
+  /// 16 - Espaçamento entre widgets
+  static const SizedBox gapX16 = SizedBox(width: 16);
+
+  /// 24 - Espaçamento entre widgets
+  static const SizedBox gapX24 = SizedBox(width: 24);
 }

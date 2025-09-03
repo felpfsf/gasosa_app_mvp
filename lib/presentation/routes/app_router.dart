@@ -95,8 +95,8 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => VehicleDetailScreen(vehicleId: state.pathParameters['id']!),
     ),
     GoRoute(
-      path: RoutePaths.refuelManageCreate,
-      builder: (_, __) => const ManageRefuelScreen(),
+      path: RoutePaths.refuelManageCreate(':vehicleId'),
+      builder: (context, state) => ManageRefuelScreen(vehicleId: state.pathParameters['vehicleId']!),
     ),
     GoRoute(
       path: RoutePaths.refuelManageEdit(':id'),

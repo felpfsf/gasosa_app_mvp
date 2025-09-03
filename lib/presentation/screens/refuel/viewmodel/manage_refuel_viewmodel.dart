@@ -5,19 +5,23 @@ import 'package:flutter/material.dart';
 import 'package:gasosa_app/application/commands/photos/delete_photo_command.dart';
 import 'package:gasosa_app/application/commands/photos/save_photo_command.dart';
 import 'package:gasosa_app/application/commands/refuel/create_or_update_refuel_command.dart';
+import 'package:gasosa_app/application/commands/refuel/delete_refuel_command.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/core/helpers/uuid.dart';
 import 'package:gasosa_app/core/viewmodel/base_viewmodel.dart';
 import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
 import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/domain/entities/refuel.dart';
+import 'package:gasosa_app/domain/entities/vehicle.dart';
 import 'package:gasosa_app/domain/repositories/refuel_repository.dart';
+import 'package:gasosa_app/domain/repositories/vehicle_repository.dart';
 
 class ManageRefuelState {
   ManageRefuelState({
     this.isLoading = false,
     this.errorMessage,
     this.initial,
+    this.vehicle,
     this.isEditing = false,
     this.mileage = 0,
     this.totalValue = 0.0,
@@ -26,12 +30,14 @@ class ManageRefuelState {
     this.coldStartValue,
     this.receiptPath,
     this.fuelType = FuelType.gasoline,
+    this.availableFuelTypes = const [FuelType.gasoline],
     DateTime? refuelDate,
   }) : refuelDate = refuelDate ?? DateTime.now();
 
   final bool isLoading;
   final String? errorMessage;
   final RefuelEntity? initial;
+  final VehicleEntity? vehicle;
   final bool isEditing;
   final int mileage;
   final double totalValue;
@@ -41,11 +47,13 @@ class ManageRefuelState {
   final String? receiptPath;
   final DateTime refuelDate;
   final FuelType fuelType;
+  final List<FuelType> availableFuelTypes;
 
   ManageRefuelState copyWith({
     bool? isLoading,
     String? errorMessage,
     RefuelEntity? initial,
+    VehicleEntity? vehicle,
     bool? isEditing,
     int? mileage,
     double? totalValue,
@@ -55,12 +63,14 @@ class ManageRefuelState {
     String? receiptPath,
     DateTime? refuelDate,
     FuelType? fuelType,
+    List<FuelType>? availableFuelTypes,
     bool clearPhotoPath = false,
   }) {
     return ManageRefuelState(
       isLoading: isLoading ?? this.isLoading,
       errorMessage: errorMessage,
       initial: initial ?? this.initial,
+      vehicle: vehicle ?? this.vehicle,
       isEditing: isEditing ?? this.isEditing,
       mileage: mileage ?? this.mileage,
       totalValue: totalValue ?? this.totalValue,
@@ -70,6 +80,7 @@ class ManageRefuelState {
       receiptPath: clearPhotoPath ? null : (receiptPath ?? this.receiptPath),
       refuelDate: refuelDate ?? this.refuelDate,
       fuelType: fuelType ?? this.fuelType,
+      availableFuelTypes: availableFuelTypes ?? this.availableFuelTypes,
     );
   }
 }
@@ -77,18 +88,24 @@ class ManageRefuelState {
 class ManageRefuelViewmodel extends BaseViewModel {
   ManageRefuelViewmodel({
     required RefuelRepository repository,
+    required VehicleRepository vehicleRepository,
     required LoadingController loading,
     required CreateOrUpdateRefuelCommand saveRefuel,
     required SavePhotoCommand saveReceiptPhoto,
     required DeletePhotoCommand deleteReceiptPhoto,
+    required DeleteRefuelCommand deleteRefuel,
   }) : _repository = repository,
+       _vehicleRepository = vehicleRepository,
        _saveRefuel = saveRefuel,
        _saveReceiptPhoto = saveReceiptPhoto,
        _deleteReceiptPhoto = deleteReceiptPhoto,
+       _deleteRefuel = deleteRefuel,
        super(loading);
 
   final RefuelRepository _repository;
+  final VehicleRepository _vehicleRepository;
   final CreateOrUpdateRefuelCommand _saveRefuel;
+  final DeleteRefuelCommand _deleteRefuel;
   final SavePhotoCommand _saveReceiptPhoto;
   final DeletePhotoCommand _deleteReceiptPhoto;
 
@@ -116,17 +133,19 @@ class ManageRefuelViewmodel extends BaseViewModel {
     notifyListeners();
   }
 
-  Future<void> init(String? id) async {
+  Future<void> init(String? id, String? vehicleId) async {
     if (id != null && id.isNotEmpty) {
       setViewLoading(value: true);
       final either = await _repository.getRefuelById(id);
       either.fold(
         _setFailure,
-        (refuel) {
+        (refuel) async {
           if (refuel == null) {
             _setFailure(const BusinessFailure('Abastecimento não encontrado'));
             return;
           }
+
+          await _loadVehicleData(refuel.vehicleId);
 
           _state = _state.copyWith(
             isLoading: false,
@@ -153,7 +172,78 @@ class ManageRefuelViewmodel extends BaseViewModel {
           notifyListeners();
         },
       );
+    } else if (vehicleId != null && vehicleId.isNotEmpty) {
+      print('💜 Creating new refuel');
+      await initWithVehicle(vehicleId);
+    } else {
+      _setFailure(const BusinessFailure('ID do veículo é obrigatório para novo abastecimento.'));
     }
+  }
+
+  Future<void> initWithVehicle(String vehicleId) async {
+    setViewLoading(value: true);
+    await _loadVehicleData(vehicleId);
+    _state = _state.copyWith(isLoading: false);
+    _populateControllers();
+    notifyListeners();
+  }
+
+  List<FuelType> _calculateAvailableFuelTypes(VehicleEntity vehicle) {
+    switch (vehicle.fuelType) {
+      case FuelType.flex:
+        return [FuelType.gasoline, FuelType.ethanol];
+      case FuelType.gasoline:
+      case FuelType.ethanol:
+      case FuelType.diesel:
+      case FuelType.gnv:
+        return [vehicle.fuelType];
+    }
+  }
+
+  bool get vehicleHasColdStartReservoir {
+    if (state.vehicle?.fuelType == null) return false;
+
+    return state.vehicle!.fuelType == FuelType.ethanol ||
+        state.vehicle!.fuelType == FuelType.flex ||
+        state.vehicle!.fuelType == FuelType.gnv;
+  }
+
+  bool get shouldShowColdStart {
+    if (!vehicleHasColdStartReservoir) return false;
+
+    return state.fuelType == FuelType.ethanol || state.fuelType == FuelType.gnv;
+  }
+
+  Future<void> _loadVehicleData(String vehicleId) async {
+    final vehicleEither = await _vehicleRepository.getVehicleById(vehicleId);
+    vehicleEither.fold(
+      (failure) => _setFailure(failure),
+      (vehicle) {
+        print('💜 Loaded vehicle: ${vehicle?.name}, fuelType: "${vehicle?.fuelType}"');
+        if (vehicle != null) {
+          final availableFuelTypes = _calculateAvailableFuelTypes(vehicle);
+          print('💜 Available fuel types: $availableFuelTypes');
+
+          final defaultFuelType = vehicle.fuelType == FuelType.flex ? availableFuelTypes.first : vehicle.fuelType;
+
+          _state = _state.copyWith(
+            vehicle: vehicle,
+            availableFuelTypes: availableFuelTypes,
+            fuelType: defaultFuelType,
+          );
+        }
+      },
+    );
+  }
+
+  void _populateControllers() {
+    mileageEC.text = _state.mileage.toString();
+    totalValueEC.text = _state.totalValue.toString();
+    litersEC.text = _state.liters.toString();
+    coldStartLitersEC.text = _state.coldStartLiters.toString();
+    coldStartValueEC.text = _state.coldStartValue.toString();
+    hasColdStart = _state.coldStartLiters != null && _state.coldStartValue != null;
+    fuelType = _state.fuelType;
   }
 
   RefuelEntity _buildEntity() {
@@ -161,12 +251,12 @@ class ManageRefuelViewmodel extends BaseViewModel {
 
     return RefuelEntity(
       id: isEditing ? state.initial!.id : UuidHelper.generate(),
-      vehicleId: state.initial?.vehicleId ?? '',
+      vehicleId: state.initial?.vehicleId ?? state.vehicle?.id ?? '',
       mileage: state.mileage,
       totalValue: state.totalValue,
       liters: state.liters,
-      coldStartLiters: state.coldStartLiters,
-      coldStartValue: state.coldStartValue,
+      coldStartLiters: hasColdStart ? state.coldStartLiters : null,
+      coldStartValue: hasColdStart ? state.coldStartValue : null,
       receiptPath: state.receiptPath,
       refuelDate: state.refuelDate,
       fuelType: state.fuelType,
@@ -191,6 +281,23 @@ class ManageRefuelViewmodel extends BaseViewModel {
         _cleanupStagedPhoto();
       },
     );
+
+    return response;
+  }
+
+  Future<Either<Failure, Unit>> delete() async {
+    if (!state.isEditing || state.initial == null) {
+      const failure = BusinessFailure('Não é possível excluir um abastecimento que não foi salvo.');
+      _setFailure(failure);
+      return left(failure);
+    }
+    _state = _state.copyWith(isLoading: true);
+
+    final response = await _deleteRefuel(state.initial!.id);
+    response.fold(_setFailure, (_) {
+      _state = _state.copyWith(isLoading: false);
+      notifyListeners();
+    });
 
     return response;
   }
@@ -252,6 +359,12 @@ class ManageRefuelViewmodel extends BaseViewModel {
   void updateColdStartValue(String value) {
     final parsed = double.tryParse(value.trim()) ?? 0;
     _state = _state.copyWith(coldStartValue: parsed);
+    notifyListeners();
+  }
+
+  void updateFuelType(FuelType value) {
+    fuelType = value;
+    _state = _state.copyWith(fuelType: value);
     notifyListeners();
   }
 

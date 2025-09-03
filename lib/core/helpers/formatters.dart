@@ -1,7 +1,8 @@
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 
 class DigitDecimalInputFormatter extends TextInputFormatter {
-  DigitDecimalInputFormatter({this.decimalDigits = 2})
+  DigitDecimalInputFormatter({this.decimalDigits = 3})
     : assert(decimalDigits >= 0, 'Decimal digits must be at least 0');
 
   final int decimalDigits;
@@ -46,5 +47,69 @@ class DigitDecimalInputFormatter extends TextInputFormatter {
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
     );
+  }
+}
+
+class CurrencyInputFormatter extends TextInputFormatter {
+  final NumberFormat _formatter = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$', decimalDigits: 2);
+
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    if (newValue.text.isEmpty) {
+      return newValue.copyWith(text: '');
+    }
+
+    final digitsOnly = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
+
+    if (digitsOnly.isEmpty) {
+      return newValue.copyWith(text: '');
+    }
+
+    final cents = int.tryParse(digitsOnly) ?? 0;
+    final value = cents / 100;
+
+    final formatted = _formatter.format(value);
+
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+}
+
+class MoneyInputFormatterWithoutSymbol extends TextInputFormatter {
+  final NumberFormat _formatter = NumberFormat.currency(locale: 'pt_BR', symbol: '', decimalDigits: 2);
+
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    if (newValue.text.isEmpty) {
+      return newValue.copyWith(text: '');
+    }
+
+    final digitsOnly = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
+
+    if (digitsOnly.isEmpty) {
+      return newValue.copyWith(text: '');
+    }
+
+    final cents = int.tryParse(digitsOnly) ?? 0;
+    final value = cents / 100;
+
+    final formatted = _formatter.format(value).trim();
+
+    return TextEditingValue(
+      text: formatted,
+      selection: TextSelection.collapsed(offset: formatted.length),
+    );
+  }
+}
+
+class CurrencyHelper {
+  static double parseFromFormatted(String formattedText) {
+    if (formattedText.isEmpty) return 0.0;
+
+    final cleanText = formattedText.replaceAll(RegExp(r'[R\$\s]'), '').replaceAll('.', '').replaceAll(',', '.');
+
+    return double.tryParse(cleanText) ?? 0.0;
   }
 }

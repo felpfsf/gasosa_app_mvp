@@ -88,9 +88,10 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   spacing: AppSpacing.md,
                   children: [
-                    const GasosaDatePickerField(
+                    GasosaDatePickerField(
                       label: 'Data do Abastecimento',
-                      // initialDate: DateTime.now(),
+                      initialDate: state.refuelDate,
+                      onChanged: _viewmodel.updateRefuelDate,
                     ),
                     GasosaFormField(
                       label: 'KM atual',
@@ -98,13 +99,12 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                       validator: RefuelValidators.mileage,
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      onChanged: _viewmodel.updateMileage,
                     ),
-                    Text('Disponível: ${state.availableFuelTypes.join(', ')}'),
-                    Text('Selecionado: ${state.fuelType.displayName}'),
-                    if (state.availableFuelTypes.length > 1) ...[
+                    if (state.availableFuelTypes.isNotEmpty) ...[
                       GasosaDropdownField<FuelType>(
                         label: 'Tipo de Combustível',
-                        // value: state.fuelType,
+                        value: state.fuelType,
                         items: state.availableFuelTypes
                             .map((e) => DropdownMenuItem(value: e, child: Text(e.displayName)))
                             .toList(),
@@ -144,6 +144,15 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                       validator: RefuelValidators.liters,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [DigitDecimalInputFormatter()],
+                      onChanged: _viewmodel.updateLiters,
+                    ),
+                    GasosaFormField(
+                      label: 'Valor total',
+                      controller: _viewmodel.totalValueEC,
+                      validator: RefuelValidators.totalValue,
+                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      // inputFormatters: [DigitDecimalInputFormatter()],
+                      onChanged: _viewmodel.updateTotalValue,
                     ),
                     if (_viewmodel.shouldShowColdStart) ...[
                       GasosaCheckbox(

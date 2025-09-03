@@ -173,7 +173,6 @@ class ManageRefuelViewmodel extends BaseViewModel {
         },
       );
     } else if (vehicleId != null && vehicleId.isNotEmpty) {
-      print('💜 Creating new refuel');
       await initWithVehicle(vehicleId);
     } else {
       _setFailure(const BusinessFailure('ID do veículo é obrigatório para novo abastecimento.'));
@@ -203,13 +202,17 @@ class ManageRefuelViewmodel extends BaseViewModel {
   bool get vehicleHasColdStartReservoir {
     if (state.vehicle?.fuelType == null) return false;
 
-    return state.vehicle!.fuelType == FuelType.ethanol ||
+    final result =
+        state.vehicle!.fuelType == FuelType.ethanol ||
         state.vehicle!.fuelType == FuelType.flex ||
         state.vehicle!.fuelType == FuelType.gnv;
+    return result;
   }
 
   bool get shouldShowColdStart {
     if (!vehicleHasColdStartReservoir) return false;
+
+    if (state.vehicle?.fuelType == FuelType.flex) return true;
 
     return state.fuelType == FuelType.ethanol || state.fuelType == FuelType.gnv;
   }
@@ -219,18 +222,18 @@ class ManageRefuelViewmodel extends BaseViewModel {
     vehicleEither.fold(
       (failure) => _setFailure(failure),
       (vehicle) {
-        print('💜 Loaded vehicle: ${vehicle?.name}, fuelType: "${vehicle?.fuelType}"');
         if (vehicle != null) {
           final availableFuelTypes = _calculateAvailableFuelTypes(vehicle);
-          print('💜 Available fuel types: $availableFuelTypes');
 
-          final defaultFuelType = vehicle.fuelType == FuelType.flex ? availableFuelTypes.first : vehicle.fuelType;
+          final defaultFuelType = availableFuelTypes.first;
 
           _state = _state.copyWith(
             vehicle: vehicle,
             availableFuelTypes: availableFuelTypes,
             fuelType: defaultFuelType,
           );
+
+          fuelType = defaultFuelType; // TODO(felipe): Talvez não é necessário
         }
       },
     );
@@ -240,8 +243,8 @@ class ManageRefuelViewmodel extends BaseViewModel {
     mileageEC.text = _state.mileage.toString();
     totalValueEC.text = _state.totalValue.toString();
     litersEC.text = _state.liters.toString();
-    coldStartLitersEC.text = _state.coldStartLiters.toString();
-    coldStartValueEC.text = _state.coldStartValue.toString();
+    coldStartLitersEC.text = _state.coldStartLiters?.toString() ?? '';
+    coldStartValueEC.text = _state.coldStartValue?.toString() ?? '';
     hasColdStart = _state.coldStartLiters != null && _state.coldStartValue != null;
     fuelType = _state.fuelType;
   }
@@ -265,6 +268,7 @@ class ManageRefuelViewmodel extends BaseViewModel {
     );
   }
 
+  // TODO(felipe): Ajustar pq está mandando direto para o metodo de update no repository
   Future<Either<Failure, Unit>> save() async {
     _state = _state.copyWith(isLoading: true);
     notifyListeners();
@@ -330,6 +334,11 @@ class ManageRefuelViewmodel extends BaseViewModel {
       _deleteReceiptPhoto(toDelete).ignore();
       _stagedToDeletePhotoPath = null;
     }
+  }
+
+  void updateRefuelDate(DateTime date) {
+    _state = _state.copyWith(refuelDate: date);
+    notifyListeners();
   }
 
   void updateMileage(String value) {

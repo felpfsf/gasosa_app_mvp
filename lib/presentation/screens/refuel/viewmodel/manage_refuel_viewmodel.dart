@@ -24,8 +24,8 @@ class ManageRefuelState {
     this.vehicle,
     this.isEditing = false,
     this.mileage = 0,
-    this.totalValue = 0.0,
-    this.liters = 0.0,
+    this.totalValue = 0,
+    this.liters = 0,
     this.coldStartLiters,
     this.coldStartValue,
     this.receiptPath,
@@ -240,13 +240,22 @@ class ManageRefuelViewmodel extends BaseViewModel {
   }
 
   void _populateControllers() {
-    mileageEC.text = _state.mileage.toString();
-    totalValueEC.text = _state.totalValue.toString();
-    litersEC.text = _state.liters.toString();
-    coldStartLitersEC.text = _state.coldStartLiters?.toString() ?? '';
-    coldStartValueEC.text = _state.coldStartValue?.toString() ?? '';
-    hasColdStart = _state.coldStartLiters != null && _state.coldStartValue != null;
-    fuelType = _state.fuelType;
+    if (state.isEditing && state.initial != null) {
+      mileageEC.text = _state.mileage.toString();
+      totalValueEC.text = _state.totalValue.toStringAsFixed(2).replaceAll('.', ',');
+      litersEC.text = _state.liters.toStringAsFixed(2).replaceAll('.', ',');
+      coldStartLitersEC.text = _state.coldStartLiters?.toStringAsFixed(2).replaceAll('.', ',') ?? '';
+      coldStartValueEC.text = _state.coldStartValue?.toStringAsFixed(2).replaceAll('.', ',') ?? '';
+      hasColdStart = _state.coldStartLiters != null && _state.coldStartValue != null;
+    } else {
+      mileageEC.clear();
+      totalValueEC.clear();
+      litersEC.clear();
+      coldStartLitersEC.clear();
+      coldStartValueEC.clear();
+      hasColdStart = false;
+    }
+    fuelType = state.fuelType;
   }
 
   RefuelEntity _buildEntity() {
@@ -342,32 +351,56 @@ class ManageRefuelViewmodel extends BaseViewModel {
   }
 
   void updateMileage(String value) {
-    final parsed = int.tryParse(value.trim()) ?? 0;
-    _state = _state.copyWith(mileage: parsed);
+    if (value.trim().isEmpty) {
+      _state = _state.copyWith(mileage: 0);
+    } else {
+      final parsed = int.tryParse(value.trim()) ?? 0;
+      _state = _state.copyWith(mileage: parsed);
+    }
     notifyListeners();
   }
 
   void updateTotalValue(String value) {
-    final parsed = double.tryParse(value.trim()) ?? 0;
-    _state = _state.copyWith(totalValue: parsed);
+    if (value.trim().isEmpty) {
+      _state = _state.copyWith(totalValue: 0);
+    } else {
+      final cleaned = value.replaceAll(',', '.');
+      final parsed = double.tryParse(cleaned) ?? 0;
+      _state = _state.copyWith(totalValue: parsed);
+    }
     notifyListeners();
   }
 
   void updateLiters(String value) {
-    final parsed = double.tryParse(value.trim()) ?? 0;
-    _state = _state.copyWith(liters: parsed);
+    if (value.trim().isEmpty) {
+      _state = _state.copyWith(liters: 0);
+    } else {
+      final cleaned = value.replaceAll(',', '.');
+      final parsed = double.tryParse(cleaned) ?? 0;
+      _state = _state.copyWith(liters: parsed);
+    }
     notifyListeners();
   }
 
   void updateColdStartLiters(String value) {
-    final parsed = double.tryParse(value.trim()) ?? 0;
-    _state = _state.copyWith(coldStartLiters: parsed);
+    if (value.trim().isEmpty) {
+      _state = _state.copyWith();
+    } else {
+      final cleaned = value.replaceAll(',', '.');
+      final parsed = double.tryParse(cleaned) ?? 0;
+      _state = _state.copyWith(coldStartLiters: parsed);
+    }
     notifyListeners();
   }
 
   void updateColdStartValue(String value) {
-    final parsed = double.tryParse(value.trim()) ?? 0;
-    _state = _state.copyWith(coldStartValue: parsed);
+    if (value.trim().isEmpty) {
+      _state = _state.copyWith();
+    } else {
+      final cleaned = value.replaceAll(',', '.');
+      final parsed = double.tryParse(cleaned) ?? 0;
+      _state = _state.copyWith(coldStartValue: parsed);
+    }
     notifyListeners();
   }
 

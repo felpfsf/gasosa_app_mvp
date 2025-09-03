@@ -151,7 +151,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                       controller: _viewmodel.totalValueEC,
                       validator: RefuelValidators.totalValue,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                      // inputFormatters: [DigitDecimalInputFormatter()],
+                      inputFormatters: [MoneyInputFormatterWithoutSymbol()],
                       onChanged: _viewmodel.updateTotalValue,
                     ),
                     if (_viewmodel.shouldShowColdStart) ...[
@@ -164,10 +164,16 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                         GasosaFormField(
                           label: 'Litros abastecidos (partida a frio)',
                           controller: _viewmodel.coldStartLitersEC,
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: [DigitDecimalInputFormatter()],
+                          onChanged: _viewmodel.updateColdStartLiters,
                         ),
                         GasosaFormField(
                           label: 'Valor total (partida a frio)',
                           controller: _viewmodel.coldStartValueEC,
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          inputFormatters: [MoneyInputFormatterWithoutSymbol()],
+                          onChanged: _viewmodel.updateColdStartValue,
                         ),
                       ],
                     ],

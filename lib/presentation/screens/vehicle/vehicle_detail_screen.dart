@@ -6,9 +6,9 @@ import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/screens/dashboard/widgets/show_delete_vehicle_confirm_dialog.dart';
 import 'package:gasosa_app/presentation/screens/vehicle/viewmodel/vehicle_detail_viewmodel.dart';
+import 'package:gasosa_app/presentation/screens/vehicle/widgets/refuel_list.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_appbar.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_card.dart';
-import 'package:gasosa_app/presentation/widgets/gasosa_empty_state_widget.dart';
 import 'package:gasosa_app/theme/app_colors.dart';
 import 'package:gasosa_app/theme/app_spacing.dart';
 import 'package:gasosa_app/theme/app_typography.dart';
@@ -110,40 +110,48 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
           ].join(' • ');
           final fuelType = vehicle.fuelType.displayName;
 
-          return ListView(
-            padding: AppSpacing.paddingMd,
+          final refuels = state.refuels!;
+
+          return Column(
             children: [
               /// Header
-              GasosaCard(
-                padding: EdgeInsets.zero,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _HeaderImage(imageUrl: vehicle.photoPath),
-                    Padding(
-                      padding: AppSpacing.paddingMd,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: AppSpacing.md,
-                        children: [
-                          Text(vehicle.name, style: AppTypography.titleLg),
-                          Text('Tipo de Combustível: $fuelType', style: AppTypography.textSmRegular),
-                          if (subtitle.isNotEmpty) Text(subtitle, style: AppTypography.textSmRegular),
-                        ],
+              Padding(
+                padding: AppSpacing.paddingMd,
+                child: GasosaCard(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _HeaderImage(imageUrl: vehicle.photoPath),
+                      Padding(
+                        padding: AppSpacing.paddingMd,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: AppSpacing.md,
+                          children: [
+                            Text(vehicle.name, style: AppTypography.titleLg),
+                            Text('Tipo de Combustível: $fuelType', style: AppTypography.textSmRegular),
+                            if (subtitle.isNotEmpty) Text(subtitle, style: AppTypography.textSmRegular),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
 
               /// Fim Header
-              AppSpacing.gap16,
-              const GasosaCard(
-                child: GasosaEmptyStateWidget(
-                  title: 'Nenhum abastecimento',
-                  message: 'Quando você registrar um abastecimento, ele aparecerá aqui.',
-                  actionLabel: 'Adicionar',
+              ///
+              Padding(
+                padding: AppSpacing.paddingHorizontalMd,
+                child: Align(
+                  alignment: AlignmentGeometry.centerLeft,
+                  child: Text('Abastecimentos', style: AppTypography.titleMd),
                 ),
+              ),
+              AppSpacing.gap8,
+              Expanded(
+                child: RefuelsList(refuels: refuels),
               ),
             ],
           );

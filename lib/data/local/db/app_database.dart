@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:gasosa_app/data/local/dao/refuel_dao.dart';
 import 'package:gasosa_app/data/local/dao/user_dao.dart';
+import 'package:gasosa_app/data/local/dao/vehicle_dao.dart';
 import 'package:gasosa_app/data/local/tables/refuel_table.dart';
 import 'package:gasosa_app/data/local/tables/user_table.dart';
 import 'package:gasosa_app/data/local/tables/vehicle_table.dart';
@@ -14,13 +16,13 @@ part 'app_database.g.dart';
 
 @DriftDatabase(
   tables: [Users, Vehicles, Refuels],
-  daos: [UserDao],
+  daos: [UserDao, VehicleDao, RefuelDao],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_open());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 1;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

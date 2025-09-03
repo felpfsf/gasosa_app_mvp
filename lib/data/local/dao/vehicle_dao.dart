@@ -12,7 +12,11 @@ class VehicleDao extends DatabaseAccessor<AppDatabase> with _$VehicleDaoMixin {
     await into(vehicles).insertOnConflictUpdate(data);
   }
 
-  Future<VehicleRow?> getById(String id) => (select(vehicles)..where((v) => v.id.equals(id))).getSingleOrNull();
+  Future<VehicleRow?> getById(String id) async {
+    final result = await (select(vehicles)..where((v) => v.id.equals(id))).getSingleOrNull();
+    // print('💜 Veículo do DB: ${result?.name}, fuelType: "${result?.fuelType}"');
+    return result;
+  }
 
   Stream<List<VehicleRow>> watchAllByUserId(String userId) =>
       (select(vehicles)

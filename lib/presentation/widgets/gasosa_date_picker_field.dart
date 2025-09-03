@@ -9,10 +9,12 @@ class GasosaDatePickerField extends StatelessWidget {
     super.key,
     required this.label,
     this.initialDate,
+    this.onChanged,
   });
 
   final String label;
   final DateTime? initialDate;
+  final Function(DateTime)? onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +39,7 @@ class GasosaDatePickerField extends StatelessWidget {
                 );
                 if (picked != null) {
                   state.didChange(picked);
+                  onChanged?.call(picked);
                 }
               },
               // child: Text(state.value?.toLocal().toString() ?? 'Selecione uma data'),

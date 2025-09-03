@@ -143,6 +143,7 @@ void _registerViewModels() {
   getIt.registerFactory(
     () => VehicleDetailViewModel(
       repository: getIt<VehicleRepository>(),
+      refuelRepository: getIt<RefuelRepository>(),
       delete: getIt<DeleteVehicleCommand>(),
       loading: getIt<LoadingController>(),
     ),

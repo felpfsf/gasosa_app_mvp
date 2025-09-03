@@ -24,8 +24,8 @@ class ManageRefuelState {
     this.vehicle,
     this.isEditing = false,
     this.mileage = 0,
-    this.totalValue = 0,
-    this.liters = 0,
+    this.totalValue = 0.0,
+    this.liters = 0.0,
     this.coldStartLiters,
     this.coldStartValue,
     this.receiptPath,
@@ -84,7 +84,7 @@ class ManageRefuelState {
     );
   }
 }
-
+// TODO(felipe): Adicionar validações caso o usuário insira um valor de mileage menor que a anterior para evitar contagem errada
 class ManageRefuelViewmodel extends BaseViewModel {
   ManageRefuelViewmodel({
     required RefuelRepository repository,
@@ -120,6 +120,7 @@ class ManageRefuelViewmodel extends BaseViewModel {
   final coldStartLitersEC = TextEditingController();
   final coldStartValueEC = TextEditingController();
   bool hasColdStart = false;
+  bool hasReceiptPhoto = false;
   FuelType fuelType = FuelType.gasoline;
 
   @override
@@ -168,6 +169,7 @@ class ManageRefuelViewmodel extends BaseViewModel {
           coldStartValueEC.text = _state.coldStartValue.toString();
           hasColdStart = _state.coldStartLiters != null && _state.coldStartValue != null;
           fuelType = _state.fuelType;
+          hasReceiptPhoto = _state.receiptPath != null;
 
           notifyListeners();
         },
@@ -217,6 +219,10 @@ class ManageRefuelViewmodel extends BaseViewModel {
     return state.fuelType == FuelType.ethanol || state.fuelType == FuelType.gnv;
   }
 
+  bool get shouldShowReceiptPhotoInput {
+    return hasReceiptPhoto;
+  }
+
   Future<void> _loadVehicleData(String vehicleId) async {
     final vehicleEither = await _vehicleRepository.getVehicleById(vehicleId);
     vehicleEither.fold(
@@ -247,6 +253,7 @@ class ManageRefuelViewmodel extends BaseViewModel {
       coldStartLitersEC.text = _state.coldStartLiters?.toStringAsFixed(2).replaceAll('.', ',') ?? '';
       coldStartValueEC.text = _state.coldStartValue?.toStringAsFixed(2).replaceAll('.', ',') ?? '';
       hasColdStart = _state.coldStartLiters != null && _state.coldStartValue != null;
+      hasReceiptPhoto = _state.receiptPath != null;
     } else {
       mileageEC.clear();
       totalValueEC.clear();
@@ -254,6 +261,7 @@ class ManageRefuelViewmodel extends BaseViewModel {
       coldStartLitersEC.clear();
       coldStartValueEC.clear();
       hasColdStart = false;
+      hasReceiptPhoto = false;
     }
     fuelType = state.fuelType;
   }
@@ -269,7 +277,7 @@ class ManageRefuelViewmodel extends BaseViewModel {
       liters: state.liters,
       coldStartLiters: hasColdStart ? state.coldStartLiters : null,
       coldStartValue: hasColdStart ? state.coldStartValue : null,
-      receiptPath: state.receiptPath,
+      receiptPath: hasReceiptPhoto ? state.receiptPath : null,
       refuelDate: state.refuelDate,
       fuelType: state.fuelType,
       createdAt: isEditing ? state.initial!.createdAt : DateTime.now(),
@@ -345,63 +353,66 @@ class ManageRefuelViewmodel extends BaseViewModel {
     }
   }
 
+  void _updateNumericValue<T>({
+    required String value,
+    required T Function(String) parser,
+    required T defaultValue,
+    required ManageRefuelState Function(T) stateUpdater,
+  }) {
+    final T parsedValue = value.trim().isEmpty ? defaultValue : parser(value.replaceAll(',', '.')) ?? defaultValue;
+
+    _state = stateUpdater(parsedValue);
+    notifyListeners();
+  }
+
   void updateRefuelDate(DateTime date) {
     _state = _state.copyWith(refuelDate: date);
     notifyListeners();
   }
 
   void updateMileage(String value) {
-    if (value.trim().isEmpty) {
-      _state = _state.copyWith(mileage: 0);
-    } else {
-      final parsed = int.tryParse(value.trim()) ?? 0;
-      _state = _state.copyWith(mileage: parsed);
-    }
-    notifyListeners();
+    _updateNumericValue<int>(
+      value: value,
+      parser: (value) => int.tryParse(value) ?? 0,
+      defaultValue: 0,
+      stateUpdater: (parsed) => _state.copyWith(mileage: parsed),
+    );
   }
 
   void updateTotalValue(String value) {
-    if (value.trim().isEmpty) {
-      _state = _state.copyWith(totalValue: 0);
-    } else {
-      final cleaned = value.replaceAll(',', '.');
-      final parsed = double.tryParse(cleaned) ?? 0;
-      _state = _state.copyWith(totalValue: parsed);
-    }
-    notifyListeners();
+    _updateNumericValue<double>(
+      value: value,
+      parser: (value) => double.tryParse(value) ?? 0.0,
+      defaultValue: 0.0,
+      stateUpdater: (parsed) => _state.copyWith(totalValue: parsed),
+    );
   }
 
   void updateLiters(String value) {
-    if (value.trim().isEmpty) {
-      _state = _state.copyWith(liters: 0);
-    } else {
-      final cleaned = value.replaceAll(',', '.');
-      final parsed = double.tryParse(cleaned) ?? 0;
-      _state = _state.copyWith(liters: parsed);
-    }
-    notifyListeners();
+    _updateNumericValue<double>(
+      value: value,
+      parser: (value) => double.tryParse(value) ?? 0.0,
+      defaultValue: 0.0,
+      stateUpdater: (parsed) => _state.copyWith(liters: parsed),
+    );
   }
 
   void updateColdStartLiters(String value) {
-    if (value.trim().isEmpty) {
-      _state = _state.copyWith();
-    } else {
-      final cleaned = value.replaceAll(',', '.');
-      final parsed = double.tryParse(cleaned) ?? 0;
-      _state = _state.copyWith(coldStartLiters: parsed);
-    }
-    notifyListeners();
+    _updateNumericValue<double>(
+      value: value,
+      parser: (value) => double.tryParse(value) ?? 0.0,
+      defaultValue: 0.0,
+      stateUpdater: (parsed) => _state.copyWith(coldStartLiters: parsed),
+    );
   }
 
   void updateColdStartValue(String value) {
-    if (value.trim().isEmpty) {
-      _state = _state.copyWith();
-    } else {
-      final cleaned = value.replaceAll(',', '.');
-      final parsed = double.tryParse(cleaned) ?? 0;
-      _state = _state.copyWith(coldStartValue: parsed);
-    }
-    notifyListeners();
+    _updateNumericValue<double>(
+      value: value,
+      parser: (value) => double.tryParse(value) ?? 0.0,
+      defaultValue: 0.0,
+      stateUpdater: (parsed) => _state.copyWith(coldStartValue: parsed),
+    );
   }
 
   void updateFuelType(FuelType value) {

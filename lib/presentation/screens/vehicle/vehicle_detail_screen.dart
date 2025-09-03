@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/di/locator.dart';
+import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/screens/dashboard/widgets/show_delete_vehicle_confirm_dialog.dart';
 import 'package:gasosa_app/presentation/screens/vehicle/viewmodel/vehicle_detail_viewmodel.dart';
@@ -47,6 +48,10 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
     }
   }
 
+  Future<void> _goToRefuelManageCreate() async {
+    context.push(RoutePaths.refuelManageCreate(widget.vehicleId));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,7 +65,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
         showBackButton: true,
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.go(RoutePaths.refuelManageCreate),
+        onPressed: _goToRefuelManageCreate,
         icon: const Icon(Icons.local_gas_station_rounded, color: AppColors.text),
         label: Text(
           'Novo abastecimento',
@@ -103,6 +108,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
             if (plate.isNotEmpty) 'Placa: $plate',
             'Capacidade do tanque: $cap${vehicle.tankCapacity != null ? ' L' : ''}',
           ].join(' • ');
+          final fuelType = vehicle.fuelType.displayName;
 
           return ListView(
             padding: AppSpacing.paddingMd,
@@ -121,6 +127,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
                         spacing: AppSpacing.md,
                         children: [
                           Text(vehicle.name, style: AppTypography.titleLg),
+                          Text('Tipo de Combustível: $fuelType', style: AppTypography.textSmRegular),
                           if (subtitle.isNotEmpty) Text(subtitle, style: AppTypography.textSmRegular),
                         ],
                       ),

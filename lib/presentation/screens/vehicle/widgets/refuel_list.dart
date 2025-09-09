@@ -9,8 +9,9 @@ import 'package:gasosa_app/theme/app_spacing.dart';
 import 'package:gasosa_app/theme/app_typography.dart';
 
 class RefuelsList extends StatelessWidget {
-  const RefuelsList({super.key, required this.refuels});
+  const RefuelsList({super.key, required this.refuels, required this.controller});
   final List<RefuelEntity> refuels;
+  final ScrollController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +26,7 @@ class RefuelsList extends StatelessWidget {
     }
 
     return ListView.separated(
+      controller: controller,
       padding: EdgeInsets.only(
         left: AppSpacing.md,
         right: AppSpacing.md,

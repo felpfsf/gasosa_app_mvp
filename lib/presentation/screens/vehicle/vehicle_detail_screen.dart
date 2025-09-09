@@ -23,14 +23,36 @@ class VehicleDetailScreen extends StatefulWidget {
   State<VehicleDetailScreen> createState() => _VehicleDetailScreenState();
 }
 
-class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
+class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerProviderStateMixin {
   late final VehicleDetailViewModel _viewModel;
+  late final ScrollController _scrollController;
+  late final AnimationController _animationController;
+
+  bool _isExtended = true;
 
   @override
   void initState() {
     super.initState();
     _viewModel = getIt<VehicleDetailViewModel>();
     _viewModel.init(widget.vehicleId);
+
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
+
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+  }
+
+  void _onScroll() {
+    if (_scrollController.offset > 100 && _isExtended) {
+      setState(() => _isExtended = false);
+      _animationController.forward();
+    } else if (_scrollController.offset <= 100 && !_isExtended) {
+      setState(() => _isExtended = true);
+      _animationController.reverse();
+    }
   }
 
   Future<void> _goToEditVehicle() async {
@@ -64,14 +86,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
         onBackPressed: () => context.go(RoutePaths.dashboard),
         showBackButton: true,
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _goToRefuelManageCreate,
-        icon: const Icon(Icons.local_gas_station_rounded, color: AppColors.text),
-        label: Text(
-          'Novo abastecimento',
-          style: AppTypography.textSmBold.copyWith(color: AppColors.text),
-        ),
-      ),
+      floatingActionButton: _buildFloatingActionButton(),
       body: AnimatedBuilder(
         animation: _viewModel,
         builder: (_, __) {
@@ -144,19 +159,50 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
               ///
               Padding(
                 padding: AppSpacing.paddingHorizontalMd,
-                child: Align(
-                  alignment: AlignmentGeometry.centerLeft,
-                  child: Text('Abastecimentos', style: AppTypography.titleMd),
+                child: AnimatedSlide(
+                  duration: const Duration(milliseconds: 300),
+                  offset: _scrollController.hasClients && _scrollController.offset > 100
+                      ? const Offset(-1.0, 0)
+                      : Offset.zero,
+                  child: Align(
+                    alignment: AlignmentGeometry.centerLeft,
+                    child: Text('Abastecimentos', style: AppTypography.titleMd),
+                  ),
                 ),
               ),
               AppSpacing.gap8,
               Expanded(
-                child: RefuelsList(refuels: refuels),
+                child: RefuelsList(
+                  refuels: refuels,
+                  controller: _scrollController,
+                ),
               ),
             ],
           );
         },
       ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  Widget _buildFloatingActionButton() {
+    return FloatingActionButton.extended(
+      extendedIconLabelSpacing: _isExtended ? 10 : 0,
+      extendedPadding: _isExtended ? null : AppSpacing.paddingMd,
+      onPressed: _goToRefuelManageCreate,
+      label: AnimatedSize(
+        duration: const Duration(milliseconds: 250),
+        child: _isExtended
+            ? Text('Novo abastecimento', style: AppTypography.textSmBold.copyWith(color: AppColors.text))
+            : const SizedBox.shrink(key: ValueKey('collapsed')),
+      ),
+      icon: const Icon(Icons.local_gas_station_rounded, color: AppColors.text),
     );
   }
 }

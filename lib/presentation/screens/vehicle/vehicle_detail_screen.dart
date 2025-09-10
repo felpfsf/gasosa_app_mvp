@@ -71,7 +71,10 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
   }
 
   Future<void> _goToRefuelManageCreate() async {
-    context.push(RoutePaths.refuelManageCreate(widget.vehicleId));
+    final result = await context.push(RoutePaths.refuelManageCreate(widget.vehicleId));
+    if(result == true) {
+      _viewModel.init(widget.vehicleId);
+    }
   }
 
   @override

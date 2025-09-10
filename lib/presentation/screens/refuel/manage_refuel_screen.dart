@@ -47,8 +47,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
       (failure) => Messages.showError(context, failure.message),
       (_) {
         Messages.showSuccess(context, 'Abastecimento salvo com sucesso!');
-        // TODO(felipe): navegação voltar corretamente para a tela de detalhes do veículo
-        if (mounted) context.go(RoutePaths.dashboard);
+        if (mounted) context.pop(true);
       },
     );
   }
@@ -71,8 +70,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
       appBar: GasosaAppbar(
         title: widget.refuelId != null ? 'Editar Abastecimento' : 'Adicionar Abastecimento',
         showBackButton: true,
-        // TODO(felipe): navegação voltar corretamente para a tela de detalhes do veículo
-        onBackPressed: () => context.go(RoutePaths.dashboard),
+        onBackPressed: () => context.pop(),
       ),
       body: AnimatedBuilder(
         animation: _viewmodel,

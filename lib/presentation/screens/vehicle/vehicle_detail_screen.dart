@@ -86,7 +86,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
         onBackPressed: () => context.go(RoutePaths.dashboard),
         showBackButton: true,
       ),
-      floatingActionButton: _buildFloatingActionButton(),
+      // floatingActionButton: _buildFloatingActionButton(),
       body: AnimatedBuilder(
         animation: _viewModel,
         builder: (_, __) {
@@ -159,15 +159,40 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
               ///
               Padding(
                 padding: AppSpacing.paddingHorizontalMd,
-                child: AnimatedSlide(
-                  duration: const Duration(milliseconds: 300),
-                  offset: _scrollController.hasClients && _scrollController.offset > 100
-                      ? const Offset(-1.0, 0)
-                      : Offset.zero,
-                  child: Align(
-                    alignment: AlignmentGeometry.centerLeft,
-                    child: Text('Abastecimentos', style: AppTypography.titleMd),
-                  ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Align(
+                        alignment: AlignmentGeometry.centerLeft,
+                        child: Text('Abastecimentos', style: AppTypography.titleMd),
+                      ),
+                    ),
+                    Container(
+                      decoration: const BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: AppSpacing.radiusLg,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 6,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      child: InkWell(
+                        onTap: _goToRefuelManageCreate,
+                        borderRadius: AppSpacing.radiusSm,
+                        child: const Padding(
+                          padding: AppSpacing.paddingMd,
+                          child: Icon(
+                            Icons.local_gas_station_rounded,
+                            color: AppColors.text,
+                            size: 24,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               AppSpacing.gap8,
@@ -191,6 +216,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
     super.dispose();
   }
 
+  // ignore: unused_element
   Widget _buildFloatingActionButton() {
     return FloatingActionButton.extended(
       extendedIconLabelSpacing: _isExtended ? 10 : 0,
@@ -199,7 +225,10 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
       label: AnimatedSize(
         duration: const Duration(milliseconds: 250),
         child: _isExtended
-            ? Text('Novo abastecimento', style: AppTypography.textSmBold.copyWith(color: AppColors.text))
+            ? Text(
+                'Novo abastecimento',
+                style: AppTypography.textSmBold.copyWith(color: AppColors.text),
+              )
             : const SizedBox.shrink(key: ValueKey('collapsed')),
       ),
       icon: const Icon(Icons.local_gas_station_rounded, color: AppColors.text),

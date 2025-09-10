@@ -16,6 +16,9 @@ class AppSpacing {
   /// 32 - Espaçamento entre elementos
   static const double xl = 32;
 
+  /// 12 - Espaçamento entre elementos
+  static const EdgeInsets paddingSm = EdgeInsets.all(12);
+
   /// 16 - Espaçamento entre elementos
   static const EdgeInsets paddingMd = EdgeInsets.all(md);
 
@@ -46,8 +49,11 @@ class AppSpacing {
   /// 12 - Raio de borda médio
   static const BorderRadius radiusMd = BorderRadius.all(Radius.circular(12));
 
+  /// 16 - Raio de borda grande
+  static const BorderRadius radiusLg = BorderRadius.all(Radius.circular(16));
+
   /// 20 - Raio de borda grande
-  static const BorderRadius radiusLg = BorderRadius.all(Radius.circular(20));
+  static const BorderRadius radiusXl = BorderRadius.all(Radius.circular(20));
 
   /// 4 - Espaçamento entre widgets
   static const SizedBox gap4 = SizedBox(height: 4);

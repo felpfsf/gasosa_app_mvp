@@ -167,30 +167,8 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
                         child: Text('Abastecimentos', style: AppTypography.titleMd),
                       ),
                     ),
-                    Container(
-                      decoration: const BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: AppSpacing.radiusLg,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black26,
-                            blurRadius: 6,
-                            offset: Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: InkWell(
-                        onTap: _goToRefuelManageCreate,
-                        borderRadius: AppSpacing.radiusSm,
-                        child: const Padding(
-                          padding: AppSpacing.paddingMd,
-                          child: Icon(
-                            Icons.local_gas_station_rounded,
-                            color: AppColors.text,
-                            size: 24,
-                          ),
-                        ),
-                      ),
+                    _AddRefuelButton(
+                      onTap: _goToRefuelManageCreate,
                     ),
                   ],
                 ),
@@ -324,6 +302,48 @@ class _HeaderImage extends StatelessWidget {
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _AddRefuelButton extends StatelessWidget {
+  const _AddRefuelButton({this.onTap});
+
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: AppColors.primary,
+        borderRadius: AppSpacing.radiusLg,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black26,
+            blurRadius: 6,
+            offset: Offset(0, 3),
+          ),
+        ],
+      ),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: AppSpacing.radiusSm,
+        child: Padding(
+          padding: AppSpacing.paddingMd,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: AppSpacing.sm,
+            children: [
+              const Icon(
+                Icons.local_gas_station_rounded,
+                color: AppColors.text,
+                size: 24,
+              ),
+              Text('Novo', style: AppTypography.textMdBold.copyWith(color: AppColors.text)),
+            ],
+          ),
+        ),
       ),
     );
   }

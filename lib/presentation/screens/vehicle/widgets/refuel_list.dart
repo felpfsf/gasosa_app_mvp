@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/extensions/date_time_extensions.dart';
 import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/domain/entities/refuel.dart';
+import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_card.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_empty_state_widget.dart';
 import 'package:gasosa_app/theme/app_colors.dart';
 import 'package:gasosa_app/theme/app_spacing.dart';
 import 'package:gasosa_app/theme/app_typography.dart';
+import 'package:go_router/go_router.dart';
 
 class RefuelsList extends StatelessWidget {
   const RefuelsList({super.key, required this.refuels, required this.controller});
@@ -43,6 +45,7 @@ class RefuelsList extends StatelessWidget {
           key: ValueKey(refuel.id),
           refuel: refuel,
           previousRefuel: previousRefuel,
+          onTap: () => context.go(RoutePaths.refuelManageEdit(refuel.id)),
         );
       },
     );
@@ -54,10 +57,12 @@ class _RefuelItem extends StatelessWidget {
     super.key,
     required this.refuel,
     this.previousRefuel,
+    this.onTap,
   });
 
   final RefuelEntity refuel;
   final RefuelEntity? previousRefuel;
+  final VoidCallback? onTap;
 
   double get pricePerLiter => refuel.totalValue / refuel.liters;
 
@@ -77,6 +82,7 @@ class _RefuelItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GasosaCard(
+      onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: AppSpacing.sm,

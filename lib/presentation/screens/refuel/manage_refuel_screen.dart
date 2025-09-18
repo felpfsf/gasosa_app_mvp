@@ -4,7 +4,6 @@ import 'package:gasosa_app/core/di/locator.dart';
 import 'package:gasosa_app/core/helpers/formatters.dart';
 import 'package:gasosa_app/core/validators/refuel_validators.dart';
 import 'package:gasosa_app/domain/entities/fuel_type.dart';
-import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/screens/refuel/viewmodel/manage_refuel_viewmodel.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_appbar.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_button.dart';
@@ -58,8 +57,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
       (failure) => Messages.showError(context, failure.message),
       (_) {
         Messages.showSuccess(context, 'Abastecimento excluído com sucesso!');
-        // TODO(felipe): navegação voltar corretamente para a tela de detalhes do veículo
-        if (mounted) context.go(RoutePaths.dashboard);
+        if (mounted) context.pop(true);
       },
     );
   }
@@ -99,7 +97,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       onChanged: _viewmodel.updateMileage,
                     ),
-                    if (state.availableFuelTypes.isNotEmpty) ...[
+                    if (state.availableFuelTypes.length > 1) ...[
                       GasosaDropdownField<FuelType>(
                         label: 'Tipo de Combustível',
                         value: state.fuelType,
@@ -112,30 +110,9 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                           }
                         },
                       ),
-                    ] else if (state.availableFuelTypes.isNotEmpty) ...[
-                      // TODO(felipe): Alterar para um widget
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: AppSpacing.sm,
-                        children: [
-                          Text('Tipo de Combustível', style: AppTypography.textSmBold),
-                          Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.md),
-                            decoration: BoxDecoration(
-                              border: Border.all(color: AppColors.border),
-                              borderRadius: BorderRadius.circular(AppSpacing.sm),
-                              color: AppColors.surface.withValues(alpha: 0.5),
-                            ),
-                            child: Text(
-                              state.fuelType.displayName,
-                              style: AppTypography.textSmRegular.copyWith(color: AppColors.text.withValues(alpha: .6)),
-                            ),
-                          ),
-                        ],
-                      ),
+                    ] else if (state.availableFuelTypes.length == 1) ...[
+                      _buildFixedFuelType(state.fuelType.displayName),
                     ],
-
                     GasosaFormField(
                       label: 'Litros abastecidos',
                       controller: _viewmodel.litersEC,
@@ -223,6 +200,29 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
           );
         },
       ),
+    );
+  }
+
+  Widget _buildFixedFuelType(String fuelType) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: AppSpacing.sm,
+      children: [
+        Text('Tipo de Combustível', style: AppTypography.textSmBold),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.md),
+          decoration: BoxDecoration(
+            border: Border.all(color: AppColors.border),
+            borderRadius: BorderRadius.circular(AppSpacing.sm),
+            color: AppColors.surface.withValues(alpha: 0.5),
+          ),
+          child: Text(
+            fuelType,
+            style: AppTypography.textSmRegular.copyWith(color: AppColors.text.withValues(alpha: .6)),
+          ),
+        ),
+      ],
     );
   }
 

@@ -131,7 +131,8 @@ class _RefuelItem extends StatelessWidget {
                 const Spacer(),
                 if (distanceTraveled != null) ...[
                   const Icon(Icons.route_rounded),
-                  Text('$distanceTraveled km', style: AppTypography.textSmRegular),
+                  // TODO(felipe): Change to Expanded after fixing overflow issue
+                  Expanded(child: Text('$distanceTraveled km', style: AppTypography.textSmRegular)),
                 ],
               ],
             ),

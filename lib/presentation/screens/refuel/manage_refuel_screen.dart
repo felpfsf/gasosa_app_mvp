@@ -92,7 +92,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                     GasosaFormField(
                       label: 'KM atual',
                       controller: _viewmodel.mileageEC,
-                      validator: RefuelValidators.mileage,
+                      validator: _viewmodel.mileageValidator,
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       onChanged: _viewmodel.updateMileage,

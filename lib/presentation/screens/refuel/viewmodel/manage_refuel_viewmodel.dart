@@ -8,6 +8,7 @@ import 'package:gasosa_app/application/commands/refuel/create_or_update_refuel_c
 import 'package:gasosa_app/application/commands/refuel/delete_refuel_command.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/core/helpers/uuid.dart';
+import 'package:gasosa_app/core/validators/refuel_validators.dart';
 import 'package:gasosa_app/core/viewmodel/base_viewmodel.dart';
 import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
 import 'package:gasosa_app/domain/entities/fuel_type.dart';
@@ -31,6 +32,7 @@ class ManageRefuelState {
     this.receiptPath,
     this.fuelType = FuelType.gasoline,
     this.availableFuelTypes = const [FuelType.gasoline],
+    this.previousMileage,
     DateTime? refuelDate,
   }) : refuelDate = refuelDate ?? DateTime.now();
 
@@ -48,6 +50,7 @@ class ManageRefuelState {
   final DateTime refuelDate;
   final FuelType fuelType;
   final List<FuelType> availableFuelTypes;
+  final int? previousMileage;
 
   ManageRefuelState copyWith({
     bool? isLoading,
@@ -64,6 +67,7 @@ class ManageRefuelState {
     DateTime? refuelDate,
     FuelType? fuelType,
     List<FuelType>? availableFuelTypes,
+    int? previousMileage,
     bool clearPhotoPath = false,
   }) {
     return ManageRefuelState(
@@ -81,10 +85,11 @@ class ManageRefuelState {
       refuelDate: refuelDate ?? this.refuelDate,
       fuelType: fuelType ?? this.fuelType,
       availableFuelTypes: availableFuelTypes ?? this.availableFuelTypes,
+      previousMileage: previousMileage ?? this.previousMileage,
     );
   }
 }
-// TODO(felipe): Adicionar validações caso o usuário insira um valor de mileage menor que a anterior para evitar contagem errada
+
 class ManageRefuelViewmodel extends BaseViewModel {
   ManageRefuelViewmodel({
     required RefuelRepository repository,
@@ -147,6 +152,7 @@ class ManageRefuelViewmodel extends BaseViewModel {
           }
 
           await _loadVehicleData(refuel.vehicleId);
+          await _loadPreviousMileage(refuel.vehicleId, refuel.createdAt, refuel.mileage);
 
           _state = _state.copyWith(
             isLoading: false,
@@ -184,6 +190,7 @@ class ManageRefuelViewmodel extends BaseViewModel {
   Future<void> initWithVehicle(String vehicleId) async {
     setViewLoading(value: true);
     await _loadVehicleData(vehicleId);
+    await _loadPreviousMileage(vehicleId, DateTime.now(), 0);
     _state = _state.copyWith(isLoading: false);
     _populateControllers();
     notifyListeners();
@@ -223,6 +230,26 @@ class ManageRefuelViewmodel extends BaseViewModel {
     return hasReceiptPhoto;
   }
 
+  String? Function(String?) get mileageValidator {
+    return (String? value) {
+      // First apply basic validations
+      final basicValidation = RefuelValidators.mileage(value);
+      if (basicValidation != null) {
+        return basicValidation;
+      }
+
+      // Check if mileage is less than previous
+      if (state.previousMileage != null) {
+        final currentMileage = int.tryParse(value ?? '0') ?? 0;
+        if (currentMileage < state.previousMileage!) {
+          return 'KM não pode ser menor que o abastecimento anterior (${state.previousMileage} km)';
+        }
+      }
+
+      return null;
+    };
+  }
+
   Future<void> _loadVehicleData(String vehicleId) async {
     final vehicleEither = await _vehicleRepository.getVehicleById(vehicleId);
     vehicleEither.fold(
@@ -240,6 +267,24 @@ class ManageRefuelViewmodel extends BaseViewModel {
           );
 
           fuelType = defaultFuelType; // TODO(felipe): Talvez não é necessário
+        }
+      },
+    );
+  }
+
+  Future<void> _loadPreviousMileage(String vehicleId, DateTime createdAt, int mileage) async {
+    final previousEither = await _repository.getPreviousByVehicleId(
+      vehicleId,
+      createdAt: createdAt,
+      mileage: mileage,
+    );
+    previousEither.fold(
+      (failure) {
+        // Silently ignore failure - no previous refuel is okay
+      },
+      (previousRefuel) {
+        if (previousRefuel != null) {
+          _state = _state.copyWith(previousMileage: previousRefuel.mileage);
         }
       },
     );

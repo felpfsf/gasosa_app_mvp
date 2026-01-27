@@ -2,6 +2,21 @@
 
 Bem-vindo ao Gasosa App! Este projeto tem como objetivo oferecer uma solução simples e eficiente para motoristas acompanharem abastecimentos, consumo médio e histórico dos seus veículos. O app é construído em Flutter, utilizando Firebase para autenticação, Drift para persistência local offline-first, e segue padrões modernos de arquitetura.
 
+## 📚 Documentação Completa
+
+O projeto possui documentação técnica completa organizada por domínio:
+
+- **[📖 Documentação Principal](./docs/README.md)**: Visão geral da arquitetura e padrões
+- **[🚀 Guia de Início Rápido](./docs/quick-start.md)**: Setup e primeiros passos
+- **[📝 ADR - Decisões Arquiteturais](./docs/adr.md)**: Registro de decisões técnicas
+
+### Domínios
+
+- **[🔐 Auth (Autenticação)](./docs/domain-auth.md)**: Login, registro e sessão
+- **[🚗 Vehicle (Veículos)](./docs/domain-vehicle.md)**: CRUD de veículos
+- **[⛽ Refuel (Abastecimentos)](./docs/domain-refuel.md)**: Registro e cálculo de consumo
+- **[🛠️ Core (Infraestrutura)](./docs/domain-core.md)**: Utilitários compartilhados
+
 ## Visão Geral
 
 - **Propósito**: Permitir o registro fácil de abastecimentos, cálculo de consumo médio, e visualização de histórico técnico para manutenção e controle de gastos.

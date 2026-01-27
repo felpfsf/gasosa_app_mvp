@@ -59,7 +59,6 @@ class FirebaseAuthService implements AuthService {
     } on fb.FirebaseAuthException catch (e, s) {
       return left(_mapFirebaseAuthError(e, s));
     } catch (e, s) {
-      print(e);
       return left(AuthFailure('Erro inesperado de autenticação', cause: e, stackTrace: s));
     }
   }

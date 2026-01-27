@@ -47,6 +47,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
     final name = user?.displayName;
+
     return Scaffold(
       appBar: GasosaAppbar(
         title: 'Bem vindo $name',
@@ -62,18 +63,27 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _goToCreateVehicle,
-        icon: const Icon(Icons.directions_car_filled_rounded, color: AppColors.text),
-        label: Text(
-          'Adicionar veículo',
-          style: AppTypography.textSmBold.copyWith(color: AppColors.text),
-        ),
+      floatingActionButton: AnimatedBuilder(
+        animation: _viewModel,
+        builder: (_, __) {
+          final hasVehicles = _viewModel.state.vehicles.isNotEmpty;
+          return hasVehicles
+              ? FloatingActionButton.extended(
+                  onPressed: _goToCreateVehicle,
+                  icon: const Icon(Icons.directions_car_filled_rounded, color: AppColors.text),
+                  label: Text(
+                    'Adicionar veículo',
+                    style: AppTypography.textSmBold.copyWith(color: AppColors.text),
+                  ),
+                )
+              : const SizedBox.shrink();
+        },
       ),
       body: AnimatedBuilder(
         animation: _viewModel,
         builder: (_, __) {
           final state = _viewModel.state;
+          final iVehicleListEmpty = state.vehicles.isEmpty;
 
           if (state.isLoading) {
             return ColoredBox(
@@ -91,7 +101,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             );
           }
 
-          if (state.vehicles.isEmpty) {
+          if (iVehicleListEmpty) {
             return GasosaEmptyStateWidget(
               title: 'Nenhum veículo cadastrado',
               message: 'Cadastre seu primeiro veículo para começar a usar o app.',
@@ -108,8 +118,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               final vehicle = state.vehicles[index];
               return VehicleCard(
                 vehicle: vehicle,
-                onTap: () => context.go(RoutePaths.vehicleDetail(vehicle.id)),
-                // onEdit: () => context.go(RoutePaths.vehicleManageEdit(vehicle.id)),
+                onTap: () => context.push(RoutePaths.vehicleDetail(vehicle.id)),
+                // onEdit: () => context.push(RoutePaths.vehicleManageEdit(vehicle.id)),
                 // onDelete: () async {
                 //   final confirmed = await showDeleteVehicleConfirmDialog(context, vehicleName: vehicle.name);
                 //   if (confirmed) {

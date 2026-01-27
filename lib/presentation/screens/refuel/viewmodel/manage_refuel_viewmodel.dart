@@ -239,10 +239,11 @@ class ManageRefuelViewmodel extends BaseViewModel {
       }
 
       // Check if mileage is less than previous
-      if (state.previousMileage != null) {
+      final prevMileage = state.previousMileage;
+      if (prevMileage != null) {
         final currentMileage = int.tryParse(value ?? '0') ?? 0;
-        if (currentMileage < state.previousMileage!) {
-          return 'KM não pode ser menor que o abastecimento anterior (${state.previousMileage} km)';
+        if (currentMileage < prevMileage) {
+          return 'KM não pode ser menor que o abastecimento anterior ($prevMileage km)';
         }
       }
 

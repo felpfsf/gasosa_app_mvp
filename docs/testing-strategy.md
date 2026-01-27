@@ -609,17 +609,18 @@ find test -name "*.dart" | entr flutter test
 
 ### Setup Inicial
 
-- [ ] Criar pasta `test/` na raiz do projeto
-- [ ] Adicionar dependências (`mocktail`, `faker`) ao `pubspec.yaml`
-- [ ] Criar estrutura de pastas espelhando `lib/`
+- [x] Criar pasta `test/` na raiz do projeto
+- [x] Adicionar dependências (`mocktail`, `faker`) ao `pubspec.yaml`
+- [x] Criar estrutura de pastas espelhando `lib/`
 - [ ] Criar `test/helpers/` com mocks e factories base
 
 ### Fase 1: Core (2-3 dias)
 
-- [ ] Validators (email, password, plate)
-- [ ] Extensions (String, DateTime)
-- [ ] Helpers (currency, date)
-- [ ] **Meta:** 100% de cobertura
+- [x] Validators (email, password, plate)
+- [x] Extensions (String, DateTime)
+- [x] Helpers (currency, date)
+- [x] **Meta:** 100% de cobertura
+- **Status:** ✅ **COMPLETO** - 124 testes passando
 
 ### Fase 2: Mappers (1-2 dias)
 
@@ -690,12 +691,16 @@ find test -name "*.dart" | entr flutter test
 
 **Cobertura por Domínio:**
 
-| Domínio | Validators | Mappers | Commands | Repositories | Total |
-|---------|-----------|---------|----------|--------------|-------|
-| Core    | 0/7       | -       | -        | -            | 0%    |
-| Auth    | -         | 0/1     | 0/3      | 0/1          | 0%    |
-| Vehicle | -         | 0/1     | 0/3      | 0/1          | 0%    |
-| Refuel  | -         | 0/1     | 0/4      | 0/1          | 0%    |
+| Domínio | Validators | Mappers   | Commands  | Repositories | Total  |
+|---------|----------- | --------- | ----------|--------------|------- |
+| Core    | ✅ 7/7     |  -        |  -        | -            | ✅ 100%|
+| Auth    | -          |  0/1      |  0/3      | 0/1          | 0%     |
+| Vehicle | -          |  0/1      |  0/3      | 0/1          | 0%     |
+| Refuel  | -          |  0/1      |  0/4      | 0/1          | 0%     |
+
+**Total geral:** 124 testes passando (Fase 1 completa)
+
+**Atualizar após cada fase completada.**
 
 **Atualizar após cada fase completada.**
 

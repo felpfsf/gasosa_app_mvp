@@ -54,6 +54,9 @@ dev_dependencies:
   build_runner: ^2.7.0
   drift_dev: ^2.28.1
   
+  # 👉 Testing
+  faker: ^2.1.0
+  
 flutter:
   uses-material-design: true
 

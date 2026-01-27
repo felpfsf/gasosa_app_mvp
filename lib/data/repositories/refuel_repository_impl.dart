@@ -11,7 +11,7 @@ class RefuelRepositoryImpl implements RefuelRepository {
   final RefuelDao _dao;
 
   @override
-  Future<Either<Failure, Unit>> addRefuel(RefuelEntity refuel) async {
+  Future<Either<Failure, Unit>> upsertRefuel(RefuelEntity refuel) async {
     try {
       await _dao.upsert(RefuelMapper.toCompanion(refuel));
       return right(unit);
@@ -47,16 +47,6 @@ class RefuelRepositoryImpl implements RefuelRepository {
       return right(row == null ? null : RefuelMapper.toDomain(row));
     } catch (e) {
       return left(DatabaseFailure('Erro ao buscar reabastecimento', cause: e));
-    }
-  }
-
-  @override
-  Future<Either<Failure, Unit>> updateRefuel(RefuelEntity refuel) async {
-    try {
-      await _dao.upsert(RefuelMapper.toCompanion(refuel));
-      return right(unit);
-    } catch (e) {
-      return left(DatabaseFailure('Erro ao atualizar reabastecimento', cause: e));
     }
   }
 

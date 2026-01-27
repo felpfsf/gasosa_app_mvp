@@ -23,10 +23,11 @@ class DashboardState {
   DashboardState copyWith({
     bool? isLoading,
     String? errorMessage,
+    bool clearError = false,
     List<VehicleEntity>? vehicles,
   }) => DashboardState(
     isLoading: isLoading ?? this.isLoading,
-    errorMessage: errorMessage,
+    errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
     vehicles: vehicles ?? this.vehicles,
   );
 }
@@ -48,9 +49,17 @@ class DashboardViewModel extends BaseViewModel {
 
   StreamSubscription<Either<Failure, List<VehicleEntity>>>? _sub;
   bool _awaitingFirstEmission = false;
+  bool _initialized = false;
 
   Future<void> init() async {
+    // Evita múltiplas inicializações
+    if (_initialized) {
+      return;
+    }
+    _initialized = true;
+
     final uid = FirebaseAuth.instance.currentUser?.uid;
+
     if (uid == null || uid.isEmpty) {
       _setError('Usuário não autenticado');
       return;
@@ -60,6 +69,7 @@ class DashboardViewModel extends BaseViewModel {
 
     // TODO(felipe): delaying for testing purpose
     await Future.delayed(const Duration(milliseconds: 300));
+
     _sub = _loadVehicles
         .watchAllByUserId(uid)
         .listen(
@@ -69,10 +79,13 @@ class DashboardViewModel extends BaseViewModel {
               setViewLoading();
             }
             either.fold(
-              (failure) => _setError('Erro ao carregar veículos: ${failure.message}'),
+              (failure) {
+                _setError('Erro ao carregar veículos: ${failure.message}');
+              },
               (vehicles) {
                 _state = _state.copyWith(
                   isLoading: false,
+                  clearError: true,
                   vehicles: vehicles,
                 );
                 notifyListeners();
@@ -107,7 +120,6 @@ class DashboardViewModel extends BaseViewModel {
     _state = _state.copyWith(
       isLoading: false,
       errorMessage: message.isEmpty ? 'Erro inesperado' : message,
-      vehicles: [],
     );
     notifyListeners();
   }
@@ -115,6 +127,7 @@ class DashboardViewModel extends BaseViewModel {
   Future<void> retry() async {
     await _sub?.cancel();
     _sub = null;
+    _initialized = false;
     await init();
   }
 

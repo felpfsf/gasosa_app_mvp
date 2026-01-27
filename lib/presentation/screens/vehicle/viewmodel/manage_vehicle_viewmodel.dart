@@ -162,14 +162,20 @@ class ManageVehicleViewModel extends BaseViewModel {
     notifyListeners();
 
     final entity = _buildEntity();
+
     final response = await _saveVehicle(entity);
 
-    response.fold(_setFailure, (_) {
-      _state = _state.copyWith(isLoading: false);
-      notifyListeners();
+    response.fold(
+      (failure) {
+        _setFailure(failure);
+      },
+      (_) {
+        _state = _state.copyWith(isLoading: false);
+        notifyListeners();
 
-      _cleanupStagedPhoto();
-    });
+        _cleanupStagedPhoto();
+      },
+    );
 
     return response;
   }

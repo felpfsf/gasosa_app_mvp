@@ -691,12 +691,12 @@ find test -name "*.dart" | entr flutter test
 
 **Cobertura por Domínio:**
 
-| Domínio | Validators | Mappers | Commands | Repositories | Total |
-|---------|-----------|---------|----------|--------------|-------|
-| Core    | ✅ 7/7    | -       | -        | -            | ✅ 100%|
-| Auth    | -         | 0/1     | 0/3      | 0/1          | 0%    |
-| Vehicle | -         | 0/1     | 0/3      | 0/1          | 0%    |
-| Refuel  | -         | 0/1     | 0/4      | 0/1          | 0%    |
+| Domínio | Validators | Mappers   | Commands  | Repositories | Total  |
+|---------|----------- | --------- | ----------|--------------|------- |
+| Core    | ✅ 7/7     |  -        |  -        | -            | ✅ 100%|
+| Auth    | -          |  0/1      |  0/3      | 0/1          | 0%     |
+| Vehicle | -          |  0/1      |  0/3      | 0/1          | 0%     |
+| Refuel  | -          |  0/1      |  0/4      | 0/1          | 0%     |
 
 **Total geral:** 124 testes passando (Fase 1 completa)
 

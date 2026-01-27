@@ -9,6 +9,6 @@ class CreateOrUpdateRefuelCommand {
   final RefuelRepository _repository;
 
   Future<Either<Failure, Unit>> call(RefuelEntity entity) async {
-    return entity.id.isEmpty ? _repository.addRefuel(entity) : _repository.updateRefuel(entity);
+    return _repository.upsertRefuel(entity);
   }
 }

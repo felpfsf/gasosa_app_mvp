@@ -73,7 +73,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     spacing: AppSpacing.lg,
                     children: [
-                      const LogoHero(size: 200),
+                      const LogoHero(size: 120),
                       Text('Crie sua conta', style: AppTypography.textLgBold),
                       Form(
                         key: _formKey,

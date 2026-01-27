@@ -5,7 +5,7 @@ import 'package:intl/date_symbol_data_local.dart';
 void main() {
   setUpAll(() async {
     // Inicializa locale pt_BR para testes de formatação
-    await initializeDateFormatting('pt_BR', null);
+    await initializeDateFormatting('pt_BR');
   });
   group('DateTimeExtensions.formattedDate', () {
     test('deve formatar data corretamente em formato dd/MM/yyyy', () {
@@ -65,7 +65,7 @@ void main() {
 
     test('deve formatar corretamente 1º de janeiro', () {
       // Arrange
-      final date = DateTime(2026, 1, 1);
+      final date = DateTime(2026);
 
       // Act
       final result = date.formattedDate();
@@ -155,7 +155,7 @@ void main() {
 
     test('deve formatar dia 1 sem zero à esquerda', () {
       // Arrange
-      final date = DateTime(2026, 7, 1);
+      final date = DateTime(2026, 7);
 
       // Act
       final result = date.formattedFullDate();

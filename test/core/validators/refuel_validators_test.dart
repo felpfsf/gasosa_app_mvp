@@ -390,7 +390,7 @@ void main() {
 
     test('deve aceitar data no passado', () {
       // Arrange
-      final pastDate = DateTime(2023, 1, 1);
+      final pastDate = DateTime(2023);
 
       // Act
       final result = RefuelValidators.date(pastDate);

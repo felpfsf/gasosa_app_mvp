@@ -1,4 +1,3 @@
-import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gasosa_app/core/helpers/formatters.dart';
 
@@ -7,13 +6,13 @@ void main() {
     late DigitDecimalInputFormatter formatter;
 
     setUp(() {
-      formatter = DigitDecimalInputFormatter(decimalDigits: 3);
+      formatter = DigitDecimalInputFormatter();
     });
 
     test('deve formatar valor vazio como 0.000', () {
       // Arrange
-      const oldValue = TextEditingValue(text: '');
-      const newValue = TextEditingValue(text: '');
+      const oldValue = TextEditingValue.empty;
+      const newValue = TextEditingValue.empty;
 
       // Act
       final result = formatter.formatEditUpdate(oldValue, newValue);
@@ -137,7 +136,7 @@ void main() {
 
       test('deve formatar com 2 casas decimais', () {
         // Arrange
-        const oldValue = TextEditingValue(text: '');
+        const oldValue = TextEditingValue.empty;
         const newValue = TextEditingValue(text: '123');
 
         // Act
@@ -149,8 +148,8 @@ void main() {
 
       test('deve formatar valor vazio como 0.00', () {
         // Arrange
-        const oldValue = TextEditingValue(text: '');
-        const newValue = TextEditingValue(text: '');
+        const oldValue = TextEditingValue.empty;
+        const newValue = TextEditingValue.empty;
 
         // Act
         final result = formatter.formatEditUpdate(oldValue, newValue);
@@ -167,7 +166,7 @@ void main() {
 
       test('deve formatar sem casas decimais', () {
         // Arrange
-        const oldValue = TextEditingValue(text: '');
+        const oldValue = TextEditingValue.empty;
         const newValue = TextEditingValue(text: '123');
 
         // Act
@@ -180,7 +179,7 @@ void main() {
 
     test('deve adicionar zeros à esquerda quando necessário para manter decimais', () {
       // Arrange
-      const oldValue = TextEditingValue(text: '');
+      const oldValue = TextEditingValue.empty;
       const newValue = TextEditingValue(text: '5');
 
       // Act

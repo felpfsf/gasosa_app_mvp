@@ -1,0 +1,762 @@
+# Estratégia de Testes - Gasosa App MVP
+
+## 📋 Visão Geral
+
+Este documento define a estratégia completa de testes do Gasosa App, organizada por domínio e seguindo os princípios de Clean Architecture. O objetivo é garantir qualidade, testabilidade e evolução segura do produto.
+
+---
+
+## 🎯 Objetivos e Métricas
+
+### Cobertura Mínima Esperada
+
+| Camada | Cobertura | Justificativa |
+| -------- | ----------- | --------------- |
+| **Validators** | 100% | Lógica pura crítica para validações |
+| **Mappers** | 100% | Conversões entre camadas, sem I/O |
+| **Commands** | 80%+ | Casos de uso orquestram regras de negócio |
+| **Repositories** | 70%+ | Abstraem persistência e APIs |
+| **UI/Widgets** | 50%+ | Apenas widgets e fluxos críticos |
+
+### Princípios de Teste
+
+1. **Testes rápidos**: Unit tests devem executar em < 5s
+2. **Isolamento**: Cada teste é independente, usa mocks
+3. **Arrange-Act-Assert**: Estrutura clara em todos os testes
+4. **Nomes descritivos**: `deve_retornar_Right_quando_email_valido`
+5. **Um conceito por teste**: Evitar testes que validam múltiplos cenários
+
+---
+
+## 📁 Estrutura de Pastas
+
+A estrutura de testes espelha `lib/`, facilitando navegação e manutenção:
+
+```bash
+test/
+├─ core/                          # Domínio Core (infraestrutura compartilhada)
+│  ├─ validators/
+│  │  ├─ email_validator_test.dart
+│  │  ├─ password_validator_test.dart
+│  │  └─ plate_validator_test.dart
+│  ├─ extensions/
+│  │  ├─ string_extension_test.dart
+│  │  └─ datetime_extension_test.dart
+│  └─ helpers/
+│     ├─ currency_helper_test.dart
+│     └─ date_helper_test.dart
+│
+├─ domain/                        # Entidades (se houver lógica)
+│  └─ entities/
+│     ├─ vehicle_entity_test.dart
+│     └─ refuel_entity_test.dart
+│
+├─ data/                          # Mappers e Repositories
+│  ├─ mappers/
+│  │  ├─ vehicle_mapper_test.dart
+│  │  ├─ refuel_mapper_test.dart
+│  │  └─ user_mapper_test.dart
+│  └─ repositories/
+│     ├─ auth_repository_impl_test.dart
+│     ├─ vehicle_repository_impl_test.dart
+│     ├─ refuel_repository_impl_test.dart
+│     └─ user_repository_impl_test.dart
+│
+├─ application/                   # Commands (casos de uso)
+│  └─ commands/
+│     ├─ auth/
+│     │  ├─ login_email_password_command_test.dart
+│     │  ├─ login_with_google_command_test.dart
+│     │  └─ register_command_test.dart
+│     ├─ vehicles/
+│     │  ├─ create_or_update_vehicle_command_test.dart
+│     │  ├─ delete_vehicle_command_test.dart
+│     │  └─ load_vehicles_command_test.dart
+│     └─ refuel/
+│        ├─ create_or_update_refuel_command_test.dart
+│        ├─ delete_refuel_command_test.dart
+│        ├─ load_refuels_by_vehicle_command_test.dart
+│        └─ calculate_consumption_command_test.dart
+│
+└─ helpers/                       # Mocks e Factories reutilizáveis
+   ├─ mock_repositories.dart      # Todos os mock repositories
+   ├─ mock_services.dart          # Mock de serviços (Auth, Storage)
+   ├─ factories/
+   │  ├─ vehicle_factory.dart     # Cria VehicleEntity fake para testes
+   │  ├─ refuel_factory.dart      # Cria RefuelEntity fake
+   │  └─ user_factory.dart        # Cria UserEntity fake
+   └─ test_helpers.dart           # Helpers gerais (matchers customizados)
+```
+
+---
+
+## 🔄 Ordem de Implementação
+
+### Fase 1: Fundação (Core)
+
+**Prioridade:** 🔴 ALTA  
+**Duração estimada:** 2-3 dias  
+**Por quê primeiro?** Core é usado por todos os domínios. Validators, extensions e helpers são dependências críticas.
+
+#### Checklist
+
+- [ ] `email_validator_test.dart`
+- [ ] `password_validator_test.dart`
+- [ ] `plate_validator_test.dart`
+- [ ] `string_extension_test.dart`
+- [ ] `datetime_extension_test.dart`
+- [ ] `currency_helper_test.dart`
+- [ ] `date_helper_test.dart`
+
+**Cobertura esperada:** 100%
+
+---
+
+### Fase 2: Mappers (Data Layer)
+
+**Prioridade:** 🟠 MÉDIA-ALTA  
+**Duração estimada:** 1-2 dias  
+**Por quê agora?** Conversões puras, sem I/O, 100% testáveis.
+
+#### Checklist
+
+- [ ] `user_mapper_test.dart`
+- [ ] `vehicle_mapper_test.dart`
+- [ ] `refuel_mapper_test.dart`
+
+**Casos a testar por mapper:**
+
+- Conversão `toDomain()` (TableData → Entity)
+- Conversão `toTableData()` (Entity → TableData)
+- Conversão `toCompanion()` (Entity → Companion para insert/update)
+- Valores nulos e defaults
+- Enums (FuelType, etc.)
+
+**Cobertura esperada:** 100%
+
+---
+
+### Fase 3: Auth (Fluxo Crítico)
+
+**Prioridade:** 🔴 ALTA  
+**Duração estimada:** 2-3 dias  
+**Por quê agora?** Autenticação é ponto de entrada obrigatório no app.
+
+#### Commands a testar
+
+##### `login_email_password_command_test.dart`
+
+- ✅ Login com sucesso (retorna Right com User)
+- ✅ Credenciais inválidas (retorna Left com AuthFailure)
+- ✅ Email não verificado (retorna Left com ValidationFailure)
+- ✅ Erro de rede (retorna Left com NetworkFailure)
+- ✅ Email vazio (retorna Left com ValidationFailure)
+- ✅ Password vazio (retorna Left com ValidationFailure)
+
+##### `login_with_google_command_test.dart`
+
+- ✅ Login Google com sucesso
+- ✅ Usuário cancela fluxo (retorna Left com CancelledFailure)
+- ✅ Erro de rede (retorna Left com NetworkFailure)
+- ✅ Conta Google não autorizada (retorna Left com AuthFailure)
+
+##### `register_command_test.dart`
+
+- ✅ Registro com sucesso
+- ✅ Email já cadastrado (retorna Left com AuthFailure)
+- ✅ Senha fraca (retorna Left com ValidationFailure)
+- ✅ Email inválido (retorna Left com ValidationFailure)
+
+#### Repository a testar
+
+##### `auth_repository_impl_test.dart`
+
+- ✅ Mock do `FirebaseAuthService`
+- ✅ Mapear exceções Firebase → Failures
+- ✅ `signInWithEmailPassword()` sucesso/falha
+- ✅ `signInWithGoogle()` sucesso/falha
+- ✅ `signUp()` sucesso/falha
+- ✅ `signOut()` sucesso
+- ✅ `getCurrentUser()` retorna user autenticado ou null
+
+**Cobertura esperada:** Commands 85%, Repository 75%
+
+---
+
+### Fase 4: Vehicle (CRUD Completo)
+
+**Prioridade:** 🟠 MÉDIA-ALTA  
+**Duração estimada:** 2-3 dias  
+**Por quê agora?** Base para relacionamento com Refuels.
+
+#### Commands a testar
+
+##### `create_or_update_vehicle_command_test.dart`
+
+- ✅ Criar veículo novo (id vazio → retorna Right)
+- ✅ Atualizar veículo existente (id preenchido → retorna Right)
+- ✅ Nome vazio (retorna Left com ValidationFailure)
+- ✅ Placa inválida (retorna Left com ValidationFailure)
+- ✅ Tank capacity negativo (retorna Left com ValidationFailure)
+- ✅ Salvar foto se fornecida (mock LocalPhotoStorage)
+- ✅ Erro ao salvar (retorna Left com DatabaseFailure)
+
+##### `delete_vehicle_command_test.dart`
+
+- ✅ Deletar veículo com sucesso
+- ✅ Deletar veículo + remover foto (verificar chamada ao storage)
+- ✅ Veículo não encontrado (retorna Left com NotFoundFailure)
+- ✅ Erro ao deletar (retorna Left com DatabaseFailure)
+
+##### `load_vehicles_command_test.dart`
+
+- ✅ Carregar lista de veículos por userId
+- ✅ Retornar lista vazia se sem veículos
+- ✅ Ordenação correta (criados mais recentes primeiro)
+- ✅ Erro ao carregar (retorna Left com DatabaseFailure)
+
+#### Repository a testar
+
+##### `vehicle_repository_impl_test.dart`
+
+- ✅ Mock do `VehicleDao`
+- ✅ `createVehicle()` chama DAO.insert
+- ✅ `updateVehicle()` chama DAO.update
+- ✅ `deleteVehicle()` chama DAO.delete
+- ✅ `getVehiclesByUserId()` retorna Stream mapeado
+- ✅ Mapear exceções Drift → Failures
+
+**Cobertura esperada:** Commands 85%, Repository 70%
+
+---
+
+### Fase 5: Refuel (Lógica de Negócio)
+
+**Prioridade:** 🟡 MÉDIA  
+**Duração estimada:** 3-4 dias  
+**Por quê agora?** Lógica de cálculo de consumo é crítica e complexa.
+
+#### Commands a testar
+
+##### `create_or_update_refuel_command_test.dart`
+
+- ✅ Criar abastecimento válido
+- ✅ Quilometragem maior que último abastecimento (sucesso)
+- ✅ Quilometragem menor que último (retorna Left com ValidationFailure)
+- ✅ Quilometragem igual ao último (retorna Left com ValidationFailure)
+- ✅ Primeiro abastecimento do veículo (sem validação de km anterior)
+- ✅ Salvar foto de recibo (mock LocalPhotoStorage)
+- ✅ Litros negativo (retorna Left com ValidationFailure)
+- ✅ Valor negativo (retorna Left com ValidationFailure)
+
+##### `calculate_consumption_command_test.dart`
+
+- ✅ Calcular consumo médio correto: (km atual - km anterior) / litros
+- ✅ Dois abastecimentos completos: consumo = (50000 - 49500) / 40 = 12.5 km/L
+- ✅ Abastecimento parcial (ignorar no cálculo)
+- ✅ Apenas 1 abastecimento (retorna Right com consumo 0.0)
+- ✅ Sem abastecimentos (retorna Right com consumo 0.0)
+- ✅ Divisão por zero (litros = 0 → retorna consumo 0.0)
+
+##### `delete_refuel_command_test.dart`
+
+- ✅ Deletar abastecimento com sucesso
+- ✅ Deletar + remover foto de recibo
+- ✅ Refuel não encontrado (retorna Left com NotFoundFailure)
+
+##### `load_refuels_by_vehicle_command_test.dart`
+
+- ✅ Carregar histórico ordenado DESC por data
+- ✅ Filtrar por vehicleId
+- ✅ Retornar lista vazia se sem abastecimentos
+- ✅ Mapear corretamente TableData → Entity
+
+#### Repository a testar
+
+##### `refuel_repository_impl_test.dart`
+
+- ✅ Mock do `RefuelDao`
+- ✅ `createRefuel()` chama DAO.insert
+- ✅ `updateRefuel()` chama DAO.update
+- ✅ `deleteRefuel()` chama DAO.delete
+- ✅ `getRefuelsByVehicleId()` retorna Stream ordenado
+- ✅ Mapear exceções Drift → Failures
+
+**Cobertura esperada:** Commands 85% (foco em cálculo), Repository 70%
+
+---
+
+## 🧰 Dependências Necessárias
+
+Adicionar ao `pubspec.yaml`:
+
+```yaml
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mocktail: ^1.0.0           # Mocks sem code generation
+  faker: ^2.1.0              # Dados fake para factories
+  integration_test:          # (Fase 6 - opcional)
+    sdk: flutter
+```
+
+---
+
+## 📝 Templates e Exemplos
+
+### Template: Validator Test
+
+```dart
+import 'package:flutter_test/flutter_test.dart';
+import 'package:gasosa_app/core/validators/validators.dart';
+import 'package:gasosa_app/core/errors/failures.dart';
+
+void main() {
+  group('EmailValidator', () {
+    test('deve retornar Right quando email válido', () {
+      // Arrange
+      const email = 'test@example.com';
+
+      // Act
+      final result = Validators.email(email);
+
+      // Assert
+      expect(result.isRight(), true);
+      result.fold(
+        (_) => fail('Não deveria retornar Left'),
+        (validEmail) => expect(validEmail, email),
+      );
+    });
+
+    test('deve retornar ValidationFailure quando email inválido', () {
+      // Arrange
+      const invalidEmail = 'invalid-email';
+
+      // Act
+      final result = Validators.email(invalidEmail);
+
+      // Assert
+      expect(result.isLeft(), true);
+      result.fold(
+        (failure) => expect(failure, isA<ValidationFailure>()),
+        (_) => fail('Deveria retornar Left'),
+      );
+    });
+
+    test('deve retornar ValidationFailure quando email nulo', () {
+      final result = Validators.email(null);
+      expect(result.isLeft(), true);
+    });
+
+    test('deve retornar ValidationFailure quando email vazio', () {
+      final result = Validators.email('');
+      expect(result.isLeft(), true);
+    });
+  });
+}
+```
+
+---
+
+### Template: Mapper Test
+
+```dart
+import 'package:flutter_test/flutter_test.dart';
+import 'package:gasosa_app/data/mappers/vehicle_mapper.dart';
+import 'package:gasosa_app/domain/entities/vehicle.dart';
+import 'package:gasosa_app/domain/entities/fuel_type.dart';
+
+void main() {
+  group('VehicleMapper', () {
+    test('deve converter TableData para Entity corretamente', () {
+      // Arrange
+      final tableData = VehicleTableData(
+        id: '1',
+        userId: 'user-123',
+        name: 'Honda Civic',
+        plate: 'ABC-1234',
+        tankCapacity: 50.0,
+        fuelType: 'gasoline',
+        photoPath: '/path/to/photo.jpg',
+        createdAt: DateTime(2026, 1, 1),
+        updatedAt: DateTime(2026, 1, 1),
+      );
+
+      // Act
+      final entity = VehicleMapper.toDomain(tableData);
+
+      // Assert
+      expect(entity.id, '1');
+      expect(entity.userId, 'user-123');
+      expect(entity.name, 'Honda Civic');
+      expect(entity.plate, 'ABC-1234');
+      expect(entity.tankCapacity, 50.0);
+      expect(entity.fuelType, FuelType.gasoline);
+      expect(entity.photoPath, '/path/to/photo.jpg');
+    });
+
+    test('deve converter Entity para TableData corretamente', () {
+      // Arrange
+      final entity = VehicleEntity(
+        id: '1',
+        userId: 'user-123',
+        name: 'Honda Civic',
+        plate: 'ABC-1234',
+        tankCapacity: 50.0,
+        fuelType: FuelType.gasoline,
+        photoPath: '/path/to/photo.jpg',
+        createdAt: DateTime(2026, 1, 1),
+        updatedAt: DateTime(2026, 1, 1),
+      );
+
+      // Act
+      final tableData = VehicleMapper.toTableData(entity);
+
+      // Assert
+      expect(tableData.id, '1');
+      expect(tableData.name, 'Honda Civic');
+      expect(tableData.fuelType, 'gasoline');
+    });
+
+    test('deve mapear corretamente FuelType enum', () {
+      final gasoline = VehicleMapper.toDomain(
+        VehicleTableData(/* ... fuelType: 'gasoline' */),
+      );
+      expect(gasoline.fuelType, FuelType.gasoline);
+
+      final ethanol = VehicleMapper.toDomain(
+        VehicleTableData(/* ... fuelType: 'ethanol' */),
+      );
+      expect(ethanol.fuelType, FuelType.ethanol);
+    });
+  });
+}
+```
+
+---
+
+### Template: Command Test (com Mock)
+
+```dart
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:dartz/dartz.dart';
+import 'package:gasosa_app/application/commands/vehicles/create_or_update_vehicle_command.dart';
+import 'package:gasosa_app/domain/repositories/vehicle_repository.dart';
+import 'package:gasosa_app/domain/entities/vehicle.dart';
+import 'package:gasosa_app/core/errors/failures.dart';
+
+// Mock
+class MockVehicleRepository extends Mock implements VehicleRepository {}
+
+void main() {
+  late MockVehicleRepository mockRepository;
+  late CreateOrUpdateVehicleCommand command;
+
+  setUp(() {
+    mockRepository = MockVehicleRepository();
+    command = CreateOrUpdateVehicleCommand(repository: mockRepository);
+  });
+
+  group('CreateOrUpdateVehicleCommand', () {
+    final vehicle = VehicleEntity(
+      id: '',
+      userId: 'user-123',
+      name: 'Honda Civic',
+      plate: 'ABC-1234',
+      tankCapacity: 50.0,
+      fuelType: FuelType.gasoline,
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+
+    test('deve criar veículo com sucesso', () async {
+      // Arrange
+      when(() => mockRepository.createVehicle(any()))
+          .thenAnswer((_) async => right(unit));
+
+      // Act
+      final result = await command(vehicle);
+
+      // Assert
+      expect(result.isRight(), true);
+      verify(() => mockRepository.createVehicle(any())).called(1);
+    });
+
+    test('deve retornar ValidationFailure quando nome vazio', () async {
+      // Arrange
+      final invalidVehicle = vehicle.copyWith(name: '');
+
+      // Act
+      final result = await command(invalidVehicle);
+
+      // Assert
+      expect(result.isLeft(), true);
+      result.fold(
+        (failure) {
+          expect(failure, isA<ValidationFailure>());
+          expect(failure.message, contains('nome'));
+        },
+        (_) => fail('Deveria retornar Left'),
+      );
+      verifyNever(() => mockRepository.createVehicle(any()));
+    });
+
+    test('deve retornar DatabaseFailure quando erro ao salvar', () async {
+      // Arrange
+      when(() => mockRepository.createVehicle(any()))
+          .thenAnswer((_) async => left(DatabaseFailure('Erro ao salvar')));
+
+      // Act
+      final result = await command(vehicle);
+
+      // Assert
+      expect(result.isLeft(), true);
+      result.fold(
+        (failure) => expect(failure, isA<DatabaseFailure>()),
+        (_) => fail('Deveria retornar Left'),
+      );
+    });
+  });
+}
+```
+
+---
+
+### Template: Factory (Test Helper)
+
+```dart
+import 'package:faker/faker.dart';
+import 'package:gasosa_app/domain/entities/vehicle.dart';
+import 'package:gasosa_app/domain/entities/fuel_type.dart';
+
+class VehicleFactory {
+  static final _faker = Faker();
+
+  static VehicleEntity create({
+    String? id,
+    String? userId,
+    String? name,
+    String? plate,
+    double? tankCapacity,
+    FuelType? fuelType,
+    String? photoPath,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return VehicleEntity(
+      id: id ?? _faker.guid.guid(),
+      userId: userId ?? _faker.guid.guid(),
+      name: name ?? _faker.vehicle.model(),
+      plate: plate ?? 'ABC-${_faker.randomGenerator.integer(9999, min: 1000)}',
+      tankCapacity: tankCapacity ?? 50.0,
+      fuelType: fuelType ?? FuelType.gasoline,
+      photoPath: photoPath,
+      createdAt: createdAt ?? DateTime.now(),
+      updatedAt: updatedAt ?? DateTime.now(),
+    );
+  }
+
+  static List<VehicleEntity> createList(int count) {
+    return List.generate(count, (_) => create());
+  }
+}
+```
+
+---
+
+## 🚀 Comandos Úteis
+
+### Executar todos os testes
+
+```bash
+flutter test
+```
+
+### Executar teste específico
+
+```bash
+flutter test test/core/validators/email_validator_test.dart
+```
+
+### Executar com cobertura
+
+```bash
+flutter test --coverage
+```
+
+### Gerar relatório de cobertura (HTML)
+
+```bash
+# macOS/Linux
+genhtml coverage/lcov.info -o coverage/html
+open coverage/html/index.html
+
+# Windows
+perl C:\ProgramData\chocolatey\lib\lcov\tools\bin\genhtml coverage/lcov.info -o coverage/html
+start coverage/html/index.html
+```
+
+### Executar testes em watch mode (com entr)
+
+```bash
+find test -name "*.dart" | entr flutter test
+```
+
+---
+
+## ✅ Checklist Geral de Implementação
+
+### Setup Inicial
+
+- [ ] Criar pasta `test/` na raiz do projeto
+- [ ] Adicionar dependências (`mocktail`, `faker`) ao `pubspec.yaml`
+- [ ] Criar estrutura de pastas espelhando `lib/`
+- [ ] Criar `test/helpers/` com mocks e factories base
+
+### Fase 1: Core (2-3 dias)
+
+- [ ] Validators (email, password, plate)
+- [ ] Extensions (String, DateTime)
+- [ ] Helpers (currency, date)
+- [ ] **Meta:** 100% de cobertura
+
+### Fase 2: Mappers (1-2 dias)
+
+- [ ] UserMapper
+- [ ] VehicleMapper
+- [ ] RefuelMapper
+- [ ] **Meta:** 100% de cobertura
+
+### Fase 3: Auth (2-3 dias)
+
+- [ ] LoginEmailPasswordCommand
+- [ ] LoginWithGoogleCommand
+- [ ] RegisterCommand
+- [ ] AuthRepositoryImpl
+- [ ] **Meta:** 80%+ Commands, 70%+ Repository
+
+### Fase 4: Vehicle (2-3 dias)
+
+- [ ] CreateOrUpdateVehicleCommand
+- [ ] DeleteVehicleCommand
+- [ ] LoadVehiclesCommand
+- [ ] VehicleRepositoryImpl
+- [ ] **Meta:** 80%+ Commands, 70%+ Repository
+
+### Fase 5: Refuel (3-4 dias)
+
+- [ ] CreateOrUpdateRefuelCommand (com validação de km)
+- [ ] CalculateConsumptionCommand (lógica crítica)
+- [ ] DeleteRefuelCommand
+- [ ] LoadRefuelsByVehicleCommand
+- [ ] RefuelRepositoryImpl
+- [ ] **Meta:** 85%+ Commands, 70%+ Repository
+
+### Fase 6: Integration (opcional - 2-3 dias)
+
+- [ ] Fluxo completo: Login → Criar Veículo → Adicionar Abastecimento
+- [ ] Cálculo de consumo end-to-end
+- [ ] Deletar veículo em cascata
+
+---
+
+## 🔍 Boas Práticas
+
+### ✅ Faça
+
+- Nomeie testes com `deve_[ação]_quando_[condição]`
+- Use `Arrange-Act-Assert` em todos os testes
+- Isole testes com mocks (não dependa de I/O real)
+- Teste casos edge (null, vazio, negativo, zero)
+- Verifique chamadas com `verify()` e `verifyNever()`
+- Use factories para criar dados fake consistentes
+- Mantenha testes rápidos (< 5s total)
+
+### ❌ Não faça
+
+- Testar código gerado (`.g.dart`, `.freezed.dart`)
+- Acessar banco/rede/filesystem real em unit tests
+- Criar testes que dependem de ordem de execução
+- Testar múltiplos conceitos em um único teste
+- Ignorar falhas intermitentes ("flaky tests")
+- Duplicar setup em cada teste (use `setUp()`)
+
+---
+
+## 📊 Monitoramento de Progresso
+
+### Dashboards Sugeridos
+
+**Cobertura por Domínio:**
+
+| Domínio | Validators | Mappers | Commands | Repositories | Total |
+|---------|-----------|---------|----------|--------------|-------|
+| Core    | 0/7       | -       | -        | -            | 0%    |
+| Auth    | -         | 0/1     | 0/3      | 0/1          | 0%    |
+| Vehicle | -         | 0/1     | 0/3      | 0/1          | 0%    |
+| Refuel  | -         | 0/1     | 0/4      | 0/1          | 0%    |
+
+**Atualizar após cada fase completada.**
+
+---
+
+## 🎯 Critérios de Sucesso
+
+### Fase 1 (Core) - Completa quando
+
+- ✅ Todos os validators têm 100% cobertura
+- ✅ Extensions testadas com casos válidos e inválidos
+- ✅ Helpers testados com edge cases (null, zero, negativo)
+
+### Fase 2 (Mappers) - Completa quando
+
+- ✅ Conversão bidirecional testada (Entity ↔ TableData)
+- ✅ Enums mapeados corretamente
+- ✅ Valores null tratados
+
+### Fase 3 (Auth) - Completa quando
+
+- ✅ Todos os fluxos de autenticação testados
+- ✅ Erros Firebase mapeados para Failures
+- ✅ Validações impedem inputs inválidos
+
+### Fase 4 (Vehicle) - Completa quando
+
+- ✅ CRUD completo testado
+- ✅ Cascade delete (foto) verificado
+- ✅ Validações impedem dados inválidos
+
+### Fase 5 (Refuel) - Completa quando
+
+- ✅ Lógica de cálculo de consumo validada
+- ✅ Validação de quilometragem crescente funciona
+- ✅ Casos edge (primeiro abastecimento, parcial) cobertos
+
+---
+
+## 📚 Referências
+
+- [Flutter Testing Guide](https://docs.flutter.dev/testing)
+- [Mocktail Documentation](https://pub.dev/packages/mocktail)
+- [Effective Dart: Testing](https://dart.dev/guides/language/effective-dart/testing)
+- [Clean Architecture Testing Strategies](https://blog.cleancoder.com/uncle-bob/2017/10/03/TestContravariance.html)
+
+---
+
+## 🤝 Contribuindo
+
+Ao adicionar novos testes:
+
+1. Siga a estrutura de pastas existente
+2. Use templates fornecidos neste documento
+3. Atualize checklist e dashboard de progresso
+4. Garanta 80%+ de cobertura em Commands
+5. Execute `flutter test` antes de commit
+6. Documente casos edge importantes
+
+---
+
+**Última atualização:** 27/01/2026  
+**Versão:** 1.0  
+**Responsável:** Equipe de Engenharia Gasosa App

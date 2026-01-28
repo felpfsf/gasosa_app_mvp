@@ -7,6 +7,7 @@ import 'package:gasosa_app/application/commands/photos/save_photo_command.dart';
 import 'package:gasosa_app/application/commands/refuel/create_or_update_refuel_command.dart';
 import 'package:gasosa_app/application/commands/refuel/delete_refuel_command.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
+import 'package:gasosa_app/core/helpers/numeric_parser.dart';
 import 'package:gasosa_app/core/helpers/uuid.dart';
 import 'package:gasosa_app/core/validators/refuel_validators.dart';
 import 'package:gasosa_app/core/viewmodel/base_viewmodel.dart';
@@ -16,6 +17,7 @@ import 'package:gasosa_app/domain/entities/refuel.dart';
 import 'package:gasosa_app/domain/entities/vehicle.dart';
 import 'package:gasosa_app/domain/repositories/refuel_repository.dart';
 import 'package:gasosa_app/domain/repositories/vehicle_repository.dart';
+import 'package:gasosa_app/domain/services/refuel_business_rules.dart';
 
 class ManageRefuelState {
   ManageRefuelState({
@@ -30,6 +32,7 @@ class ManageRefuelState {
     this.coldStartLiters,
     this.coldStartValue,
     this.receiptPath,
+    this.wantsReceiptPhoto = false,
     this.fuelType = FuelType.gasoline,
     this.availableFuelTypes = const [FuelType.gasoline],
     this.previousMileage,
@@ -47,6 +50,7 @@ class ManageRefuelState {
   final double? coldStartLiters;
   final double? coldStartValue;
   final String? receiptPath;
+  final bool wantsReceiptPhoto;
   final DateTime refuelDate;
   final FuelType fuelType;
   final List<FuelType> availableFuelTypes;
@@ -64,11 +68,13 @@ class ManageRefuelState {
     double? coldStartLiters,
     double? coldStartValue,
     String? receiptPath,
+    bool? wantsReceiptPhoto,
     DateTime? refuelDate,
     FuelType? fuelType,
     List<FuelType>? availableFuelTypes,
     int? previousMileage,
     bool clearPhotoPath = false,
+    bool clearColdStart = false,
   }) {
     return ManageRefuelState(
       isLoading: isLoading ?? this.isLoading,
@@ -79,9 +85,10 @@ class ManageRefuelState {
       mileage: mileage ?? this.mileage,
       totalValue: totalValue ?? this.totalValue,
       liters: liters ?? this.liters,
-      coldStartLiters: coldStartLiters ?? this.coldStartLiters,
-      coldStartValue: coldStartValue ?? this.coldStartValue,
+      coldStartLiters: clearColdStart ? null : (coldStartLiters ?? this.coldStartLiters),
+      coldStartValue: clearColdStart ? null : (coldStartValue ?? this.coldStartValue),
       receiptPath: clearPhotoPath ? null : (receiptPath ?? this.receiptPath),
+      wantsReceiptPhoto: clearPhotoPath ? false : (wantsReceiptPhoto ?? this.wantsReceiptPhoto),
       refuelDate: refuelDate ?? this.refuelDate,
       fuelType: fuelType ?? this.fuelType,
       availableFuelTypes: availableFuelTypes ?? this.availableFuelTypes,
@@ -99,12 +106,14 @@ class ManageRefuelViewmodel extends BaseViewModel {
     required SavePhotoCommand saveReceiptPhoto,
     required DeletePhotoCommand deleteReceiptPhoto,
     required DeleteRefuelCommand deleteRefuel,
+    required RefuelBusinessRules businessRules,
   }) : _repository = repository,
        _vehicleRepository = vehicleRepository,
        _saveRefuel = saveRefuel,
        _saveReceiptPhoto = saveReceiptPhoto,
        _deleteReceiptPhoto = deleteReceiptPhoto,
        _deleteRefuel = deleteRefuel,
+       _businessRules = businessRules,
        super(loading);
 
   final RefuelRepository _repository;
@@ -113,6 +122,7 @@ class ManageRefuelViewmodel extends BaseViewModel {
   final DeleteRefuelCommand _deleteRefuel;
   final SavePhotoCommand _saveReceiptPhoto;
   final DeletePhotoCommand _deleteReceiptPhoto;
+  final RefuelBusinessRules _businessRules;
 
   ManageRefuelState _state = ManageRefuelState();
   ManageRefuelState get state => _state;
@@ -124,9 +134,40 @@ class ManageRefuelViewmodel extends BaseViewModel {
   final litersEC = TextEditingController();
   final coldStartLitersEC = TextEditingController();
   final coldStartValueEC = TextEditingController();
-  bool hasColdStart = false;
-  bool hasReceiptPhoto = false;
-  FuelType fuelType = FuelType.gasoline;
+
+  bool get hasColdStart => state.coldStartLiters != null && state.coldStartValue != null;
+  set hasColdStart(bool value) {
+    if (value && !hasColdStart) {
+      // Initialize with zero when checked
+      _state = _state.copyWith(coldStartLiters: 0.0, coldStartValue: 0.0);
+      notifyListeners();
+    } else if (!value && hasColdStart) {
+      // Clear cold start values when unchecked
+      _state = _state.copyWith(clearColdStart: true);
+      coldStartLitersEC.clear();
+      coldStartValueEC.clear();
+      notifyListeners();
+    }
+  }
+
+  bool get hasReceiptPhoto => state.wantsReceiptPhoto || state.receiptPath != null;
+  set hasReceiptPhoto(bool value) {
+    if (value) {
+      // User wants to add photo
+      _state = _state.copyWith(wantsReceiptPhoto: true);
+      notifyListeners();
+    } else {
+      // User doesn't want photo - clear everything
+      if (state.receiptPath != null) {
+        onRemovePhoto();
+      } else {
+        _state = _state.copyWith(wantsReceiptPhoto: false);
+        notifyListeners();
+      }
+    }
+  }
+
+  FuelType get fuelType => state.fuelType;
 
   @override
   void setViewLoading({bool value = false}) {
@@ -164,19 +205,12 @@ class ManageRefuelViewmodel extends BaseViewModel {
             coldStartLiters: refuel.coldStartLiters,
             coldStartValue: refuel.coldStartValue,
             receiptPath: refuel.receiptPath,
+            wantsReceiptPhoto: refuel.receiptPath != null,
             refuelDate: refuel.refuelDate,
             fuelType: refuel.fuelType,
           );
 
-          mileageEC.text = _state.mileage.toString();
-          totalValueEC.text = _state.totalValue.toString();
-          litersEC.text = _state.liters.toString();
-          coldStartLitersEC.text = _state.coldStartLiters.toString();
-          coldStartValueEC.text = _state.coldStartValue.toString();
-          hasColdStart = _state.coldStartLiters != null && _state.coldStartValue != null;
-          fuelType = _state.fuelType;
-          hasReceiptPhoto = _state.receiptPath != null;
-
+          _populateControllers();
           notifyListeners();
         },
       );
@@ -196,58 +230,35 @@ class ManageRefuelViewmodel extends BaseViewModel {
     notifyListeners();
   }
 
-  List<FuelType> _calculateAvailableFuelTypes(VehicleEntity vehicle) {
-    switch (vehicle.fuelType) {
-      case FuelType.flex:
-        return [FuelType.gasoline, FuelType.ethanol];
-      case FuelType.gasoline:
-      case FuelType.ethanol:
-      case FuelType.diesel:
-      case FuelType.gnv:
-        return [vehicle.fuelType];
-    }
-  }
-
   bool get vehicleHasColdStartReservoir {
-    if (state.vehicle?.fuelType == null) return false;
-
-    final result =
-        state.vehicle!.fuelType == FuelType.ethanol ||
-        state.vehicle!.fuelType == FuelType.flex ||
-        state.vehicle!.fuelType == FuelType.gnv;
-    return result;
+    final vehicle = state.vehicle;
+    if (vehicle == null) return false;
+    return _businessRules.vehicleHasColdStartReservoir(vehicle);
   }
 
   bool get shouldShowColdStart {
-    if (!vehicleHasColdStartReservoir) return false;
-
-    if (state.vehicle?.fuelType == FuelType.flex) return true;
-
-    return state.fuelType == FuelType.ethanol || state.fuelType == FuelType.gnv;
+    final vehicle = state.vehicle;
+    if (vehicle == null) return false;
+    return _businessRules.shouldShowColdStart(
+      vehicle: vehicle,
+      selectedFuelType: state.fuelType,
+    );
   }
 
-  bool get shouldShowReceiptPhotoInput {
-    return hasReceiptPhoto;
-  }
+  bool get shouldShowReceiptPhotoInput => hasReceiptPhoto;
 
   String? Function(String?) get mileageValidator {
     return (String? value) {
-      // First apply basic validations
       final basicValidation = RefuelValidators.mileage(value);
       if (basicValidation != null) {
         return basicValidation;
       }
 
-      // Check if mileage is less than previous
-      final prevMileage = state.previousMileage;
-      if (prevMileage != null) {
-        final currentMileage = int.tryParse(value ?? '0') ?? 0;
-        if (currentMileage < prevMileage) {
-          return 'KM não pode ser menor que o abastecimento anterior ($prevMileage km)';
-        }
-      }
-
-      return null;
+      final currentMileage = NumericParser.parseInt(value);
+      return _businessRules.validateMileageAgainstPrevious(
+        currentMileage: currentMileage,
+        previousMileage: state.previousMileage,
+      );
     };
   }
 
@@ -257,8 +268,7 @@ class ManageRefuelViewmodel extends BaseViewModel {
       (failure) => _setFailure(failure),
       (vehicle) {
         if (vehicle != null) {
-          final availableFuelTypes = _calculateAvailableFuelTypes(vehicle);
-
+          final availableFuelTypes = _businessRules.getAvailableFuelTypes(vehicle);
           final defaultFuelType = availableFuelTypes.first;
 
           _state = _state.copyWith(
@@ -266,8 +276,6 @@ class ManageRefuelViewmodel extends BaseViewModel {
             availableFuelTypes: availableFuelTypes,
             fuelType: defaultFuelType,
           );
-
-          fuelType = defaultFuelType; // TODO(felipe): Talvez não é necessário
         }
       },
     );
@@ -280,9 +288,7 @@ class ManageRefuelViewmodel extends BaseViewModel {
       mileage: mileage,
     );
     previousEither.fold(
-      (failure) {
-        // Silently ignore failure - no previous refuel is okay
-      },
+      (failure) {},
       (previousRefuel) {
         if (previousRefuel != null) {
           _state = _state.copyWith(previousMileage: previousRefuel.mileage);
@@ -293,23 +299,20 @@ class ManageRefuelViewmodel extends BaseViewModel {
 
   void _populateControllers() {
     if (state.isEditing && state.initial != null) {
-      mileageEC.text = _state.mileage.toString();
-      totalValueEC.text = _state.totalValue.toStringAsFixed(2).replaceAll('.', ',');
-      litersEC.text = _state.liters.toStringAsFixed(2).replaceAll('.', ',');
-      coldStartLitersEC.text = _state.coldStartLiters?.toStringAsFixed(2).replaceAll('.', ',') ?? '';
-      coldStartValueEC.text = _state.coldStartValue?.toStringAsFixed(2).replaceAll('.', ',') ?? '';
-      hasColdStart = _state.coldStartLiters != null && _state.coldStartValue != null;
-      hasReceiptPhoto = _state.receiptPath != null;
+      mileageEC.text = NumericParser.formatInt(_state.mileage);
+      totalValueEC.text = NumericParser.formatDouble(_state.totalValue);
+      litersEC.text = NumericParser.formatDouble(_state.liters);
+      coldStartLitersEC.text = _state.coldStartLiters != null
+          ? NumericParser.formatDouble(_state.coldStartLiters!)
+          : '';
+      coldStartValueEC.text = _state.coldStartValue != null ? NumericParser.formatDouble(_state.coldStartValue!) : '';
     } else {
       mileageEC.clear();
       totalValueEC.clear();
       litersEC.clear();
       coldStartLitersEC.clear();
       coldStartValueEC.clear();
-      hasColdStart = false;
-      hasReceiptPhoto = false;
     }
-    fuelType = state.fuelType;
   }
 
   RefuelEntity _buildEntity() {
@@ -321,9 +324,9 @@ class ManageRefuelViewmodel extends BaseViewModel {
       mileage: state.mileage,
       totalValue: state.totalValue,
       liters: state.liters,
-      coldStartLiters: hasColdStart ? state.coldStartLiters : null,
-      coldStartValue: hasColdStart ? state.coldStartValue : null,
-      receiptPath: hasReceiptPhoto ? state.receiptPath : null,
+      coldStartLiters: state.coldStartLiters,
+      coldStartValue: state.coldStartValue,
+      receiptPath: state.receiptPath,
       refuelDate: state.refuelDate,
       fuelType: state.fuelType,
       createdAt: isEditing ? state.initial!.createdAt : DateTime.now(),
@@ -377,7 +380,10 @@ class ManageRefuelViewmodel extends BaseViewModel {
         (failure) => _setFailure(failure),
         (newPath) {
           _stagedToDeletePhotoPath = null;
-          _state = _state.copyWith(receiptPath: newPath);
+          _state = _state.copyWith(
+            receiptPath: newPath,
+            wantsReceiptPhoto: true,
+          );
           notifyListeners();
         },
       );
@@ -398,70 +404,37 @@ class ManageRefuelViewmodel extends BaseViewModel {
     }
   }
 
-  void _updateNumericValue<T>({
-    required String value,
-    required T Function(String) parser,
-    required T defaultValue,
-    required ManageRefuelState Function(T) stateUpdater,
-  }) {
-    final T parsedValue = value.trim().isEmpty ? defaultValue : parser(value.replaceAll(',', '.')) ?? defaultValue;
-
-    _state = stateUpdater(parsedValue);
-    notifyListeners();
-  }
-
   void updateRefuelDate(DateTime date) {
     _state = _state.copyWith(refuelDate: date);
     notifyListeners();
   }
 
   void updateMileage(String value) {
-    _updateNumericValue<int>(
-      value: value,
-      parser: (value) => int.tryParse(value) ?? 0,
-      defaultValue: 0,
-      stateUpdater: (parsed) => _state.copyWith(mileage: parsed),
-    );
+    _state = _state.copyWith(mileage: NumericParser.parseInt(value));
+    notifyListeners();
   }
 
   void updateTotalValue(String value) {
-    _updateNumericValue<double>(
-      value: value,
-      parser: (value) => double.tryParse(value) ?? 0.0,
-      defaultValue: 0.0,
-      stateUpdater: (parsed) => _state.copyWith(totalValue: parsed),
-    );
+    _state = _state.copyWith(totalValue: NumericParser.parseDouble(value));
+    notifyListeners();
   }
 
   void updateLiters(String value) {
-    _updateNumericValue<double>(
-      value: value,
-      parser: (value) => double.tryParse(value) ?? 0.0,
-      defaultValue: 0.0,
-      stateUpdater: (parsed) => _state.copyWith(liters: parsed),
-    );
+    _state = _state.copyWith(liters: NumericParser.parseDouble(value));
+    notifyListeners();
   }
 
   void updateColdStartLiters(String value) {
-    _updateNumericValue<double>(
-      value: value,
-      parser: (value) => double.tryParse(value) ?? 0.0,
-      defaultValue: 0.0,
-      stateUpdater: (parsed) => _state.copyWith(coldStartLiters: parsed),
-    );
+    _state = _state.copyWith(coldStartLiters: NumericParser.parseDouble(value));
+    notifyListeners();
   }
 
   void updateColdStartValue(String value) {
-    _updateNumericValue<double>(
-      value: value,
-      parser: (value) => double.tryParse(value) ?? 0.0,
-      defaultValue: 0.0,
-      stateUpdater: (parsed) => _state.copyWith(coldStartValue: parsed),
-    );
+    _state = _state.copyWith(coldStartValue: NumericParser.parseDouble(value));
+    notifyListeners();
   }
 
   void updateFuelType(FuelType value) {
-    fuelType = value;
     _state = _state.copyWith(fuelType: value);
     notifyListeners();
   }

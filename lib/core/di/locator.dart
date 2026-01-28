@@ -27,6 +27,7 @@ import 'package:gasosa_app/domain/services/auth_service.dart';
 import 'package:gasosa_app/domain/services/firebase_auth_service.dart';
 import 'package:gasosa_app/domain/services/local_photo_storage.dart';
 import 'package:gasosa_app/domain/services/local_photo_storage_impl.dart';
+import 'package:gasosa_app/domain/services/refuel_business_rules.dart';
 import 'package:gasosa_app/presentation/screens/auth/viewmodel/login_viewmodel.dart';
 import 'package:gasosa_app/presentation/screens/auth/viewmodel/register_viewmodel.dart';
 import 'package:gasosa_app/presentation/screens/dashboard/viewmodel/dashboard_viewmodel.dart';
@@ -43,6 +44,7 @@ Future<void> setupDI() async {
   await _registerFirebase();
   _registerDatabaseAndDaos();
   _registerRepositories();
+  _registerDomainServices();
   _registerUseCasesAndCommands();
   _registerViewModels();
   _registerPhotoServices();
@@ -87,6 +89,11 @@ void _registerRepositories() {
   getIt.registerLazySingleton<UserRepository>(() => UserRepositoryImpl(getIt()));
   getIt.registerLazySingleton<VehicleRepository>(() => VehicleRepositoryImpl(getIt()));
   getIt.registerLazySingleton<RefuelRepository>(() => RefuelRepositoryImpl(getIt()));
+}
+
+/// 4.1 - Domain Services
+void _registerDomainServices() {
+  getIt.registerLazySingleton<RefuelBusinessRules>(() => const RefuelBusinessRules());
 }
 
 /// 5 - Use Cases e Commands
@@ -158,6 +165,7 @@ void _registerViewModels() {
       deleteRefuel: getIt<DeleteRefuelCommand>(),
       saveReceiptPhoto: getIt<SavePhotoCommand>(),
       deleteReceiptPhoto: getIt<DeletePhotoCommand>(),
+      businessRules: getIt<RefuelBusinessRules>(),
     ),
   );
 }

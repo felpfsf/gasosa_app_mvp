@@ -134,10 +134,24 @@ Failure _mapFirebaseAuthError(fb.FirebaseAuthException e, StackTrace s) {
 }
 
 Failure _mapGoogleSignInError(GoogleSignInException e, StackTrace s) {
-  // final code = e.code.name;
-  // final msg = e.description;
+  final description = e.description ?? '';
+
+  // [16] Account reauth failed: SHA-1/SHA-256 não configurados no Firebase
+  if (description.contains('[16]') || description.toLowerCase().contains('reauth failed')) {
+    return AuthFailure(
+      'Erro de configuração do Google Sign-In. '
+      'Verifique as credenciais SHA no Firebase Console.',
+      cause: e,
+      stackTrace: s,
+    );
+  }
+
   switch (e.code) {
     case GoogleSignInExceptionCode.canceled:
+      // Se tem description relevante, use ela
+      if (description.isNotEmpty && !description.toLowerCase().contains('cancel')) {
+        return AuthFailure('Falha no Google Sign-In: $description', cause: e, stackTrace: s);
+      }
       return AuthFailure('Login cancelado pelo usuário', cause: e, stackTrace: s);
     case GoogleSignInExceptionCode.interrupted:
       return AuthFailure('Login interrompido. Tente novamente.', cause: e, stackTrace: s);

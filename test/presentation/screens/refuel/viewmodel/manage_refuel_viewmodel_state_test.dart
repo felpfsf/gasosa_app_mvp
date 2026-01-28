@@ -61,7 +61,7 @@ void main() {
     });
 
     test('isEditing indicates edit mode correctly', () {
-      final createState = ManageRefuelState(isEditing: false);
+      final createState = ManageRefuelState();
       expect(createState.isEditing, isFalse);
 
       final editState = ManageRefuelState(isEditing: true);

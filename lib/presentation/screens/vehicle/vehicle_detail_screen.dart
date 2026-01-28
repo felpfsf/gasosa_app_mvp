@@ -56,7 +56,10 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
   }
 
   Future<void> _goToEditVehicle() async {
-    context.push(RoutePaths.vehicleManageEdit(widget.vehicleId));
+    final result = await context.push(RoutePaths.vehicleManageEdit(widget.vehicleId));
+    if (result == true) {
+      _viewModel.init(widget.vehicleId);
+    }
   }
 
   Future<void> _deleteVehicle() async {
@@ -66,7 +69,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
     );
     if (confirmed) {
       _viewModel.deleteVehicle();
-      if (mounted) context.go(RoutePaths.dashboard);
+      if (mounted) context.pop(true);
     }
   }
 

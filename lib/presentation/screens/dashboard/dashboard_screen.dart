@@ -39,8 +39,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  void _goToCreateVehicle() {
-    context.push(RoutePaths.vehicleManageCreate);
+  Future<void> _goToCreateVehicle() async {
+    final result = await context.push(RoutePaths.vehicleManageCreate);
+    if (result == true) {
+      _viewModel.init();
+    }
   }
 
   @override
@@ -118,7 +121,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               final vehicle = state.vehicles[index];
               return VehicleCard(
                 vehicle: vehicle,
-                onTap: () => context.push(RoutePaths.vehicleDetail(vehicle.id)),
+                onTap: () async {
+                  final result = await context.push(RoutePaths.vehicleDetail(vehicle.id));
+                  if (result == true) {
+                    _viewModel.init();
+                  }
+                },
                 // onEdit: () => context.push(RoutePaths.vehicleManageEdit(vehicle.id)),
                 // onDelete: () async {
                 //   final confirmed = await showDeleteVehicleConfirmDialog(context, vehicleName: vehicle.name);

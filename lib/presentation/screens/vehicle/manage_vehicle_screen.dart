@@ -5,7 +5,6 @@ import 'package:gasosa_app/core/di/locator.dart';
 import 'package:gasosa_app/core/helpers/formatters.dart';
 import 'package:gasosa_app/core/validators/vehicle_validators.dart';
 import 'package:gasosa_app/domain/entities/fuel_type.dart';
-import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/screens/vehicle/viewmodel/manage_vehicle_viewmodel.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_appbar.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_button.dart';
@@ -44,7 +43,7 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
       (failure) => Messages.showError(context, failure.message),
       (_) {
         Messages.showSuccess(context, 'Veículo salvo com sucesso!');
-        if (mounted) context.go(RoutePaths.dashboard);
+        if (mounted) context.pop(true);
       },
     );
   }
@@ -56,7 +55,7 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
       (f) => Messages.showError(context, f.message),
       (_) {
         Messages.showSuccess(context, 'Veículo excluído!');
-        if (mounted) context.go(RoutePaths.dashboard);
+        if (mounted) context.pop(true);
       },
     );
   }
@@ -69,7 +68,7 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
       appBar: GasosaAppbar(
         title: isEdit ? 'Editar Veículo' : 'Adicionar Veículo',
         showBackButton: true,
-        onBackPressed: () => context.go(RoutePaths.dashboard),
+        onBackPressed: () => context.pop(),
       ),
       body: AnimatedBuilder(
         animation: _viewmodel,

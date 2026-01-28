@@ -14,11 +14,12 @@ Este documento define a estratégia completa de testes do Gasosa App, organizada
 | -------- | ----------- | --------------- |
 | **Validators** | 100% | ✅ **124/124 testes** (Fase 1) |
 | **Mappers** | 100% | ✅ **35/35 testes** (Fase 2) - 96.67% cobertura |
-| **Commands** | 80%+ | ⏳ Pendente (Fases 3-5) |
+| **Auth Commands** | 100% | ✅ **55/55 testes** (Fase 3) - 100% cobertura |
+| **Commands** | 80%+ | ⏳ Pendente (Fases 4-5) |
 | **Repositories** | 70%+ | ⏳ Pendente |
 | **UI/Widgets** | 50%+ | ⏳ Pendente |
 
-**Total até agora:** 159 testes passando (Fase 1 + Fase 2)
+**Total até agora:** 214 testes passando (Fase 1: 124 + Fase 2: 35 + Fase 3: 55)
 
 ### Princípios de Teste
 
@@ -149,44 +150,61 @@ test/
 **Duração estimada:** 2-3 dias  
 **Por quê agora?** Autenticação é ponto de entrada obrigatório no app.
 
-#### Commands a testar
+**Status:** ✅ **COMPLETA** (55 testes passando, 100% cobertura)
 
-##### `login_email_password_command_test.dart`
+#### Commands testados
 
-- ✅ Login com sucesso (retorna Right com User)
+##### `login_email_password_command_test.dart` (24 testes)
+
+- ✅ Login com sucesso (retorna Right com AuthUser)
+- ✅ Login com sucesso incluindo photoUrl
 - ✅ Credenciais inválidas (retorna Left com AuthFailure)
-- ✅ Email não verificado (retorna Left com ValidationFailure)
-- ✅ Erro de rede (retorna Left com NetworkFailure)
-- ✅ Email vazio (retorna Left com ValidationFailure)
-- ✅ Password vazio (retorna Left com ValidationFailure)
+- ✅ Email não verificado (retorna Left com AuthFailure)
+- ✅ Conta desabilitada (retorna Left com AuthFailure)
+- ✅ Usuário não existe (retorna Left com AuthFailure)
+- ✅ Email vazio (retorna Left com BusinessFailure)
+- ✅ Password vazio (retorna Left com BusinessFailure)
+- ✅ Email inválido (retorna Left com BusinessFailure)
+- ✅ Erro de rede (retorna Left com AuthFailure)
+- ✅ Timeout (retorna Left com AuthFailure)
+- ✅ Erro inesperado (retorna Left com AuthFailure)
+- ✅ Edge cases (email/senha com espaços, caracteres especiais, maiúsculas)
+- ✅ Isolamento (verifica chamadas únicas ao AuthService)
 
-##### `login_with_google_command_test.dart`
+##### `login_with_google_command_test.dart` (17 testes)
 
-- ✅ Login Google com sucesso
-- ✅ Usuário cancela fluxo (retorna Left com CancelledFailure)
-- ✅ Erro de rede (retorna Left com NetworkFailure)
+- ✅ Login Google com sucesso (com e sem photoUrl)
+- ✅ Nomes compostos
+- ✅ Usuário cancela fluxo (retorna Left com AuthFailure)
+- ✅ Erro de rede (retorna Left com AuthFailure)
+- ✅ Timeout (retorna Left com AuthFailure)
 - ✅ Conta Google não autorizada (retorna Left com AuthFailure)
+- ✅ Conta desabilitada (retorna Left com AuthFailure)
+- ✅ Permissões negadas (retorna Left com AuthFailure)
+- ✅ Erro inesperado (retorna Left com AuthFailure)
+- ✅ Servidores Google indisponíveis (retorna Left com AuthFailure)
+- ✅ Google Play Services desatualizado (Android)
+- ✅ App não configurado no Firebase
+- ✅ Isolamento e múltiplas chamadas
 
-##### `register_command_test.dart`
+##### `register_command_test.dart` (14 testes)
 
 - ✅ Registro com sucesso
+- ✅ Nomes compostos e caracteres especiais
+- ✅ Senha forte e email com subdomínio
 - ✅ Email já cadastrado (retorna Left com AuthFailure)
-- ✅ Senha fraca (retorna Left com ValidationFailure)
-- ✅ Email inválido (retorna Left com ValidationFailure)
+- ✅ Senha fraca (retorna Left com BusinessFailure)
+- ✅ Email inválido (retorna Left com BusinessFailure)
+- ✅ Nome/email/senha vazios (retorna Left com BusinessFailure)
+- ✅ Senha menor que 6 caracteres (retorna Left com BusinessFailure)
+- ✅ Nome muito curto (retorna Left com BusinessFailure)
+- ✅ Domínio bloqueado (retorna Left com AuthFailure)
+- ✅ Muitas tentativas (retorna Left com AuthFailure)
+- ✅ Erro de rede, timeout, erro inesperado (AuthFailure)
+- ✅ Edge cases (espaços em branco, caracteres especiais)
+- ✅ Múltiplos registros sequenciais
 
-#### Repository a testar
-
-##### `auth_repository_impl_test.dart`
-
-- ✅ Mock do `FirebaseAuthService`
-- ✅ Mapear exceções Firebase → Failures
-- ✅ `signInWithEmailPassword()` sucesso/falha
-- ✅ `signInWithGoogle()` sucesso/falha
-- ✅ `signUp()` sucesso/falha
-- ✅ `signOut()` sucesso
-- ✅ `getCurrentUser()` retorna user autenticado ou null
-
-**Cobertura esperada:** Commands 85%, Repository 75%
+**Cobertura alcançada:** 100% nos 3 comandos
 
 ---
 

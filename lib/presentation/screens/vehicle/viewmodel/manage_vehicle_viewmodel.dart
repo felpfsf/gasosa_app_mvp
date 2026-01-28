@@ -8,6 +8,7 @@ import 'package:gasosa_app/application/commands/photos/save_photo_command.dart';
 import 'package:gasosa_app/application/commands/vehicles/create_or_update_vehicle_command.dart';
 import 'package:gasosa_app/application/commands/vehicles/delete_vehicle_command.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
+import 'package:gasosa_app/core/helpers/numeric_parser.dart';
 import 'package:gasosa_app/core/helpers/uuid.dart';
 import 'package:gasosa_app/core/viewmodel/base_viewmodel.dart';
 import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
@@ -152,9 +153,7 @@ class ManageVehicleViewModel extends BaseViewModel {
   double? _parseCapacity(String value) {
     final trimmed = value.trim();
     if (trimmed.isEmpty) return null;
-    final normalized = trimmed.replaceAll(',', '.');
-    final parsed = double.tryParse(normalized);
-    return parsed;
+    return NumericParser.parseDouble(trimmed);
   }
 
   Future<Either<Failure, Unit>> save() async {

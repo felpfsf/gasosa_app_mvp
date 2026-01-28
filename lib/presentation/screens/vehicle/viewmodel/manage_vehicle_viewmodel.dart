@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/widgets.dart';
 import 'package:gasosa_app/application/commands/photos/delete_photo_command.dart';
 import 'package:gasosa_app/application/commands/photos/save_photo_command.dart';
 import 'package:gasosa_app/application/commands/vehicles/create_or_update_vehicle_command.dart';
@@ -90,9 +89,6 @@ class ManageVehicleViewModel extends BaseViewModel {
   ManageVehicleState _state = const ManageVehicleState();
   ManageVehicleState get state => _state;
 
-  final nameEC = TextEditingController();
-  final plateEC = TextEditingController();
-  final tankCapacityEC = TextEditingController();
   String? _stagedToDeletePhotoPath;
 
   FuelType get fuelType => state.fuelType;
@@ -124,9 +120,6 @@ class ManageVehicleViewModel extends BaseViewModel {
             fuelType: vehicle.fuelType,
             photoPath: vehicle.photoPath ?? '',
           );
-          nameEC.text = _state.name;
-          plateEC.text = _state.plate;
-          tankCapacityEC.text = _state.tankCapacity;
           notifyListeners();
         },
       );
@@ -257,9 +250,6 @@ class ManageVehicleViewModel extends BaseViewModel {
 
   @override
   void dispose() {
-    nameEC.dispose();
-    plateEC.dispose();
-    tankCapacityEC.dispose();
     super.dispose();
   }
 }

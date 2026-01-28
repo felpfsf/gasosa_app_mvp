@@ -9,7 +9,8 @@ class GasosaFormField extends StatelessWidget {
     super.key,
     required this.label,
     this.hint,
-    required this.controller,
+    this.controller,
+    this.initialValue,
     this.keyboardType = TextInputType.text,
     this.obscureText = false,
     this.prefixIcon,
@@ -21,11 +22,15 @@ class GasosaFormField extends StatelessWidget {
     this.inputFormatters,
     this.onChanged,
     this.captitalText = TextCapitalization.sentences,
-  });
+  }) : assert(
+         controller == null || initialValue == null,
+         'Cannot provide both controller and initialValue',
+       );
 
   final String label;
   final String? hint;
-  final TextEditingController controller;
+  final TextEditingController? controller;
+  final String? initialValue;
   final TextInputType keyboardType;
   final bool obscureText;
   final Widget? prefixIcon;
@@ -50,6 +55,7 @@ class GasosaFormField extends StatelessWidget {
           onChanged: (value) => onChanged?.call(value),
           onTapOutside: (event) => FocusScope.of(context).unfocus(),
           controller: controller,
+          initialValue: initialValue,
           keyboardType: keyboardType,
           obscureText: obscureText,
           maxLines: maxLines,

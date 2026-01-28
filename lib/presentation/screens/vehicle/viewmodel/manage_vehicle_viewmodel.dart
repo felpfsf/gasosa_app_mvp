@@ -247,9 +247,4 @@ class ManageVehicleViewModel extends BaseViewModel {
     _state = _state.copyWith(photoPath: value, clearPhotoPath: value == null);
     notifyListeners();
   }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
 }

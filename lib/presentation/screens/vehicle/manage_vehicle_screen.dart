@@ -89,14 +89,12 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
                       children: [
                         GasosaFormField(
                           label: 'Nome',
-                          key: ValueKey('name_${s.name}'),
                           initialValue: s.name,
                           onChanged: _viewmodel.updateName,
                           validator: VehicleValidators.name,
                         ),
                         GasosaFormField(
                           label: 'Placa (opcional)',
-                          key: ValueKey('plate_${s.plate}'),
                           initialValue: s.plate,
                           onChanged: _viewmodel.updatePlate,
                           validator: (value) {
@@ -108,7 +106,6 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
                         ),
                         GasosaFormField(
                           label: 'Capacidade do Tanque (L) — opcional',
-                          key: ValueKey('tank_${s.tankCapacity}'),
                           initialValue: s.tankCapacity,
                           onChanged: _viewmodel.updateTankCapacity,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),

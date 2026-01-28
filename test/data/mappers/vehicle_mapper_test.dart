@@ -17,7 +17,7 @@ void main() {
           tankCapacity: 50.0,
           fuelType: 'gasoline',
           photoPath: '/path/to/photo.jpg',
-          createdAt: DateTime(2026, 1, 1),
+          createdAt: DateTime(2026),
           updatedAt: DateTime(2026, 1, 2),
         );
 
@@ -32,7 +32,7 @@ void main() {
         expect(entity.tankCapacity, 50.0);
         expect(entity.fuelType, FuelType.gasoline);
         expect(entity.photoPath, '/path/to/photo.jpg');
-        expect(entity.createdAt, DateTime(2026, 1, 1));
+        expect(entity.createdAt, DateTime(2026));
         expect(entity.updatedAt, DateTime(2026, 1, 2));
       });
 
@@ -42,12 +42,8 @@ void main() {
           id: 'vehicle-789',
           userId: 'user-456',
           name: 'Fiat Uno',
-          plate: null,
-          tankCapacity: null,
           fuelType: 'flex',
-          photoPath: null,
-          createdAt: DateTime(2026, 1, 1),
-          updatedAt: null,
+          createdAt: DateTime(2026),
         );
 
         // Act
@@ -195,7 +191,7 @@ void main() {
           tankCapacity: 50.0,
           fuelType: FuelType.gasoline,
           photoPath: '/path/to/photo.jpg',
-          createdAt: DateTime(2026, 1, 1),
+          createdAt: DateTime(2026),
           updatedAt: DateTime(2026, 1, 2),
         );
 
@@ -210,7 +206,7 @@ void main() {
         expect(companion.tankCapacity.value, 50.0);
         expect(companion.fuelType.value, 'gasoline');
         expect(companion.photoPath.value, '/path/to/photo.jpg');
-        expect(companion.createdAt.value, DateTime(2026, 1, 1));
+        expect(companion.createdAt.value, DateTime(2026));
         expect(companion.updatedAt.value, DateTime(2026, 1, 2));
       });
 
@@ -221,7 +217,7 @@ void main() {
           userId: 'user-456',
           name: 'Fiat Uno',
           fuelType: FuelType.flex,
-          createdAt: DateTime(2026, 1, 1),
+          createdAt: DateTime(2026),
         );
 
         // Act
@@ -403,7 +399,7 @@ void main() {
 
       test('deve lidar com path de foto muito longo', () {
         // Arrange
-        final longPath = '/very/long/path/' + ('a' * 200) + '.jpg';
+        final longPath = '/very/long/path/${'a' * 200}.jpg';
         final entity = VehicleEntity(
           id: 'long-path',
           userId: 'user',

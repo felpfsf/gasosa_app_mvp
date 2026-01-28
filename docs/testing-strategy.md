@@ -10,13 +10,15 @@ Este documento define a estratégia completa de testes do Gasosa App, organizada
 
 ### Cobertura Mínima Esperada
 
-| Camada | Cobertura | Justificativa |
+| Camada | Cobertura | Status |
 | -------- | ----------- | --------------- |
-| **Validators** | 100% | Lógica pura crítica para validações |
-| **Mappers** | 100% | Conversões entre camadas, sem I/O |
-| **Commands** | 80%+ | Casos de uso orquestram regras de negócio |
-| **Repositories** | 70%+ | Abstraem persistência e APIs |
-| **UI/Widgets** | 50%+ | Apenas widgets e fluxos críticos |
+| **Validators** | 100% | ✅ **124/124 testes** (Fase 1) |
+| **Mappers** | 100% | ✅ **35/35 testes** (Fase 2) - 96.67% cobertura |
+| **Commands** | 80%+ | ⏳ Pendente (Fases 3-5) |
+| **Repositories** | 70%+ | ⏳ Pendente |
+| **UI/Widgets** | 50%+ | ⏳ Pendente |
+
+**Total até agora:** 159 testes passando (Fase 1 + Fase 2)
 
 ### Princípios de Teste
 
@@ -118,21 +120,26 @@ test/
 **Duração estimada:** 1-2 dias  
 **Por quê agora?** Conversões puras, sem I/O, 100% testáveis.
 
+**Status:** ✅ **COMPLETA** (35 testes passando, 96.67% cobertura)
+
 #### Checklist
 
-- [ ] `user_mapper_test.dart`
-- [ ] `vehicle_mapper_test.dart`
-- [ ] `refuel_mapper_test.dart`
+- [x] `user_mapper_test.dart` (15 testes)
+- [x] `vehicle_mapper_test.dart` (11 testes)
+- [x] `refuel_mapper_test.dart` (9 testes)
 
-**Casos a testar por mapper:**
+**Casos testados:**
 
-- Conversão `toDomain()` (TableData → Entity)
-- Conversão `toTableData()` (Entity → TableData)
-- Conversão `toCompanion()` (Entity → Companion para insert/update)
-- Valores nulos e defaults
-- Enums (FuelType, etc.)
+- ✅ Conversão `toDomain()` (Row → Entity)
+- ✅ Conversão `toCompanion()` (Entity → Companion)
+- ✅ Conversão `toData()` (Entity → Row) - UserMapper
+- ✅ Valores nulos e defaults
+- ✅ Mapeamento de enums (FuelType: gasoline, ethanol, diesel, gnv, flex)
+- ✅ Case-insensitive em enums
+- ✅ Conversão bidirecional (round-trip)
+- ✅ Edge cases (valores extremos, strings vazias, caracteres especiais)
 
-**Cobertura esperada:** 100%
+**Cobertura alcançada:** 96.67% (linha 20 de VehicleMapper não executável - null check desnecessário)
 
 ---
 

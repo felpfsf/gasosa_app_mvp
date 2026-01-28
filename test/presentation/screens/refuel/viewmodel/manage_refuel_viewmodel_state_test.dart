@@ -17,16 +17,25 @@ void main() {
       expect(state2.coldStartValue, 50.0);
     });
 
-    test('state copyWith should handle null cold start values', () {
+    test('state copyWith should preserve cold start values when not cleared', () {
       final state = ManageRefuelState(
         coldStartLiters: 10.0,
         coldStartValue: 50.0,
       );
 
-      final clearedState = state.copyWith(
-        coldStartLiters: null,
-        coldStartValue: null,
+      final copiedState = state.copyWith();
+
+      expect(copiedState.coldStartLiters, 10.0);
+      expect(copiedState.coldStartValue, 50.0);
+    });
+
+    test('state copyWith should clear cold start values with clearColdStart flag', () {
+      final state = ManageRefuelState(
+        coldStartLiters: 10.0,
+        coldStartValue: 50.0,
       );
+
+      final clearedState = state.copyWith(clearColdStart: true);
 
       expect(clearedState.coldStartLiters, isNull);
       expect(clearedState.coldStartValue, isNull);
@@ -52,7 +61,7 @@ void main() {
     });
 
     test('isEditing indicates edit mode correctly', () {
-      final createState = ManageRefuelState(isEditing: false);
+      final createState = ManageRefuelState();
       expect(createState.isEditing, isFalse);
 
       final editState = ManageRefuelState(isEditing: true);

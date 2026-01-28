@@ -175,8 +175,11 @@ void main() {
 
         for (final row in rows) {
           final entity = VehicleMapper.toDomain(row);
-          expect(entity.fuelType, anyOf(FuelType.gasoline, FuelType.ethanol),
-              reason: 'FuelType ${row.fuelType} deveria ser mapeado corretamente');
+          expect(
+            entity.fuelType,
+            anyOf(FuelType.gasoline, FuelType.ethanol),
+            reason: 'FuelType ${row.fuelType} deveria ser mapeado corretamente',
+          );
         }
       });
     });

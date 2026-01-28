@@ -13,8 +13,8 @@ void main() {
           email: 'test@example.com',
           name: 'João Silva',
           photoUrl: 'https://example.com/photo.jpg',
-          createdAt: DateTime(2026, 1, 1),
-          updatedAt: DateTime(2026, 1, 2),
+          createdAt: DateTime(2026),
+          updatedAt: DateTime(2026),
         );
 
         // Act
@@ -33,9 +33,8 @@ void main() {
           id: 'user-456',
           email: 'test2@example.com',
           name: 'Maria Santos',
-          photoUrl: null,
-          createdAt: DateTime(2026, 1, 1),
-          updatedAt: null,
+
+          createdAt: DateTime(2026),
         );
 
         // Act
@@ -54,9 +53,8 @@ void main() {
           id: 'user-789',
           email: 'required@test.com',
           name: 'Teste User',
-          photoUrl: null,
           createdAt: DateTime(2025, 12, 31),
-          updatedAt: DateTime(2026, 1, 1),
+          updatedAt: DateTime(2026),
         );
 
         // Act
@@ -95,7 +93,6 @@ void main() {
           id: 'user-456',
           email: 'test2@example.com',
           name: 'Maria Santos',
-          photoUrl: null,
         );
 
         // Act
@@ -167,8 +164,8 @@ void main() {
         // Assert
         expect(row.createdAt.isAfter(before.subtract(const Duration(seconds: 1))), true);
         expect(row.createdAt.isBefore(after.add(const Duration(seconds: 1))), true);
-        expect(row.updatedAt.isAfter(before.subtract(const Duration(seconds: 1))), true);
-        expect(row.updatedAt.isBefore(after.add(const Duration(seconds: 1))), true);
+        expect(row.updatedAt?.isAfter(before.subtract(const Duration(seconds: 1))), true);
+        expect(row.updatedAt?.isBefore(after.add(const Duration(seconds: 1))), true);
       });
 
       test('deve converter UserEntity com photoUrl nulo', () {
@@ -177,7 +174,6 @@ void main() {
           id: 'user-789',
           email: 'no-photo@test.com',
           name: 'Sem Foto',
-          photoUrl: null,
         );
 
         // Act
@@ -197,7 +193,7 @@ void main() {
           email: 'bidirectional@test.com',
           name: 'Teste Bidirecional',
           photoUrl: 'https://test.com/photo.jpg',
-          createdAt: DateTime(2026, 1, 1),
+          createdAt: DateTime(2026),
           updatedAt: DateTime(2026, 1, 2),
         );
 

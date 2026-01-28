@@ -14,11 +14,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "155550412551-1gord8guekvu9p3qcrdmmkcb6ip6jhtd.apps.googleusercontent.com",
+          "client_id": "155550412551-85oe0abfd0r4crc5cb03dpkcqk0pudsn.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "dev.etherealcodes.gasosa_app.gasosa_app",
-            "certificate_hash": "7b0baba564d3f0ae758d9f4b8b1143c007ee71dd"
+            "certificate_hash": "70bb325b35cde79ab70bf710b9bbe23e0750dc2c"
           }
         },
         {
@@ -39,10 +39,10 @@
               "client_type": 3
             },
             {
-              "client_id": "155550412551-t5l9joov7ss01bj6pqg6ifvjfju471mu.apps.googleusercontent.com",
+              "client_id": "155550412551-a6e96q636maf4ail7m5b6f3jd5nhg8oi.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "dev.etherealcodes.gasosaapp.gasosaApp"
+                "bundle_id": "dev.etherealcodes.gasosaapp.dev"
               }
             }
           ]
@@ -57,6 +57,14 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "155550412551-m9talpkcoqs7s6f1gfk6l398p8jjfn14.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dev.etherealcodes.gasosaapp.dev",
+            "certificate_hash": "70bb325b35cde79ab70bf710b9bbe23e0750dc2c"
+          }
+        },
         {
           "client_id": "155550412551-nbpuob2r24bt5j0tt5ta3cuupuel8t4j.apps.googleusercontent.com",
           "client_type": 3
@@ -75,10 +83,10 @@
               "client_type": 3
             },
             {
-              "client_id": "155550412551-t5l9joov7ss01bj6pqg6ifvjfju471mu.apps.googleusercontent.com",
+              "client_id": "155550412551-a6e96q636maf4ail7m5b6f3jd5nhg8oi.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "dev.etherealcodes.gasosaapp.gasosaApp"
+                "bundle_id": "dev.etherealcodes.gasosaapp.dev"
               }
             }
           ]

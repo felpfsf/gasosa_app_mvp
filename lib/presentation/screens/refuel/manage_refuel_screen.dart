@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gasosa_app/core/di/locator.dart';
@@ -160,6 +162,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                     if (_viewmodel.shouldShowReceiptPhotoInput) ...[
                       GasosaPhotoPicker(
                         label: 'Comprovante de Abastecimento',
+                        image: state.receiptPath != null ? File(state.receiptPath!) : null,
                         onFileSelected: (file) async {
                           if (file == null) {
                             _viewmodel.onRemovePhoto();

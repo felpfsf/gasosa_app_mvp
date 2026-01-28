@@ -72,7 +72,14 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
 
   Future<void> _goToRefuelManageCreate() async {
     final result = await context.push(RoutePaths.refuelManageCreate(widget.vehicleId));
-    if(result == true) {
+    if (result == true) {
+      _viewModel.init(widget.vehicleId);
+    }
+  }
+
+  Future<void> _goToRefuelManageEdit(String refuelId) async {
+    final result = await context.push(RoutePaths.refuelManageEdit(refuelId));
+    if (result == true) {
       _viewModel.init(widget.vehicleId);
     }
   }
@@ -86,7 +93,13 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
           IconButton(tooltip: 'Editar', onPressed: _goToEditVehicle, icon: const Icon(Icons.edit_outlined)),
           IconButton(tooltip: 'Excluir', onPressed: _deleteVehicle, icon: const Icon(Icons.delete_outline)),
         ],
-        onBackPressed: () => context.go(RoutePaths.dashboard),
+        onBackPressed: () {
+          if (Navigator.canPop(context)) {
+            context.pop();
+          } else {
+            context.go(RoutePaths.dashboard);
+          }
+        },
         showBackButton: true,
       ),
       // floatingActionButton: _buildFloatingActionButton(),
@@ -181,6 +194,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
                 child: RefuelsList(
                   refuels: refuels,
                   controller: _scrollController,
+                  onRefuelTap: _goToRefuelManageEdit,
                 ),
               ),
             ],

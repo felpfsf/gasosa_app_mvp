@@ -1,9 +1,9 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gasosa_app/application/commands/auth/login_email_password_command.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/domain/services/auth_service.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:dartz/dartz.dart';
 
 class MockAuthService extends Mock implements AuthService {}
 
@@ -24,8 +24,7 @@ void main() {
     group('Sucesso', () {
       test('deve retornar Right com AuthUser quando login bem-sucedido', () async {
         // Arrange
-        when(() => mockAuthService.loginWithEmail(testEmail, testPassword))
-            .thenAnswer((_) async => right(testUser));
+        when(() => mockAuthService.loginWithEmail(testEmail, testPassword)).thenAnswer((_) async => right(testUser));
 
         // Act
         final result = await command(email: testEmail, password: testPassword);
@@ -46,8 +45,9 @@ void main() {
       test('deve incluir photoUrl quando presente', () async {
         // Arrange
         const userWithPhoto = AuthUser('user-123', 'Test User', testEmail, photoUrl: 'https://example.com/photo.jpg');
-        when(() => mockAuthService.loginWithEmail(testEmail, testPassword))
-            .thenAnswer((_) async => right(userWithPhoto));
+        when(
+          () => mockAuthService.loginWithEmail(testEmail, testPassword),
+        ).thenAnswer((_) async => right(userWithPhoto));
 
         // Act
         final result = await command(email: testEmail, password: testPassword);
@@ -63,8 +63,9 @@ void main() {
     group('Falhas de Validação', () {
       test('deve retornar Left com BusinessFailure quando email vazio', () async {
         // Arrange
-        when(() => mockAuthService.loginWithEmail('', testPassword))
-            .thenAnswer((_) async => left(const BusinessFailure('Email não pode ser vazio')));
+        when(
+          () => mockAuthService.loginWithEmail('', testPassword),
+        ).thenAnswer((_) async => left(const BusinessFailure('Email não pode ser vazio')));
 
         // Act
         final result = await command(email: '', password: testPassword);
@@ -83,8 +84,9 @@ void main() {
 
       test('deve retornar Left com BusinessFailure quando password vazio', () async {
         // Arrange
-        when(() => mockAuthService.loginWithEmail(testEmail, ''))
-            .thenAnswer((_) async => left(const BusinessFailure('Senha não pode ser vazia')));
+        when(
+          () => mockAuthService.loginWithEmail(testEmail, ''),
+        ).thenAnswer((_) async => left(const BusinessFailure('Senha não pode ser vazia')));
 
         // Act
         final result = await command(email: testEmail, password: '');
@@ -103,8 +105,9 @@ void main() {
       test('deve retornar Left com BusinessFailure quando email inválido', () async {
         // Arrange
         const invalidEmail = 'invalid-email';
-        when(() => mockAuthService.loginWithEmail(invalidEmail, testPassword))
-            .thenAnswer((_) async => left(const BusinessFailure('Email inválido')));
+        when(
+          () => mockAuthService.loginWithEmail(invalidEmail, testPassword),
+        ).thenAnswer((_) async => left(const BusinessFailure('Email inválido')));
 
         // Act
         final result = await command(email: invalidEmail, password: testPassword);
@@ -123,8 +126,9 @@ void main() {
     group('Falhas de Autenticação', () {
       test('deve retornar Left com AuthFailure quando credenciais inválidas', () async {
         // Arrange
-        when(() => mockAuthService.loginWithEmail(testEmail, 'wrong-password'))
-            .thenAnswer((_) async => left(AuthFailure('Credenciais inválidas')));
+        when(
+          () => mockAuthService.loginWithEmail(testEmail, 'wrong-password'),
+        ).thenAnswer((_) async => left(const AuthFailure('Credenciais inválidas')));
 
         // Act
         final result = await command(email: testEmail, password: 'wrong-password');
@@ -142,8 +146,9 @@ void main() {
 
       test('deve retornar Left com AuthFailure quando usuário não existe', () async {
         // Arrange
-        when(() => mockAuthService.loginWithEmail('nonexistent@test.com', testPassword))
-            .thenAnswer((_) async => left(AuthFailure('Usuário não encontrado')));
+        when(
+          () => mockAuthService.loginWithEmail('nonexistent@test.com', testPassword),
+        ).thenAnswer((_) async => left(const AuthFailure('Usuário não encontrado')));
 
         // Act
         final result = await command(email: 'nonexistent@test.com', password: testPassword);
@@ -160,8 +165,9 @@ void main() {
 
       test('deve retornar Left com AuthFailure quando email não verificado', () async {
         // Arrange
-        when(() => mockAuthService.loginWithEmail(testEmail, testPassword))
-            .thenAnswer((_) async => left(AuthFailure('Email não verificado')));
+        when(
+          () => mockAuthService.loginWithEmail(testEmail, testPassword),
+        ).thenAnswer((_) async => left(const AuthFailure('Email não verificado')));
 
         // Act
         final result = await command(email: testEmail, password: testPassword);
@@ -178,8 +184,9 @@ void main() {
 
       test('deve retornar Left com AuthFailure quando conta desabilitada', () async {
         // Arrange
-        when(() => mockAuthService.loginWithEmail(testEmail, testPassword))
-            .thenAnswer((_) async => left(AuthFailure('Conta desabilitada')));
+        when(
+          () => mockAuthService.loginWithEmail(testEmail, testPassword),
+        ).thenAnswer((_) async => left(const AuthFailure('Conta desabilitada')));
 
         // Act
         final result = await command(email: testEmail, password: testPassword);
@@ -195,8 +202,9 @@ void main() {
     group('Falhas de Sistema', () {
       test('deve retornar Left com AuthFailure quando sem conexão', () async {
         // Arrange
-        when(() => mockAuthService.loginWithEmail(testEmail, testPassword))
-            .thenAnswer((_) async => left(const AuthFailure('Sem conexão com a internet')));
+        when(
+          () => mockAuthService.loginWithEmail(testEmail, testPassword),
+        ).thenAnswer((_) async => left(const AuthFailure('Sem conexão com a internet')));
 
         // Act
         final result = await command(email: testEmail, password: testPassword);
@@ -214,8 +222,9 @@ void main() {
 
       test('deve retornar Left com AuthFailure quando erro inesperado', () async {
         // Arrange
-        when(() => mockAuthService.loginWithEmail(testEmail, testPassword))
-            .thenAnswer((_) async => left(const AuthFailure('Erro inesperado')));
+        when(
+          () => mockAuthService.loginWithEmail(testEmail, testPassword),
+        ).thenAnswer((_) async => left(const AuthFailure('Erro inesperado')));
 
         // Act
         final result = await command(email: testEmail, password: testPassword);
@@ -232,8 +241,9 @@ void main() {
 
       test('deve retornar Left com AuthFailure quando timeout', () async {
         // Arrange
-        when(() => mockAuthService.loginWithEmail(testEmail, testPassword))
-            .thenAnswer((_) async => left(const AuthFailure('Timeout na requisição')));
+        when(
+          () => mockAuthService.loginWithEmail(testEmail, testPassword),
+        ).thenAnswer((_) async => left(const AuthFailure('Timeout na requisição')));
 
         // Act
         final result = await command(email: testEmail, password: testPassword);
@@ -254,8 +264,9 @@ void main() {
         // Arrange
         const emailWithSpaces = '  test@example.com  ';
         const passwordWithSpaces = '  password123  ';
-        when(() => mockAuthService.loginWithEmail(emailWithSpaces, passwordWithSpaces))
-            .thenAnswer((_) async => left(const BusinessFailure('Email/senha com espaços')));
+        when(
+          () => mockAuthService.loginWithEmail(emailWithSpaces, passwordWithSpaces),
+        ).thenAnswer((_) async => left(const BusinessFailure('Email/senha com espaços')));
 
         // Act
         final result = await command(email: emailWithSpaces, password: passwordWithSpaces);
@@ -271,8 +282,7 @@ void main() {
       test('deve lidar com caracteres especiais no password', () async {
         // Arrange
         const specialPassword = 'P@ssw0rd!@#\$%^&*()';
-        when(() => mockAuthService.loginWithEmail(testEmail, specialPassword))
-            .thenAnswer((_) async => right(testUser));
+        when(() => mockAuthService.loginWithEmail(testEmail, specialPassword)).thenAnswer((_) async => right(testUser));
 
         // Act
         final result = await command(email: testEmail, password: specialPassword);
@@ -285,8 +295,9 @@ void main() {
       test('deve lidar com email em maiúsculas', () async {
         // Arrange
         const uppercaseEmail = 'TEST@EXAMPLE.COM';
-        when(() => mockAuthService.loginWithEmail(uppercaseEmail, testPassword))
-            .thenAnswer((_) async => right(testUser));
+        when(
+          () => mockAuthService.loginWithEmail(uppercaseEmail, testPassword),
+        ).thenAnswer((_) async => right(testUser));
 
         // Act
         final result = await command(email: uppercaseEmail, password: testPassword);
@@ -297,8 +308,7 @@ void main() {
 
       test('deve chamar AuthService apenas uma vez por comando', () async {
         // Arrange
-        when(() => mockAuthService.loginWithEmail(testEmail, testPassword))
-            .thenAnswer((_) async => right(testUser));
+        when(() => mockAuthService.loginWithEmail(testEmail, testPassword)).thenAnswer((_) async => right(testUser));
 
         // Act
         await command(email: testEmail, password: testPassword);

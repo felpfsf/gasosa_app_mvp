@@ -90,8 +90,8 @@ void main() {
     });
 
     test('rounds to specified decimal places', () {
-      expect(NumericParser.formatDouble(123.456, decimalPlaces: 2), '123,46');
-      expect(NumericParser.formatDouble(123.454, decimalPlaces: 2), '123,45');
+      expect(NumericParser.formatDouble(123.456), '123,46');
+      expect(NumericParser.formatDouble(123.454), '123,45');
     });
   });
 

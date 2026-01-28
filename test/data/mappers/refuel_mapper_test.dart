@@ -21,7 +21,7 @@ void main() {
           coldStartValue: 12.50,
           receiptPath: '/receipts/photo.jpg',
           createdAt: DateTime(2026, 1, 15, 10, 30),
-          updatedAt: DateTime(2026, 1, 15, 11, 00),
+          updatedAt: DateTime(2026, 1, 15, 11),
         );
 
         // Act
@@ -39,7 +39,7 @@ void main() {
         expect(entity.coldStartValue, 12.50);
         expect(entity.receiptPath, '/receipts/photo.jpg');
         expect(entity.createdAt, DateTime(2026, 1, 15, 10, 30));
-        expect(entity.updatedAt, DateTime(2026, 1, 15, 11, 00));
+        expect(entity.updatedAt, DateTime(2026, 1, 15, 11));
       });
 
       test('deve converter RefuelRow com valores opcionais nulos', () {
@@ -52,11 +52,7 @@ void main() {
           totalValue: 180.00,
           mileage: 51000,
           liters: 40.0,
-          coldStartLiters: null,
-          coldStartValue: null,
-          receiptPath: null,
           createdAt: DateTime(2026, 1, 20),
-          updatedAt: null,
         );
 
         // Act
@@ -106,12 +102,12 @@ void main() {
         final row = RefuelRow(
           id: 'first-refuel',
           vehicleId: 'new-vehicle',
-          refuelDate: DateTime(2026, 1, 1),
+          refuelDate: DateTime(2026),
           fuelType: 'flex',
           totalValue: 200.0,
           mileage: 0,
           liters: 50.0,
-          createdAt: DateTime(2026, 1, 1),
+          createdAt: DateTime(2026),
         );
 
         // Act
@@ -162,7 +158,7 @@ void main() {
           coldStartValue: 12.50,
           receiptPath: '/receipts/photo.jpg',
           createdAt: DateTime(2026, 1, 15, 10, 30),
-          updatedAt: DateTime(2026, 1, 15, 11, 00),
+          updatedAt: DateTime(2026, 1, 15, 11),
         );
 
         // Act
@@ -180,7 +176,7 @@ void main() {
         expect(companion.coldStartValue.value, 12.50);
         expect(companion.receiptPath.value, '/receipts/photo.jpg');
         expect(companion.createdAt.value, DateTime(2026, 1, 15, 10, 30));
-        expect(companion.updatedAt.value, DateTime(2026, 1, 15, 11, 00));
+        expect(companion.updatedAt.value, DateTime(2026, 1, 15, 11));
       });
 
       test('deve converter RefuelEntity com valores opcionais nulos', () {
@@ -279,8 +275,8 @@ void main() {
           coldStartLiters: 3.0,
           coldStartValue: 18.00,
           receiptPath: '/test/receipt.jpg',
-          createdAt: DateTime(2026, 1, 25, 8, 0),
-          updatedAt: DateTime(2026, 1, 25, 9, 0),
+          createdAt: DateTime(2026, 1, 25, 8),
+          updatedAt: DateTime(2026, 1, 25, 9),
         );
 
         // Act
@@ -386,7 +382,7 @@ void main() {
 
       test('deve lidar com path de recibo muito longo', () {
         // Arrange
-        final longPath = '/receipts/' + ('a' * 200) + '.jpg';
+        final longPath = '/receipts/${'a' * 200}.jpg';
         final entity = RefuelEntity(
           id: 'long-path',
           vehicleId: 'vehicle',
@@ -446,7 +442,7 @@ void main() {
 
       test('deve lidar com datas no passado e futuro', () {
         final dates = [
-          DateTime(2000, 1, 1),
+          DateTime(2000),
           DateTime(2020, 12, 31),
           DateTime(2030, 6, 15),
         ];

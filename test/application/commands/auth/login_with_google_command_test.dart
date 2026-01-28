@@ -1,9 +1,9 @@
+import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gasosa_app/application/commands/auth/loggin_with_google_command.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/domain/services/auth_service.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:dartz/dartz.dart';
 
 class MockAuthService extends Mock implements AuthService {}
 
@@ -87,8 +87,9 @@ void main() {
     group('Falhas de Autenticação', () {
       test('deve retornar Left com AuthFailure quando usuário cancela login', () async {
         // Arrange
-        when(() => mockAuthService.loginWithGoogle())
-            .thenAnswer((_) async => left(AuthFailure('Usuário cancelou o login')));
+        when(
+          () => mockAuthService.loginWithGoogle(),
+        ).thenAnswer((_) async => left(const AuthFailure('Usuário cancelou o login')));
 
         // Act
         final result = await command();
@@ -107,8 +108,9 @@ void main() {
 
       test('deve retornar Left com AuthFailure quando conta Google não autorizada', () async {
         // Arrange
-        when(() => mockAuthService.loginWithGoogle())
-            .thenAnswer((_) async => left(AuthFailure('Conta Google não autorizada')));
+        when(
+          () => mockAuthService.loginWithGoogle(),
+        ).thenAnswer((_) async => left(const AuthFailure('Conta Google não autorizada')));
 
         // Act
         final result = await command();
@@ -125,8 +127,9 @@ void main() {
 
       test('deve retornar Left com AuthFailure quando conta Google desabilitada', () async {
         // Arrange
-        when(() => mockAuthService.loginWithGoogle())
-            .thenAnswer((_) async => left(AuthFailure('Conta desabilitada')));
+        when(
+          () => mockAuthService.loginWithGoogle(),
+        ).thenAnswer((_) async => left(const AuthFailure('Conta desabilitada')));
 
         // Act
         final result = await command();
@@ -140,8 +143,9 @@ void main() {
 
       test('deve retornar Left com AuthFailure quando Google Sign-In falha', () async {
         // Arrange
-        when(() => mockAuthService.loginWithGoogle())
-            .thenAnswer((_) async => left(AuthFailure('Erro no Google Sign-In')));
+        when(
+          () => mockAuthService.loginWithGoogle(),
+        ).thenAnswer((_) async => left(const AuthFailure('Erro no Google Sign-In')));
 
         // Act
         final result = await command();
@@ -158,8 +162,9 @@ void main() {
 
       test('deve retornar Left com AuthFailure quando permissões negadas', () async {
         // Arrange
-        when(() => mockAuthService.loginWithGoogle())
-            .thenAnswer((_) async => left(AuthFailure('Permissões negadas')));
+        when(
+          () => mockAuthService.loginWithGoogle(),
+        ).thenAnswer((_) async => left(const AuthFailure('Permissões negadas')));
 
         // Act
         final result = await command();
@@ -175,8 +180,9 @@ void main() {
     group('Falhas de Sistema', () {
       test('deve retornar Left com AuthFailure quando sem conexão', () async {
         // Arrange
-        when(() => mockAuthService.loginWithGoogle())
-            .thenAnswer((_) async => left(const AuthFailure('Sem conexão com a internet')));
+        when(
+          () => mockAuthService.loginWithGoogle(),
+        ).thenAnswer((_) async => left(const AuthFailure('Sem conexão com a internet')));
 
         // Act
         final result = await command();
@@ -194,8 +200,9 @@ void main() {
 
       test('deve retornar Left com AuthFailure quando timeout', () async {
         // Arrange
-        when(() => mockAuthService.loginWithGoogle())
-            .thenAnswer((_) async => left(const AuthFailure('Timeout na requisição')));
+        when(
+          () => mockAuthService.loginWithGoogle(),
+        ).thenAnswer((_) async => left(const AuthFailure('Timeout na requisição')));
 
         // Act
         final result = await command();
@@ -212,8 +219,9 @@ void main() {
 
       test('deve retornar Left com AuthFailure quando servidores Google indisponíveis', () async {
         // Arrange
-        when(() => mockAuthService.loginWithGoogle())
-            .thenAnswer((_) async => left(const AuthFailure('Servidores Google indisponíveis')));
+        when(
+          () => mockAuthService.loginWithGoogle(),
+        ).thenAnswer((_) async => left(const AuthFailure('Servidores Google indisponíveis')));
 
         // Act
         final result = await command();
@@ -227,8 +235,9 @@ void main() {
 
       test('deve retornar Left com AuthFailure quando erro inesperado', () async {
         // Arrange
-        when(() => mockAuthService.loginWithGoogle())
-            .thenAnswer((_) async => left(const AuthFailure('Erro inesperado no login Google')));
+        when(
+          () => mockAuthService.loginWithGoogle(),
+        ).thenAnswer((_) async => left(const AuthFailure('Erro inesperado no login Google')));
 
         // Act
         final result = await command();
@@ -271,15 +280,13 @@ void main() {
 
       test('deve permitir chamadas sequenciais com resultados diferentes', () async {
         // Arrange
-        when(() => mockAuthService.loginWithGoogle())
-            .thenAnswer((_) async => left(const AuthFailure('Cancelado')));
+        when(() => mockAuthService.loginWithGoogle()).thenAnswer((_) async => left(const AuthFailure('Cancelado')));
 
         // Act
         final result1 = await command();
 
         // Arrange segunda chamada
-        when(() => mockAuthService.loginWithGoogle())
-            .thenAnswer((_) async => right(testUser));
+        when(() => mockAuthService.loginWithGoogle()).thenAnswer((_) async => right(testUser));
 
         final result2 = await command();
 
@@ -292,8 +299,9 @@ void main() {
     group('Integração com Plataforma', () {
       test('deve lidar com erro de Play Services desatualizado no Android', () async {
         // Arrange
-        when(() => mockAuthService.loginWithGoogle())
-            .thenAnswer((_) async => left(const AuthFailure('Google Play Services desatualizado')));
+        when(
+          () => mockAuthService.loginWithGoogle(),
+        ).thenAnswer((_) async => left(const AuthFailure('Google Play Services desatualizado')));
 
         // Act
         final result = await command();
@@ -307,8 +315,9 @@ void main() {
 
       test('deve lidar com erro de app não configurado no Firebase', () async {
         // Arrange
-        when(() => mockAuthService.loginWithGoogle())
-            .thenAnswer((_) async => left(const AuthFailure('App não configurado no Firebase Console')));
+        when(
+          () => mockAuthService.loginWithGoogle(),
+        ).thenAnswer((_) async => left(const AuthFailure('App não configurado no Firebase Console')));
 
         // Act
         final result = await command();

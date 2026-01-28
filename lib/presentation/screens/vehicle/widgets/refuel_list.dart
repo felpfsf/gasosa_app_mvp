@@ -2,18 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/extensions/date_time_extensions.dart';
 import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/domain/entities/refuel.dart';
-import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_card.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_empty_state_widget.dart';
 import 'package:gasosa_app/theme/app_colors.dart';
 import 'package:gasosa_app/theme/app_spacing.dart';
 import 'package:gasosa_app/theme/app_typography.dart';
-import 'package:go_router/go_router.dart';
 
 class RefuelsList extends StatelessWidget {
-  const RefuelsList({super.key, required this.refuels, required this.controller});
+  const RefuelsList({
+    super.key,
+    required this.refuels,
+    required this.controller,
+    this.onRefuelTap,
+  });
   final List<RefuelEntity> refuels;
   final ScrollController controller;
+  final Future<void> Function(String refuelId)? onRefuelTap;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +49,7 @@ class RefuelsList extends StatelessWidget {
           key: ValueKey(refuel.id),
           refuel: refuel,
           previousRefuel: previousRefuel,
-          onTap: () => context.go(RoutePaths.refuelManageEdit(refuel.id)),
+          onTap: onRefuelTap != null ? () => onRefuelTap!(refuel.id) : null,
         );
       },
     );

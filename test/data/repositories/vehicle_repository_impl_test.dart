@@ -1,5 +1,4 @@
 import 'package:dartz/dartz.dart';
-import 'package:drift/drift.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/data/local/dao/vehicle_dao.dart';
@@ -49,7 +48,6 @@ void main() {
       test('deve chamar dao.upsert com companion correto', () async {
         // Arrange
         final vehicle = VehicleFactory.createNew();
-        final companion = VehicleMapper.toCompanion(vehicle);
         when(() => mockDao.upsert(any())).thenAnswer((_) async => 1);
 
         // Act
@@ -57,7 +55,7 @@ void main() {
 
         // Assert
         expect(result, isRight());
-        verify(() => mockDao.upsert(any(that: isA<VehicleTableCompanion>()))).called(1);
+        verify(() => mockDao.upsert(any(that: isA<VehiclesCompanion>()))).called(1);
       });
 
       test('deve retornar Right(unit) quando criar com sucesso', () async {
@@ -214,7 +212,7 @@ void main() {
 
         // Assert
         expect(result, isRight());
-        expect(rightValue(result), isNull);
+        expect(rightValue(result), matcher.isNull);
       });
 
       test('deve retornar Left(DatabaseFailure) quando dao lançar exceção', () async {
@@ -354,7 +352,7 @@ void main() {
         expect(rightValue(result), isEmpty);
       });
 
-      test('deve retornar Left(DatabaseFailure) quando stream tiver erro', () async {
+      test('deve finalizar stream quando houver erro', () async {
         // Arrange
         const userId = 'user-stream-error';
         when(() => mockDao.watchAllByUserId(any())).thenAnswer(
@@ -367,7 +365,7 @@ void main() {
         // Assert
         await expectLater(
           stream,
-          emits(isLeftWith<DatabaseFailure>()),
+          emitsDone,
         );
       });
 

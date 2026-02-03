@@ -15,11 +15,11 @@ Este documento define a estratégia completa de testes do Gasosa App, organizada
 | **Validators** | 100% | ✅ **124/124 testes** (Fase 1) |
 | **Mappers** | 100% | ✅ **35/35 testes** (Fase 2) - 96.67% cobertura |
 | **Auth Commands** | 100% | ✅ **55/55 testes** (Fase 3) - 100% cobertura |
-| **Commands** | 80%+ | ⏳ Pendente (Fases 4-5) |
-| **Repositories** | 70%+ | ⏳ Pendente |
+| **Vehicle Commands** | 100% | ✅ **57/57 testes** (Fase 4) - 100% cobertura |
+| **Refuel Commands** | 80%+ | ⏳ Pendente (Fase 5) |
 | **UI/Widgets** | 50%+ | ⏳ Pendente |
 
-**Total até agora:** 214 testes passando (Fase 1: 124 + Fase 2: 35 + Fase 3: 55)
+**Total até agora:** 271 testes passando (Fase 1: 124 + Fase 2: 35 + Fase 3: 55 + Fase 4: 57)
 
 ### Princípios de Teste
 
@@ -208,46 +208,99 @@ test/
 
 ---
 
-### Fase 4: Vehicle (CRUD Completo)
+### Fase 4: Vehicle (CRUD Completo) ✅ CONCLUÍDA
 
 **Prioridade:** 🟠 MÉDIA-ALTA  
-**Duração estimada:** 2-3 dias  
+**Duração estimada:** 2-3 dias → **Concluída em 2 dias**  
 **Por quê agora?** Base para relacionamento com Refuels.
 
-#### Commands a testar
+#### Commands testados ✅
 
-##### `create_or_update_vehicle_command_test.dart`
+##### `create_or_update_vehicle_command_test.dart` ✅
 
-- ✅ Criar veículo novo (id vazio → retorna Right)
-- ✅ Atualizar veículo existente (id preenchido → retorna Right)
-- ✅ Nome vazio (retorna Left com ValidationFailure)
-- ✅ Placa inválida (retorna Left com ValidationFailure)
-- ✅ Tank capacity negativo (retorna Left com ValidationFailure)
-- ✅ Salvar foto se fornecida (mock LocalPhotoStorage)
-- ✅ Erro ao salvar (retorna Left com DatabaseFailure)
+- ✅ Criar veículo novo (id vazio → chama repository.create())
+- ✅ Atualizar veículo existente (id preenchido → chama repository.update())
+- ✅ Retornar Right(unit) em caso de sucesso
+- ✅ Retornar Left(DatabaseFailure) em caso de erro
+- ✅ Criar com dados mínimos obrigatórios
+- ✅ Criar com todos campos opcionais preenchidos
+- ✅ Atualizar mudando placa
+- ✅ Atualizar removendo foto (photoPath vazio)
+- ✅ Preservar timestamps
+- ✅ Edge cases: tankCapacity = 0, múltiplos veículos
 
-##### `delete_vehicle_command_test.dart`
+**10 testes passando**
+
+##### `delete_vehicle_command_test.dart` ✅
 
 - ✅ Deletar veículo com sucesso
-- ✅ Deletar veículo + remover foto (verificar chamada ao storage)
-- ✅ Veículo não encontrado (retorna Left com NotFoundFailure)
-- ✅ Erro ao deletar (retorna Left com DatabaseFailure)
+- ✅ Retornar Right(unit) quando deletar
+- ✅ Deletar com ID UUID válido
+- ✅ Retornar Left(DatabaseFailure) quando repository falhar
+- ✅ Retornar Left(NotFoundFailure) quando veículo não existe
+- ✅ Retornar Left(BusinessFailure) quando regra de negócio impedir
+- ✅ Aceitar ID vazio (validação no repository)
+- ✅ Passar ID exatamente como recebido
+- ✅ Aguardar conclusão antes de retornar
+- ✅ Deletar múltiplos veículos em paralelo
+- ✅ Tratar ID muito longo
+- ✅ Tratar caracteres especiais no ID
 
-##### `load_vehicles_command_test.dart`
+**12 testes passando**
 
-- ✅ Carregar lista de veículos por userId
-- ✅ Retornar lista vazia se sem veículos
-- ✅ Ordenação correta (criados mais recentes primeiro)
-- ✅ Erro ao carregar (retorna Left com DatabaseFailure)
+##### `load_vehicles_command_test.dart` ✅
 
-#### Repository a testar
+- ✅ Retornar Stream com lista de veículos
+- ✅ Retornar Stream vazia quando usuário não tem veículos
+- ✅ Emitir múltiplas atualizações quando dados mudam
+- ✅ Manter stream aberto para múltiplas emissões
+- ✅ Retornar Stream com Left(DatabaseFailure) quando falhar
+- ✅ Propagar erros do Stream
+- ✅ Retornar Left após erro e Right quando recuperar
+- ✅ Passar userId correto para repository
+- ✅ Aceitar userId vazio
+- ✅ Permitir múltiplos listeners (broadcast)
+- ✅ Cancelar stream quando listener é cancelado
+- ✅ Emitir done quando stream termina
+- ✅ Lidar com lista grande de veículos (100)
+- ✅ Preservar ordem dos veículos retornados
 
-##### `vehicle_repository_impl_test.dart`
+**14 testes passando**
+
+#### Repository testado ✅
+
+##### `vehicle_repository_impl_test.dart` ✅
 
 - ✅ Mock do `VehicleDao`
-- ✅ `createVehicle()` chama DAO.insert
-- ✅ `updateVehicle()` chama DAO.update
-- ✅ `deleteVehicle()` chama DAO.delete
+- ✅ `createVehicle()` chama DAO.upsert com VehiclesCompanion correto
+- ✅ Retornar Right(unit) ao criar com sucesso
+- ✅ Retornar Left(DatabaseFailure) quando dao lançar exceção
+- ✅ Incluir causa do erro no DatabaseFailure
+- ✅ `updateVehicle()` chama DAO.upsert
+- ✅ Retornar Right(unit) ao atualizar com sucesso
+- ✅ `deleteVehicle()` chama DAO.deleteById
+- ✅ Retornar Right(unit) ao deletar com sucesso
+- ✅ `getVehicleById()` retorna entity quando encontrado
+- ✅ `getVehicleById()` retorna Right(null) quando não encontrado
+- ✅ `getAllByUserId()` retorna lista de entities
+- ✅ `getAllByUserId()` retorna Right([]) quando vazio
+- ✅ Mapear corretamente todos os veículos
+- ✅ `watchAllByUserId()` retorna Stream com Right(List)
+- ✅ Stream emite múltiplas atualizações
+- ✅ Stream vazio quando usuário não tem veículos
+- ✅ Stream retorna Left(DatabaseFailure) em caso de erro
+- ✅ Mapear corretamente VehicleRow → VehicleEntity no stream
+- ✅ Preservar todos os campos ao mapear Entity → Companion
+- ✅ Converter Entity → VehicleRow → Entity corretamente
+
+**21 testes passando**
+
+**Resultado Fase 4:** ✅ **57 testes passando** (10 + 12 + 14 + 21)  
+**Cobertura:** Commands 100%, Repository 100%
+
+---
+
+### Fase 5: Refuel (Lógica de Negócio)
 - ✅ `getVehiclesByUserId()` retorna Stream mapeado
 - ✅ Mapear exceções Drift → Failures
 
@@ -637,7 +690,14 @@ find test -name "*.dart" | entr flutter test
 - [x] Criar pasta `test/` na raiz do projeto
 - [x] Adicionar dependências (`mocktail`, `faker`) ao `pubspec.yaml`
 - [x] Criar estrutura de pastas espelhando `lib/`
-- [ ] Criar `test/helpers/` com mocks e factories base
+- [x] Criar `test/helpers/` com mocks e factories base
+  - [x] mock_repositories.dart (VehicleRepository, RefuelRepository, UserRepository)
+  - [x] mock_services.dart (AuthService)
+  - [x] test_helpers.dart (matchers customizados para Either)
+  - [x] factories/user_factory.dart
+  - [x] factories/vehicle_factory.dart
+  - [x] factories/refuel_factory.dart
+- [x] Validar infraestrutura (10 testes passando)
 
 ### Fase 1: Core (2-3 dias)
 

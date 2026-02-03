@@ -22,4 +22,28 @@ class VehicleEntity {
   final String? photoPath;
   final DateTime createdAt;
   final DateTime? updatedAt;
+
+  VehicleEntity copyWith({
+    String? id,
+    String? userId,
+    String? name,
+    FuelType? fuelType,
+    String? plate,
+    double? tankCapacity,
+    String? photoPath,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) {
+    return VehicleEntity(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      name: name ?? this.name,
+      fuelType: fuelType ?? this.fuelType,
+      plate: plate ?? this.plate,
+      tankCapacity: tankCapacity ?? this.tankCapacity,
+      photoPath: photoPath ?? this.photoPath,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 }

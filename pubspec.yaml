@@ -56,6 +56,7 @@ dev_dependencies:
   
   # 👉 Testing
   faker: ^2.1.0
+  matcher: ^0.12.17
   
 flutter:
   uses-material-design: true

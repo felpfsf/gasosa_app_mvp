@@ -28,12 +28,24 @@ class ManageVehicleScreen extends StatefulWidget {
 class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
   late final ManageVehicleViewModel _viewmodel;
   final _formKey = GlobalKey<FormState>();
+  final _nameController = TextEditingController();
+  final _plateController = TextEditingController();
+  final _tankController = TextEditingController();
+  bool _didPopulate = false;
 
   @override
   void initState() {
     super.initState();
     _viewmodel = getIt<ManageVehicleViewModel>();
     _viewmodel.init(vehicleId: widget.vehicleId);
+  }
+
+  void _populateControllersIfNeeded(ManageVehicleState s) {
+    if (_didPopulate || !s.isEdit || s.initial == null) return;
+    _nameController.text = s.name;
+    _plateController.text = s.plate;
+    _tankController.text = s.tankCapacity;
+    _didPopulate = true;
   }
 
   Future<void> _onSave() async {
@@ -74,6 +86,7 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
         animation: _viewmodel,
         builder: (_, __) {
           final s = _viewmodel.state;
+          _populateControllersIfNeeded(s);
           final currentImage = (s.photoPath != null && s.photoPath!.isNotEmpty) ? File(s.photoPath!) : null;
 
           return Stack(
@@ -89,13 +102,13 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
                       children: [
                         GasosaFormField(
                           label: 'Nome',
-                          initialValue: s.name,
+                          controller: _nameController,
                           onChanged: _viewmodel.updateName,
                           validator: VehicleValidators.name,
                         ),
                         GasosaFormField(
                           label: 'Placa (opcional)',
-                          initialValue: s.plate,
+                          controller: _plateController,
                           onChanged: _viewmodel.updatePlate,
                           validator: (value) {
                             if (value != null && value.isNotEmpty) {
@@ -106,7 +119,7 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
                         ),
                         GasosaFormField(
                           label: 'Capacidade do Tanque (L) — opcional',
-                          initialValue: s.tankCapacity,
+                          controller: _tankController,
                           onChanged: _viewmodel.updateTankCapacity,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           validator: VehicleValidators.tankCapacity,
@@ -187,6 +200,9 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
   @override
   void dispose() {
     _viewmodel.dispose();
+    _nameController.dispose();
+    _plateController.dispose();
+    _tankController.dispose();
     super.dispose();
   }
 }

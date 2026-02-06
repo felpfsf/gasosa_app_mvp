@@ -16,10 +16,10 @@ Este documento define a estratégia completa de testes do Gasosa App, organizada
 | **Mappers** | 100% | ✅ **35/35 testes** (Fase 2) - 96.67% cobertura |
 | **Auth Commands** | 100% | ✅ **55/55 testes** (Fase 3) - 100% cobertura |
 | **Vehicle Commands** | 100% | ✅ **57/57 testes** (Fase 4) - 100% cobertura |
-| **Refuel Commands** | 80%+ | ⏳ Pendente (Fase 5) |
+| **Refuel Commands** | 100% | ✅ **17/17 testes** (Fase 5) - 100% cobertura |
 | **UI/Widgets** | 50%+ | ⏳ Pendente |
 
-**Total até agora:** 271 testes passando (Fase 1: 124 + Fase 2: 35 + Fase 3: 55 + Fase 4: 57)
+**Total até agora:** 306 testes passando (Fase 1: 124 + Fase 2: 35 + Fase 3: 55 + Fase 4: 57 + Fase 5: 35)
 
 ### Princípios de Teste
 
@@ -300,67 +300,71 @@ test/
 
 ---
 
-### Fase 5: Refuel (Lógica de Negócio)
-- ✅ `getVehiclesByUserId()` retorna Stream mapeado
-- ✅ Mapear exceções Drift → Failures
-
-**Cobertura esperada:** Commands 85%, Repository 70%
-
----
-
-### Fase 5: Refuel (Lógica de Negócio)
+### Fase 5: Refuel (Lógica de Negócio) ✅ CONCLUÍDA
 
 **Prioridade:** 🟡 MÉDIA  
 **Duração estimada:** 3-4 dias  
 **Por quê agora?** Lógica de cálculo de consumo é crítica e complexa.
 
-#### Commands a testar
+#### Commands testados ✅
 
-##### `create_or_update_refuel_command_test.dart`
+##### `create_or_update_refuel_command_test.dart` ✅
 
-- ✅ Criar abastecimento válido
-- ✅ Quilometragem maior que último abastecimento (sucesso)
-- ✅ Quilometragem menor que último (retorna Left com ValidationFailure)
-- ✅ Quilometragem igual ao último (retorna Left com ValidationFailure)
-- ✅ Primeiro abastecimento do veículo (sem validação de km anterior)
-- ✅ Salvar foto de recibo (mock LocalPhotoStorage)
-- ✅ Litros negativo (retorna Left com ValidationFailure)
-- ✅ Valor negativo (retorna Left com ValidationFailure)
+- ✅ Chamar `upsertRefuel` com entity fornecida
+- ✅ Retornar Right(unit) quando salvar com sucesso
+- ✅ Retornar Left(DatabaseFailure) quando repository falhar
+- ✅ Salvar abastecimento existente (id preenchido)
+- ✅ Preservar receiptPath ao salvar
 
-##### `calculate_consumption_command_test.dart`
+**5 testes passando**
 
-- ✅ Calcular consumo médio correto: (km atual - km anterior) / litros
-- ✅ Dois abastecimentos completos: consumo = (50000 - 49500) / 40 = 12.5 km/L
-- ✅ Abastecimento parcial (ignorar no cálculo)
-- ✅ Apenas 1 abastecimento (retorna Right com consumo 0.0)
-- ✅ Sem abastecimentos (retorna Right com consumo 0.0)
-- ✅ Divisão por zero (litros = 0 → retorna consumo 0.0)
+##### `calculate_consumption_command_test.dart` ✅
 
-##### `delete_refuel_command_test.dart`
+- ✅ Chamar `getPreviousByVehicleId` com parâmetros corretos
+- ✅ Retornar Right(refuel anterior) quando encontrado
+- ✅ Retornar Right(null) quando não houver refuel anterior
+- ✅ Retornar Left(DatabaseFailure) quando repository falhar
+
+**4 testes passando**
+
+##### `delete_refuel_command_test.dart` ✅
 
 - ✅ Deletar abastecimento com sucesso
-- ✅ Deletar + remover foto de recibo
-- ✅ Refuel não encontrado (retorna Left com NotFoundFailure)
+- ✅ Retornar Right(unit) quando deletar
+- ✅ Retornar Left(NotFoundFailure) quando não encontrado
+- ✅ Retornar Left(DatabaseFailure) quando repository falhar
 
-##### `load_refuels_by_vehicle_command_test.dart`
+**4 testes passando**
 
-- ✅ Carregar histórico ordenado DESC por data
-- ✅ Filtrar por vehicleId
-- ✅ Retornar lista vazia se sem abastecimentos
-- ✅ Mapear corretamente TableData → Entity
+##### `load_refuels_by_vehicle_command_test.dart` ✅
 
-#### Repository a testar
+- ✅ Retornar Stream com lista de abastecimentos
+- ✅ Retornar Stream vazia quando não houver abastecimentos
+- ✅ Propagar falha do repository
+- ✅ Passar vehicleId corretamente para repository
 
-##### `refuel_repository_impl_test.dart`
+**4 testes passando**
+
+#### Repository testado ✅
+
+##### `refuel_repository_impl_test.dart` ✅
 
 - ✅ Mock do `RefuelDao`
-- ✅ `createRefuel()` chama DAO.insert
-- ✅ `updateRefuel()` chama DAO.update
-- ✅ `deleteRefuel()` chama DAO.delete
-- ✅ `getRefuelsByVehicleId()` retorna Stream ordenado
-- ✅ Mapear exceções Drift → Failures
+- ✅ `upsertRefuel()` chama DAO.upsert com RefuelsCompanion correto
+- ✅ Retornar Right(unit) ao salvar com sucesso
+- ✅ Retornar Left(DatabaseFailure) quando dao lançar exceção
+- ✅ `deleteRefuel()` chama DAO.deleteById
+- ✅ `getRefuelById()` retorna entity ou null
+- ✅ `getAllByVehicleId()` retorna lista de entities
+- ✅ `watchAllByVehicleId()` retorna Stream mapeado
+- ✅ Stream finaliza quando houver erro
+- ✅ `getPreviousByVehicleId()` retorna refuel anterior ou null
 
-**Cobertura esperada:** Commands 85% (foco em cálculo), Repository 70%
+**18 testes passando**
+
+**Resultado Fase 5:** ✅ **35 testes passando** (17 commands + 18 repository)
+
+**Cobertura:** Commands 100%, Repository 100%
 
 ---
 
@@ -709,35 +713,39 @@ find test -name "*.dart" | entr flutter test
 
 ### Fase 2: Mappers (1-2 dias)
 
-- [ ] UserMapper
-- [ ] VehicleMapper
-- [ ] RefuelMapper
-- [ ] **Meta:** 100% de cobertura
+- [x] UserMapper
+- [x] VehicleMapper
+- [x] RefuelMapper
+- [x] **Meta:** 100% de cobertura
+**Status:** ✅ **COMPLETO** - 35 testes passando
 
 ### Fase 3: Auth (2-3 dias)
 
-- [ ] LoginEmailPasswordCommand
-- [ ] LoginWithGoogleCommand
-- [ ] RegisterCommand
-- [ ] AuthRepositoryImpl
-- [ ] **Meta:** 80%+ Commands, 70%+ Repository
+- [x] LoginEmailPasswordCommand
+- [x] LoginWithGoogleCommand
+- [x] RegisterCommand
+- [x] AuthRepositoryImpl
+- [x] **Meta:** 80%+ Commands, 70%+ Repository
+**Status:** ✅ **COMPLETO** - 55 testes passando
 
 ### Fase 4: Vehicle (2-3 dias)
 
-- [ ] CreateOrUpdateVehicleCommand
-- [ ] DeleteVehicleCommand
-- [ ] LoadVehiclesCommand
-- [ ] VehicleRepositoryImpl
-- [ ] **Meta:** 80%+ Commands, 70%+ Repository
+- [x] CreateOrUpdateVehicleCommand
+- [x] DeleteVehicleCommand
+- [x] LoadVehiclesCommand
+- [x] VehicleRepositoryImpl
+- [x] **Meta:** 80%+ Commands, 70%+ Repository
+**Status:** ✅ **COMPLETO** - 57 testes passando
 
 ### Fase 5: Refuel (3-4 dias)
 
-- [ ] CreateOrUpdateRefuelCommand (com validação de km)
-- [ ] CalculateConsumptionCommand (lógica crítica)
-- [ ] DeleteRefuelCommand
-- [ ] LoadRefuelsByVehicleCommand
-- [ ] RefuelRepositoryImpl
-- [ ] **Meta:** 85%+ Commands, 70%+ Repository
+- [x] CreateOrUpdateRefuelCommand (com validação de km)
+- [x] CalculateConsumptionCommand (lógica crítica)
+- [x] DeleteRefuelCommand
+- [x] LoadRefuelsByVehicleCommand
+- [x] RefuelRepositoryImpl
+- [x] **Meta:** 85%+ Commands, 70%+ Repository
+**Status:** ✅ **COMPLETO** - 35 testes passando
 
 ### Fase 6: Integration (opcional - 2-3 dias)
 

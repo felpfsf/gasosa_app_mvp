@@ -31,7 +31,131 @@ Este documento define a estratégia de observabilidade do Gasosa App, usando **F
 
 ---
 
-## 📊 O Que Rastrear (Mínimo Bom)
+## � Plano de Implementação
+
+**Branch:** `feature/observability-service`
+
+### Fase 1: Estrutura Base (5-10 min)
+
+**Objetivo:** Criar a fundação do serviço de observabilidade.
+
+**Tarefas:**
+- [ ] Adicionar dependências ao `pubspec.yaml` (`firebase_crashlytics`, `firebase_analytics`)
+- [ ] Criar interface `observability_service.dart`
+- [ ] Criar implementação Firebase `firebase_observability_service.dart`
+- [ ] Criar implementação Noop `noop_observability_service.dart` (para testes)
+
+**Arquivos criados:**
+- `lib/core/services/observability/observability_service.dart`
+- `lib/core/services/observability/firebase_observability_service.dart`
+- `lib/core/services/observability/noop_observability_service.dart`
+
+---
+
+### Fase 2: Setup Inicial (5-10 min)
+
+**Objetivo:** Configurar Crashlytics e registrar o serviço na DI.
+
+**Tarefas:**
+- [ ] Configurar `FlutterError.onError` e `PlatformDispatcher.instance.onError` no `main_dev.dart` e `main_prod.dart`
+- [ ] Desabilitar Crashlytics em modo debug (opcional)
+- [ ] Registrar `ObservabilityService` no GetIt/ServiceLocator
+- [ ] Verificar setup com `flutter pub get`
+
+**Arquivos modificados:**
+- `lib/main_dev.dart`
+- `lib/main_prod.dart`
+- `lib/core/di/service_locator.dart` (ou onde estiver a DI)
+
+---
+
+### Fase 3: Instrumentação Crítica (10-15 min)
+
+**Objetivo:** Adicionar observabilidade nos fluxos mais críticos.
+
+**Tarefas:**
+- [ ] Instrumentar `LoginEmailPasswordCommand` (breadcrumbs + eventos + erro)
+- [ ] Instrumentar `LoginWithGoogleCommand` (breadcrumbs + eventos + erro)
+- [ ] Instrumentar `RegisterCommand` (breadcrumbs + eventos + erro)
+- [ ] Criar `ObservabilityNavigatorObserver` para rastreio de navegação
+- [ ] Adicionar observer no router (GoRouter ou MaterialApp.router)
+
+**Arquivos modificados:**
+- `lib/application/commands/auth/login_email_password_command.dart`
+- `lib/application/commands/auth/login_with_google_command.dart`
+- `lib/application/commands/auth/register_command.dart`
+
+**Arquivos criados:**
+- `lib/core/navigation/observability_navigator_observer.dart`
+
+**Arquivos modificados (setup):**
+- `lib/main_dev.dart` ou `lib/core/navigation/app_router.dart`
+
+---
+
+### Fase 4: Validação e Testes (5-10 min)
+
+**Objetivo:** Garantir que crashes, erros e eventos estão sendo capturados.
+
+**Tarefas:**
+- [ ] Forçar um crash: `throw Exception('Test crash');` (debug mode)
+- [ ] Verificar no Firebase Console > Crashlytics (5-10 min de delay)
+- [ ] Forçar um erro tratado: simular login com credenciais inválidas
+- [ ] Verificar non-fatal no Crashlytics Console
+- [ ] Disparar eventos: fazer login, criar veículo (se possível)
+- [ ] Ativar DebugView no Analytics: `adb shell setprop debug.firebase.analytics.app <package_name>` (Android)
+- [ ] Verificar eventos em tempo real no Firebase Console > Analytics > DebugView
+- [ ] Navegar entre 3 telas e forçar um erro para validar breadcrumbs
+- [ ] Revisar checklist de privacidade (sem PII nos logs)
+
+**Comandos úteis:**
+```bash
+# Android - Ativar DebugView
+adb shell setprop debug.firebase.analytics.app br.com.gasosa.dev
+
+# iOS - Ativar DebugView
+# Adicionar argumento: -FIRAnalyticsDebugEnabled em Xcode > Edit Scheme > Arguments
+
+# Build release para testar em staging
+flutter build apk --release --flavor dev
+flutter build ipa --release --flavor dev
+```
+
+---
+
+### Fase 5: Instrumentação Secundária (Opcional - 15-20 min)
+
+**Objetivo:** Adicionar eventos nos fluxos de veículos e abastecimentos.
+
+**Tarefas:**
+- [ ] Instrumentar `CreateOrUpdateVehicleCommand`
+- [ ] Instrumentar `DeleteVehicleCommand`
+- [ ] Instrumentar `CreateOrUpdateRefuelCommand`
+- [ ] Instrumentar `DeleteRefuelCommand`
+- [ ] Adicionar evento `receipt_photo_added` quando usuário adicionar foto
+
+**Arquivos modificados:**
+- `lib/application/commands/vehicles/create_or_update_vehicle_command.dart`
+- `lib/application/commands/vehicles/delete_vehicle_command.dart`
+- `lib/application/commands/refuel/create_or_update_refuel_command.dart`
+- `lib/application/commands/refuel/delete_refuel_command.dart`
+
+---
+
+### Checklist Final (Antes do Merge)
+
+- [ ] Todos os arquivos criados estão commitados
+- [ ] Testes unitários passando (CI/CD)
+- [ ] Crashlytics capturando crashes (testado manualmente)
+- [ ] Non-fatal errors aparecendo no console (testado manualmente)
+- [ ] Eventos de Analytics aparecendo no DebugView (testado manualmente)
+- [ ] Nenhum PII sendo enviado (revisado código)
+- [ ] Documentação atualizada (este arquivo)
+- [ ] PR criado e revisado
+
+---
+
+## �📊 O Que Rastrear (Mínimo Bom)
 
 ### 1. Crashes + Erros
 

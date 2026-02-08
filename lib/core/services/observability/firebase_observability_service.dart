@@ -9,14 +9,15 @@ import 'package:gasosa_app/core/services/observability/observability_service.dar
 /// - Firebase Crashlytics para crashes e erros não-fatais
 /// - Firebase Analytics para eventos e funil
 class FirebaseObservabilityService implements ObservabilityService {
-  final FirebaseCrashlytics _crashlytics;
-  final FirebaseAnalytics _analytics;
 
   FirebaseObservabilityService({
     FirebaseCrashlytics? crashlytics,
     FirebaseAnalytics? analytics,
   }) : _crashlytics = crashlytics ?? FirebaseCrashlytics.instance,
-       _analytics = analytics ?? FirebaseAnalytics.instance;
+      _analytics = analytics ?? FirebaseAnalytics.instance;
+
+  final FirebaseCrashlytics _crashlytics;
+  final FirebaseAnalytics _analytics;
 
   @override
   Future<void> logError(
@@ -41,7 +42,6 @@ class FirebaseObservabilityService implements ObservabilityService {
       failure,
       stackTrace ?? StackTrace.current,
       reason: failure.message,
-      fatal: false,
     );
   }
 

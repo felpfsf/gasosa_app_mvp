@@ -45,6 +45,10 @@
     <true/>
     <key>UIApplicationSupportsIndirectInputEvents</key>
     <true/>
+    <key>NSCameraUsageDescription</key>
+    <string>O Gasosa precisa acessar sua câmera para você tirar fotos dos abastecimentos</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>O Gasosa precisa acessar sua galeria para você selecionar fotos dos abastecimentos</string>
     <key>CFBundleURLTypes</key>
     <array>
       <dict>

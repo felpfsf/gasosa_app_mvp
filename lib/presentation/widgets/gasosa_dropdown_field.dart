@@ -1,4 +1,3 @@
-import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/theme/app_spacing.dart';
 import 'package:gasosa_app/theme/app_typography.dart';
@@ -7,20 +6,20 @@ class GasosaDropdownField<T> extends StatelessWidget {
   const GasosaDropdownField({
     super.key,
     required this.label,
-    this.value,
-    this.items,
+    required this.value,
+    required this.items,
+    required this.labelOf,
     required this.onChanged,
-    this.isDense = true,
-    this.isExpanded = true,
+    this.nullable = false,
     this.enabled = true,
   });
 
   final String label;
   final T? value;
-  final List<DropdownMenuItem<T>>? items;
-  final void Function(T?)? onChanged;
-  final bool isDense;
-  final bool isExpanded;
+  final List<T> items;
+  final String Function(T) labelOf;
+  final ValueChanged<T?> onChanged;
+  final bool nullable;
   final bool enabled;
 
   @override
@@ -33,21 +32,19 @@ class GasosaDropdownField<T> extends StatelessWidget {
           label,
           style: AppTypography.textSmBold,
         ),
-        DropdownButtonFormField2<T>(
-          value: value,
-          items: items,
-          onChanged: onChanged,
-          isDense: isDense,
-          isExpanded: isExpanded,
-          buttonStyleData: const ButtonStyleData(
-            height: 42,
-            padding: EdgeInsets.only(left: AppSpacing.xs, right: AppSpacing.xs),
-          ),
+        DropdownButtonFormField<T>(
+          initialValue: value,
+          isExpanded: true,
+          onChanged: enabled ? onChanged : null,
           decoration: InputDecoration(
-            isDense: isDense,
+            isDense: true,
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(AppSpacing.md)),
             contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: AppSpacing.sm),
           ),
+          items: [
+            if (nullable) const DropdownMenuItem(child: Text('—')),
+            ...items.map((e) => DropdownMenuItem(value: e, child: Text(labelOf(e)))),
+          ],
         ),
       ],
     );

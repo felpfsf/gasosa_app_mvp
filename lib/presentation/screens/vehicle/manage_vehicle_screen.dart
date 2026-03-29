@@ -125,22 +125,16 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
                           validator: VehicleValidators.tankCapacity,
                           inputFormatters: [DigitDecimalInputFormatter()],
                         ),
-                        GasosaDropdownField(
+                        GasosaDropdownField<FuelType>(
                           label: 'Tipo de Combustível',
                           value: s.fuelType,
+                          items: FuelType.values,
+                          labelOf: (e) => e.displayName,
                           onChanged: (value) {
                             if (value != null) {
                               _viewmodel.updateFuelType(value);
                             }
                           },
-                          items: FuelType.values
-                              .map(
-                                (e) => DropdownMenuItem(
-                                  value: e,
-                                  child: Text(e.displayName),
-                                ),
-                              )
-                              .toList(),
                         ),
                         GasosaPhotoPicker(
                           label: 'Foto do Veículo - opcional',

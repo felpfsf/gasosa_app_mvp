@@ -103,9 +103,8 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                       GasosaDropdownField<FuelType>(
                         label: 'Tipo de Combustível',
                         value: state.fuelType,
-                        items: state.availableFuelTypes
-                            .map((e) => DropdownMenuItem(value: e, child: Text(e.displayName)))
-                            .toList(),
+                        items: state.availableFuelTypes,
+                        labelOf: (e) => e.displayName,
                         onChanged: (value) {
                           if (value != null) {
                             _viewmodel.updateFuelType(value);

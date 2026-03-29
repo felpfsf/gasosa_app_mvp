@@ -25,7 +25,7 @@ dependencies:
 
   # Persistência local
   drift: ^2.28.1
-  drift_flutter: ^0.2.5
+  drift_flutter: ^0.3.0
   path_provider: ^2.1.5
 
   # DI
@@ -44,7 +44,6 @@ dependencies:
   intl: ^0.20.2
   flutter_localizations:
     sdk: flutter
-  dropdown_button2: ^2.3.9
 
 dev_dependencies:
   flutter_test:

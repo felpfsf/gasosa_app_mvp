@@ -1,4 +1,63 @@
+# ───────────────────────────────────────────────────────────
+# Flutter / Dart / Pub
+# ───────────────────────────────────────────────────────────
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+/coverage/
+
+# Symbolication
+app.*.symbols
+
+# Obfuscation maps
+app.*.map.json
+
+# ───────────────────────────────────────────────────────────
+# Android
+# (detailed rules live in android/.gitignore)
+# ───────────────────────────────────────────────────────────
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# ───────────────────────────────────────────────────────────
+# iOS / macOS
+# (detailed rules live in ios/.gitignore)
+# ───────────────────────────────────────────────────────────
+# nothing extra needed here
+
+# ───────────────────────────────────────────────────────────
+# Secrets & environment
+# ───────────────────────────────────────────────────────────
+.env
+.env.*
+*.env
+
+# ───────────────────────────────────────────────────────────
+# FVM (Flutter Version Manager)
+# ───────────────────────────────────────────────────────────
+.fvm/
+
+# ───────────────────────────────────────────────────────────
+# IDEs & editors
+# ───────────────────────────────────────────────────────────
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# VS Code — launch configs / tasks may be committed intentionally;
+# uncomment the line below to ignore them instead.
+#.vscode/
+
+# ───────────────────────────────────────────────────────────
 # Miscellaneous
+# ───────────────────────────────────────────────────────────
 *.class
 *.log
 *.pyc
@@ -11,38 +70,3 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
-
-# IntelliJ related
-*.iml
-*.ipr
-*.iws
-.idea/
-
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
-.flutter-plugins-dependencies
-.pub-cache/
-.pub/
-/build/
-/coverage/
-
-# Symbolication related
-app.*.symbols
-
-# Obfuscation related
-app.*.map.json
-
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
-
-# FVM Version Cache
-.fvm/

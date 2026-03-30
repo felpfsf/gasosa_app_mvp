@@ -8,6 +8,7 @@ import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/core/viewmodel/base_viewmodel.dart';
 import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
 import 'package:gasosa_app/domain/entities/vehicle.dart';
+import 'package:injectable/injectable.dart';
 
 class DashboardState {
   DashboardState({
@@ -32,6 +33,7 @@ class DashboardState {
   );
 }
 
+@injectable
 class DashboardViewModel extends BaseViewModel {
   DashboardViewModel({
     required LoadVehiclesCommand loadVehicles,

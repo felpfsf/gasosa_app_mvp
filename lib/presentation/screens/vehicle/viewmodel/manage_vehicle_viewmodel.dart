@@ -14,6 +14,7 @@ import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
 import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/domain/entities/vehicle.dart';
 import 'package:gasosa_app/domain/repositories/vehicle_repository.dart';
+import 'package:injectable/injectable.dart';
 
 class ManageVehicleState {
   const ManageVehicleState({
@@ -64,6 +65,7 @@ class ManageVehicleState {
   }
 }
 
+@injectable
 class ManageVehicleViewModel extends BaseViewModel {
   ManageVehicleViewModel({
     required VehicleRepository repository,

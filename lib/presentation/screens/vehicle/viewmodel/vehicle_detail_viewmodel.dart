@@ -7,6 +7,7 @@ import 'package:gasosa_app/domain/entities/refuel.dart';
 import 'package:gasosa_app/domain/entities/vehicle.dart';
 import 'package:gasosa_app/domain/repositories/refuel_repository.dart';
 import 'package:gasosa_app/domain/repositories/vehicle_repository.dart';
+import 'package:injectable/injectable.dart';
 
 class VehicleDetailState {
   VehicleDetailState({
@@ -36,6 +37,7 @@ class VehicleDetailState {
   }
 }
 
+@injectable
 class VehicleDetailViewModel extends BaseViewModel {
   VehicleDetailViewModel({
     required VehicleRepository repository,

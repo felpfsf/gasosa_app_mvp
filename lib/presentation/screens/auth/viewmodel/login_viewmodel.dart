@@ -2,6 +2,7 @@ import 'package:gasosa_app/application/commands/auth/loggin_with_google_command.
 import 'package:gasosa_app/application/commands/auth/login_email_password_command.dart';
 import 'package:gasosa_app/core/viewmodel/base_viewmodel.dart';
 import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
+import 'package:injectable/injectable.dart';
 
 class LoginState {
   const LoginState({
@@ -29,14 +30,15 @@ class LoginState {
   );
 }
 
+@injectable
 class LoginViewModel extends BaseViewModel {
   LoginViewModel({
     required LoginWithGoogleCommand loginGoogle,
     required LoginEmailPasswordCommand loginEmailPassword,
     required LoadingController loading,
   }) : _loginGoogle = loginGoogle,
-      _loginEmailPassword = loginEmailPassword,
-      super(loading);
+       _loginEmailPassword = loginEmailPassword,
+       super(loading);
 
   final LoginWithGoogleCommand _loginGoogle;
   final LoginEmailPasswordCommand _loginEmailPassword;

@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:gasosa_app/core/di/locator.dart';
+import 'package:gasosa_app/core/di/injection.dart';
 import 'package:gasosa_app/core/helpers/formatters.dart';
 import 'package:gasosa_app/core/validators/refuel_validators.dart';
 import 'package:gasosa_app/domain/entities/fuel_type.dart';

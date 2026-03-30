@@ -6,4 +6,14 @@ part of 'vehicle_dao.dart';
 mixin _$VehicleDaoMixin on DatabaseAccessor<AppDatabase> {
   $UsersTable get users => attachedDatabase.users;
   $VehiclesTable get vehicles => attachedDatabase.vehicles;
+  VehicleDaoManager get managers => VehicleDaoManager(this);
+}
+
+class VehicleDaoManager {
+  final _$VehicleDaoMixin _db;
+  VehicleDaoManager(this._db);
+  $$UsersTableTableManager get users =>
+      $$UsersTableTableManager(_db.attachedDatabase, _db.users);
+  $$VehiclesTableTableManager get vehicles =>
+      $$VehiclesTableTableManager(_db.attachedDatabase, _db.vehicles);
 }

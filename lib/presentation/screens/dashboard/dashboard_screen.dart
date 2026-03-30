@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gasosa_app/core/app_strings.dart';
 import 'package:gasosa_app/core/di/injection.dart';
 import 'package:gasosa_app/core/presentation/ui_state.dart';
 import 'package:gasosa_app/domain/entities/vehicle.dart';
@@ -64,7 +65,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           IconButton(
             onPressed: () async => _logout(),
             icon: const Icon(Icons.logout),
-            tooltip: 'Sair',
+            tooltip: DashboardStrings.logoutTooltip,
           ),
         ],
       ),
@@ -77,7 +78,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   onPressed: _goToCreateVehicle,
                   icon: const Icon(Icons.directions_car_filled_rounded, color: AppColors.text),
                   label: Text(
-                    'Adicionar veículo',
+                    DashboardStrings.addVehicleLabel,
                     style: AppTypography.textSmBold.copyWith(color: AppColors.text),
                   ),
                 )
@@ -107,9 +108,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
           if (vehicles.isEmpty) {
             return GasosaEmptyStateWidget(
-              title: 'Nenhum veículo cadastrado',
-              message: 'Cadastre seu primeiro veículo para começar a usar o app.',
-              actionLabel: 'Cadastrar veículo',
+              title: DashboardStrings.emptyStateTitle,
+              message: DashboardStrings.emptyStateMessage,
+              actionLabel: DashboardStrings.emptyStateAction,
               onPressed: _goToCreateVehicle,
             );
           }

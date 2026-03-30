@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gasosa_app/core/app_strings.dart';
 import 'package:gasosa_app/presentation/routes/auth_refresh_notifier.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/screens/auth/login_screen.dart';
@@ -51,11 +52,11 @@ final GoRouter appRouter = GoRouter(
         spacing: AppSpacing.md,
         children: [
           const Icon(Icons.error_outline_rounded, size: 64, color: AppColors.error),
-          Text('Página não encontrada', style: AppTypography.titleLg),
+          Text(AppErrorStrings.pageNotFound, style: AppTypography.titleLg),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () => context.go(Routes.dashboard),
-            child: const Text('Ir para a Dashboard'),
+            child: const Text(AppErrorStrings.goToDashboard),
           ),
         ],
       ),

@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gasosa_app/core/app_strings.dart';
 import 'package:gasosa_app/core/di/injection.dart';
 import 'package:gasosa_app/core/presentation/ui_state.dart';
 import 'package:gasosa_app/core/validators/user_validators.dart';
@@ -82,7 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     spacing: AppSpacing.lg,
                     children: [
                       const LogoHero(size: 200),
-                      Text('Entrar no Gasosa', style: AppTypography.titleLg),
+                      Text(AuthStrings.loginTitle, style: AppTypography.titleLg),
                       AuthGoogleButton(
                         onPressed: isLoading ? null : () => _handleGoogleSignIn(),
                         isLoading: isLoading,
@@ -94,20 +95,20 @@ class _LoginScreenState extends State<LoginScreen> {
                           spacing: AppSpacing.lg,
                           children: [
                             GasosaFormField(
-                              label: 'Email',
+                              label: AuthStrings.emailLabel,
                               controller: _emailEC,
                               keyboardType: TextInputType.emailAddress,
                               validator: UserValidators.email,
                               onChanged: (value) => _viewModel.setEmail(value),
                             ),
                             GasosaPasswordField(
-                              label: 'Senha',
+                              label: AuthStrings.passwordLabel,
                               controller: _passwordEC,
                               validator: UserValidators.password,
                               onChanged: (value) => _viewModel.setPassword(value),
                             ),
                             GasosaButton(
-                              label: 'Entrar',
+                              label: AuthStrings.loginButton,
                               isDisabled: isLoading,
                               onPressed: isLoading ? null : () => _handleLoginWithEmailPassword(),
                             ),
@@ -115,7 +116,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       _linkRow(
-                        'Não tem uma conta? Cadastre-se',
+                        AuthStrings.registerLink,
                         () {
                           context.go(Routes.register);
                         },

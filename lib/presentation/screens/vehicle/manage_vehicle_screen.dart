@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:gasosa_app/core/app_strings.dart';
 import 'package:gasosa_app/core/di/injection.dart';
 import 'package:gasosa_app/core/helpers/formatters.dart';
 import 'package:gasosa_app/core/presentation/ui_state.dart';
@@ -55,7 +56,7 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
     response?.fold(
       (failure) => Messages.showError(context, failure.message),
       (_) {
-        Messages.showSuccess(context, 'Veículo salvo com sucesso!');
+        Messages.showSuccess(context, VehicleStrings.saveSuccess);
         if (mounted) context.pop(true);
       },
     );
@@ -67,7 +68,7 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
     res?.fold(
       (f) => Messages.showError(context, f.message),
       (_) {
-        Messages.showSuccess(context, 'Veículo excluído!');
+        Messages.showSuccess(context, VehicleStrings.deleteSuccess);
         if (mounted) context.pop(true);
       },
     );
@@ -79,7 +80,7 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
 
     return Scaffold(
       appBar: GasosaAppbar(
-        title: isEdit ? 'Editar Veículo' : 'Adicionar Veículo',
+        title: isEdit ? VehicleStrings.appBarTitleEdit : VehicleStrings.appBarTitleCreate,
         showBackButton: true,
         onBackPressed: () => context.pop(),
       ),
@@ -113,13 +114,13 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
                       spacing: AppSpacing.md,
                       children: [
                         GasosaFormField(
-                          label: 'Nome',
+                          label: VehicleStrings.nameLabel,
                           controller: _nameController,
                           onChanged: _viewmodel.updateName,
                           validator: VehicleValidators.name,
                         ),
                         GasosaFormField(
-                          label: 'Placa (opcional)',
+                          label: VehicleStrings.plateLabel,
                           controller: _plateController,
                           onChanged: _viewmodel.updatePlate,
                           validator: (value) {
@@ -130,7 +131,7 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
                           },
                         ),
                         GasosaFormField(
-                          label: 'Capacidade do Tanque (L) — opcional',
+                          label: VehicleStrings.tankCapacityLabel,
                           controller: _tankController,
                           onChanged: _viewmodel.updateTankCapacity,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -138,7 +139,7 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
                           inputFormatters: [DigitDecimalInputFormatter()],
                         ),
                         GasosaDropdownField<FuelType>(
-                          label: 'Tipo de Combustível',
+                          label: VehicleStrings.fuelTypeLabel,
                           value: s.fuelType,
                           items: FuelType.values,
                           labelOf: (e) => e.displayName,
@@ -149,7 +150,7 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
                           },
                         ),
                         GasosaPhotoPicker(
-                          label: 'Foto do Veículo - opcional',
+                          label: VehicleStrings.photoLabel,
                           image: currentImage,
                           onFileSelected: (file) async {
                             if (file == null) {
@@ -167,12 +168,15 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
                           spacing: AppSpacing.md,
                           children: [
                             Expanded(
-                              child: GasosaButton(label: 'Salvar', onPressed: isLoading ? null : _onSave),
+                              child: GasosaButton(
+                                label: VehicleStrings.saveButton,
+                                onPressed: isLoading ? null : _onSave,
+                              ),
                             ),
                             if (s.isEdit) ...[
                               Expanded(
                                 child: GasosaButton(
-                                  label: 'Excluir',
+                                  label: VehicleStrings.deleteButton,
                                   variant: GasosaButtonVariant.danger,
                                   onPressed: isLoading ? null : _onDelete,
                                 ),

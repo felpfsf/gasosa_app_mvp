@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gasosa_app/core/app_strings.dart';
 import 'package:gasosa_app/core/extensions/date_time_extensions.dart';
 import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/domain/entities/refuel.dart';
@@ -24,9 +25,9 @@ class RefuelsList extends StatelessWidget {
     if (refuels.isEmpty) {
       return const GasosaCard(
         child: GasosaEmptyStateWidget(
-          title: 'Nenhum abastecimento',
-          message: 'Quando você registrar um abastecimento, ele aparecerá aqui.',
-          actionLabel: 'Adicionar',
+          title: RefuelStrings.emptyStateTitle,
+          message: RefuelStrings.emptyStateMessage,
+          actionLabel: RefuelStrings.emptyStateAction,
         ),
       );
     }

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:gasosa_app/core/app_strings.dart';
 import 'package:gasosa_app/core/di/injection.dart';
 import 'package:gasosa_app/core/presentation/ui_state.dart';
 import 'package:gasosa_app/domain/entities/fuel_type.dart';
@@ -92,10 +93,18 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GasosaAppbar(
-        title: 'Detalhes do Veículo',
+        title: VehicleStrings.appBarTitleDetail,
         actions: [
-          IconButton(tooltip: 'Editar', onPressed: _goToEditVehicle, icon: const Icon(Icons.edit_outlined)),
-          IconButton(tooltip: 'Excluir', onPressed: _deleteVehicle, icon: const Icon(Icons.delete_outline)),
+          IconButton(
+            tooltip: VehicleStrings.editTooltip,
+            onPressed: _goToEditVehicle,
+            icon: const Icon(Icons.edit_outlined),
+          ),
+          IconButton(
+            tooltip: VehicleStrings.deleteTooltip,
+            onPressed: _deleteVehicle,
+            icon: const Icon(Icons.delete_outline),
+          ),
         ],
         onBackPressed: () {
           if (Navigator.canPop(context)) {

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gasosa_app/core/app_strings.dart';
 import 'package:gasosa_app/core/di/injection.dart';
 import 'package:gasosa_app/core/helpers/formatters.dart';
 import 'package:gasosa_app/core/presentation/ui_state.dart';
@@ -48,7 +49,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
     response?.fold(
       (failure) => Messages.showError(context, failure.message),
       (_) {
-        Messages.showSuccess(context, 'Abastecimento salvo com sucesso!');
+        Messages.showSuccess(context, RefuelStrings.saveSuccess);
         if (mounted) context.pop(true);
       },
     );
@@ -59,7 +60,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
     response?.fold(
       (failure) => Messages.showError(context, failure.message),
       (_) {
-        Messages.showSuccess(context, 'Abastecimento excluído com sucesso!');
+        Messages.showSuccess(context, RefuelStrings.deleteSuccess);
         if (mounted) context.pop(true);
       },
     );
@@ -69,7 +70,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GasosaAppbar(
-        title: widget.refuelId != null ? 'Editar Abastecimento' : 'Adicionar Abastecimento',
+        title: widget.refuelId != null ? RefuelStrings.appBarTitleEdit : RefuelStrings.appBarTitleCreate,
         showBackButton: true,
         onBackPressed: () => context.pop(),
       ),
@@ -83,7 +84,8 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
         ]),
         builder: (context, _) {
           final state = _viewmodel.state.value;
-          final isLoading = _viewmodel.loadCommand.state.value is UiLoading ||
+          final isLoading =
+              _viewmodel.loadCommand.state.value is UiLoading ||
               _viewmodel.saveCommand.state.value is UiLoading ||
               _viewmodel.deleteCommand.state.value is UiLoading;
 
@@ -97,12 +99,12 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                   spacing: AppSpacing.md,
                   children: [
                     GasosaDatePickerField(
-                      label: 'Data do Abastecimento',
+                      label: RefuelStrings.dateLabel,
                       initialDate: state.refuelDate,
                       onChanged: _viewmodel.updateRefuelDate,
                     ),
                     GasosaFormField(
-                      label: 'KM atual',
+                      label: RefuelStrings.mileageLabel,
                       controller: _viewmodel.mileageEC,
                       validator: _viewmodel.mileageValidator,
                       keyboardType: TextInputType.number,
@@ -111,7 +113,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                     ),
                     if (state.availableFuelTypes.length > 1) ...[
                       GasosaDropdownField<FuelType>(
-                        label: 'Tipo de Combustível',
+                        label: RefuelStrings.fuelTypeLabel,
                         value: state.fuelType,
                         items: state.availableFuelTypes,
                         labelOf: (e) => e.displayName,
@@ -125,7 +127,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                       _buildFixedFuelType(state.fuelType.displayName),
                     ],
                     GasosaFormField(
-                      label: 'Litros abastecidos',
+                      label: RefuelStrings.litersLabel,
                       controller: _viewmodel.litersEC,
                       validator: RefuelValidators.liters,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -133,7 +135,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                       onChanged: _viewmodel.updateLiters,
                     ),
                     GasosaFormField(
-                      label: 'Valor total',
+                      label: RefuelStrings.totalValueLabel,
                       controller: _viewmodel.totalValueEC,
                       validator: RefuelValidators.totalValue,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -142,20 +144,20 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                     ),
                     if (_viewmodel.shouldShowColdStart) ...[
                       GasosaCheckbox(
-                        title: 'Abasteceu partida a frio?',
+                        title: RefuelStrings.coldStartCheckboxLabel,
                         value: _viewmodel.hasColdStart,
                         onChanged: (value) => setState(() => _viewmodel.hasColdStart = value ?? false),
                       ),
                       if (_viewmodel.hasColdStart) ...[
                         GasosaFormField(
-                          label: 'Litros abastecidos (partida a frio)',
+                          label: RefuelStrings.coldStartLitersLabel,
                           controller: _viewmodel.coldStartLitersEC,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           inputFormatters: [DigitDecimalInputFormatter()],
                           onChanged: _viewmodel.updateColdStartLiters,
                         ),
                         GasosaFormField(
-                          label: 'Valor total (partida a frio)',
+                          label: RefuelStrings.coldStartValueLabel,
                           controller: _viewmodel.coldStartValueEC,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           inputFormatters: [MoneyInputFormatterWithoutSymbol()],
@@ -164,13 +166,13 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                       ],
                     ],
                     GasosaCheckbox(
-                      title: 'Comprovante de Abastecimento?',
+                      title: RefuelStrings.receiptCheckboxLabel,
                       value: _viewmodel.hasReceiptPhoto,
                       onChanged: (value) => setState(() => _viewmodel.hasReceiptPhoto = value ?? false),
                     ),
                     if (_viewmodel.shouldShowReceiptPhotoInput) ...[
                       GasosaPhotoPicker(
-                        label: 'Comprovante de Abastecimento',
+                        label: RefuelStrings.receiptPhotoLabel,
                         image: state.receiptPath != null ? File(state.receiptPath!) : null,
                         onFileSelected: (file) async {
                           if (file == null) {
@@ -190,16 +192,16 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                       children: [
                         Expanded(
                           child: GasosaButton(
-                            label: 'Salvar',
+                            label: RefuelStrings.saveButton,
                             onPressed: isLoading ? null : _onSave,
                           ),
                         ),
                         if (state.isEditing) ...[
                           Expanded(
                             child: GasosaButton(
-                              label: 'Excluir',
+                              label: RefuelStrings.deleteButton,
                               variant: GasosaButtonVariant.danger,
-                                onPressed: isLoading ? null : _onDelete,
+                              onPressed: isLoading ? null : _onDelete,
                             ),
                           ),
                         ],

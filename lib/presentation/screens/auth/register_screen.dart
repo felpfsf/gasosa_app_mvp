@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gasosa_app/core/app_strings.dart';
 import 'package:gasosa_app/core/di/injection.dart';
 import 'package:gasosa_app/core/presentation/ui_state.dart';
 import 'package:gasosa_app/core/validators/user_validators.dart';
@@ -74,39 +75,39 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     spacing: AppSpacing.lg,
                     children: [
                       const LogoHero(size: 120),
-                      Text('Crie sua conta', style: AppTypography.textLgBold),
+                      Text(AuthStrings.registerTitle, style: AppTypography.textLgBold),
                       Form(
                         key: _formKey,
                         child: Column(
                           spacing: AppSpacing.md,
                           children: [
                             GasosaFormField(
-                              label: 'Nome',
+                              label: AuthStrings.nameLabel,
                               controller: _nameEC,
                               validator: UserValidators.name,
                               onChanged: (value) => _viewModel.setName(value),
                             ),
                             GasosaFormField(
-                              label: 'E-mail',
+                              label: AuthStrings.emailRegisterLabel,
                               controller: _emailEC,
                               keyboardType: TextInputType.emailAddress,
                               validator: UserValidators.email,
                               onChanged: (value) => _viewModel.setEmail(value),
                             ),
                             GasosaPasswordField(
-                              label: 'Senha',
+                              label: AuthStrings.passwordLabel,
                               controller: _passwordEC,
                               validator: UserValidators.password,
                               onChanged: (value) => _viewModel.setPassword(value),
                             ),
                             GasosaPasswordField(
-                              label: 'Confirmar Senha',
+                              label: AuthStrings.confirmPasswordLabel,
                               controller: _confirmPasswordEC,
                               validator: UserValidators.confirmPassword(_passwordEC),
                             ),
                             AppSpacing.gap8,
                             GasosaButton(
-                              label: 'Cadastrar',
+                              label: AuthStrings.registerButton,
                               onPressed: isLoading ? null : () => _handleRegister(),
                             ),
                           ],

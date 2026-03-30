@@ -1,12 +1,25 @@
-class RoutePaths {
-  static const splash = '/splash';
+abstract final class Routes {
+  // Auth — flat full paths
+  static const splash = '/';
   static const login = '/login';
   static const register = '/register';
   static const dashboard = '/dashboard';
+
+  // Vehicle — parent + child segments
   static const vehicle = '/vehicle';
-  static const vehicleManageCreate = '/vehicle/manage';
-  static String vehicleManageEdit(String id) => '/vehicle/$id/manage';
-  static String vehicleDetail(String id) => '/vehicle/$id';
-  static String refuelManageCreate(String vehicleId) => '/refuel/create/$vehicleId';
-  static String refuelManageEdit(String id) => '/refuel/$id/manage';
+  static const manageVehicle = 'manage';
+  static const vehicleDetail = 'detail';
+
+  /// Full path for navigation. Omit [id] when creating a new vehicle.
+  static String manageVehiclePath([String? id]) => '$vehicle/$manageVehicle${id != null ? '?id=$id' : ''}';
+
+  static String vehicleDetailPath(String id) => '$vehicle/$vehicleDetail?id=$id';
+
+  // Refuel — parent + child segment
+  static const refuel = '/refuel';
+  static const manageRefuel = 'manage';
+
+  /// Full path for navigation. Pass [vehicleId] when creating, [refuelId] when editing.
+  static String manageRefuelPath({String? vehicleId, String? refuelId}) =>
+      refuelId != null ? '$refuel/$manageRefuel?id=$refuelId' : '$refuel/$manageRefuel?vehicleId=$vehicleId';
 }

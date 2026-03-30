@@ -19,32 +19,28 @@ String? _authGuard(BuildContext context, GoRouterState state) {
   final loc = state.matchedLocation;
 
   const publicRoutes = {
-    RoutePaths.splash,
-    RoutePaths.login,
-    RoutePaths.register,
+    Routes.splash,
+    Routes.login,
+    Routes.register,
   };
 
-  // if (!isAuthenticated && loc == RoutePaths.splash) {
-  //   return RoutePaths.login;
-  // }
-
-  if (loc == RoutePaths.splash) {
+  if (loc == Routes.splash) {
     return null;
   }
 
   if (!isAuthenticated && !publicRoutes.contains(loc)) {
-    return RoutePaths.login;
+    return Routes.login;
   }
 
-  if (isAuthenticated && (publicRoutes.contains(loc))) {
-    return RoutePaths.dashboard;
+  if (isAuthenticated && publicRoutes.contains(loc)) {
+    return Routes.dashboard;
   }
 
   return null;
 }
 
 final GoRouter appRouter = GoRouter(
-  initialLocation: RoutePaths.splash,
+  initialLocation: Routes.splash,
   refreshListenable: AuthRefreshNotifier(),
   redirect: _authGuard,
   errorBuilder: (context, state) => Scaffold(
@@ -58,7 +54,7 @@ final GoRouter appRouter = GoRouter(
           Text('Página não encontrada', style: AppTypography.titleLg),
           const SizedBox(height: 16),
           ElevatedButton(
-            onPressed: () => context.go(RoutePaths.dashboard),
+            onPressed: () => context.go(Routes.dashboard),
             child: const Text('Ir para a Dashboard'),
           ),
         ],
@@ -67,40 +63,54 @@ final GoRouter appRouter = GoRouter(
   ),
   routes: [
     GoRoute(
-      path: RoutePaths.splash,
+      path: Routes.splash,
       builder: (_, _) => const SplashScreen(),
     ),
     GoRoute(
-      path: RoutePaths.login,
+      path: Routes.login,
       builder: (_, _) => const LoginScreen(),
     ),
     GoRoute(
-      path: RoutePaths.register,
+      path: Routes.register,
       builder: (_, _) => const RegisterScreen(),
     ),
     GoRoute(
-      path: RoutePaths.dashboard,
+      path: Routes.dashboard,
       builder: (_, _) => const DashboardScreen(),
     ),
     GoRoute(
-      path: RoutePaths.vehicleManageCreate,
-      builder: (_, _) => const ManageVehicleScreen(),
+      path: Routes.vehicle,
+      redirect: (_, state) => state.uri.path == Routes.vehicle ? Routes.dashboard : null,
+      routes: [
+        GoRoute(
+          path: Routes.manageVehicle,
+          builder: (context, state) {
+            final id = state.uri.queryParameters['id'];
+            return ManageVehicleScreen(vehicleId: id);
+          },
+        ),
+        GoRoute(
+          path: Routes.vehicleDetail,
+          builder: (context, state) {
+            final id = state.uri.queryParameters['id']!;
+            return VehicleDetailScreen(vehicleId: id);
+          },
+        ),
+      ],
     ),
     GoRoute(
-      path: RoutePaths.vehicleManageEdit(':id'),
-      builder: (context, state) => ManageVehicleScreen(vehicleId: state.pathParameters['id']!),
-    ),
-    GoRoute(
-      path: RoutePaths.vehicleDetail(':id'),
-      builder: (context, state) => VehicleDetailScreen(vehicleId: state.pathParameters['id']!),
-    ),
-    GoRoute(
-      path: RoutePaths.refuelManageCreate(':vehicleId'),
-      builder: (context, state) => ManageRefuelScreen(vehicleId: state.pathParameters['vehicleId']!),
-    ),
-    GoRoute(
-      path: RoutePaths.refuelManageEdit(':id'),
-      builder: (context, state) => ManageRefuelScreen(refuelId: state.pathParameters['id']!),
+      path: Routes.refuel,
+      redirect: (_, state) => state.uri.path == Routes.refuel ? Routes.dashboard : null,
+      routes: [
+        GoRoute(
+          path: Routes.manageRefuel,
+          builder: (context, state) {
+            final id = state.uri.queryParameters['id'];
+            final vehicleId = state.uri.queryParameters['vehicleId'];
+            return ManageRefuelScreen(refuelId: id, vehicleId: vehicleId);
+          },
+        ),
+      ],
     ),
   ],
 );

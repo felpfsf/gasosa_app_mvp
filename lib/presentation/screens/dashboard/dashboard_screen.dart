@@ -37,12 +37,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Future<void> _logout() async {
     await getIt<AuthService>().logout();
     if (mounted) {
-      context.go(RoutePaths.login);
+      context.go(Routes.login);
     }
   }
 
   Future<void> _goToCreateVehicle() async {
-    final result = await context.push(RoutePaths.vehicleManageCreate);
+    final result = await context.push(Routes.manageVehiclePath());
     if (result == true) {
       _viewModel.init();
     }
@@ -123,7 +123,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               return VehicleCard(
                 vehicle: vehicle,
                 onTap: () async {
-                  final result = await context.push(RoutePaths.vehicleDetail(vehicle.id));
+                  final result = await context.push(Routes.vehicleDetailPath(vehicle.id));
                   if (result == true) {
                     _viewModel.init();
                   }

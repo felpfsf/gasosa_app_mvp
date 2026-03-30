@@ -57,7 +57,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
   }
 
   Future<void> _goToEditVehicle() async {
-    final result = await context.push(RoutePaths.vehicleManageEdit(widget.vehicleId));
+    final result = await context.push(Routes.manageVehiclePath(widget.vehicleId));
     if (result == true) {
       _viewModel.init(widget.vehicleId);
     }
@@ -75,14 +75,14 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
   }
 
   Future<void> _goToRefuelManageCreate() async {
-    final result = await context.push(RoutePaths.refuelManageCreate(widget.vehicleId));
+    final result = await context.push(Routes.manageRefuelPath(vehicleId: widget.vehicleId));
     if (result == true) {
       _viewModel.init(widget.vehicleId);
     }
   }
 
   Future<void> _goToRefuelManageEdit(String refuelId) async {
-    final result = await context.push(RoutePaths.refuelManageEdit(refuelId));
+    final result = await context.push(Routes.manageRefuelPath(refuelId: refuelId));
     if (result == true) {
       _viewModel.init(widget.vehicleId);
     }
@@ -101,7 +101,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
           if (Navigator.canPop(context)) {
             context.pop();
           } else {
-            context.go(RoutePaths.dashboard);
+            context.go(Routes.dashboard);
           }
         },
         showBackButton: true,

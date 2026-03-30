@@ -44,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
       (failure) => Messages.showWarning(context, failure.message),
       (_) {
         final email = FirebaseAuth.instance.currentUser?.email ?? '';
-        context.go(RoutePaths.dashboard, extra: {'email': email});
+        context.go(Routes.dashboard, extra: {'email': email});
       },
     );
   }
@@ -59,7 +59,7 @@ class _LoginScreenState extends State<LoginScreen> {
       (failure) => Messages.showError(context, failure.message),
       (_) {
         final email = FirebaseAuth.instance.currentUser?.email ?? '';
-        context.go(RoutePaths.dashboard, extra: {'email': email});
+        context.go(Routes.dashboard, extra: {'email': email});
       },
     );
   }
@@ -117,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       _linkRow(
                         'Não tem uma conta? Cadastre-se',
                         () {
-                          context.go(RoutePaths.register);
+                          context.go(Routes.register);
                         },
                       ),
                     ],

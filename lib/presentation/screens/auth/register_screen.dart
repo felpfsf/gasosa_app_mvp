@@ -47,7 +47,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       (failure) => Messages.showError(context, failure.message),
       (_) {
         final email = FirebaseAuth.instance.currentUser?.email ?? '';
-        context.go(RoutePaths.dashboard, extra: {'email': email});
+        context.go(Routes.dashboard, extra: {'email': email});
       },
     );
   }
@@ -62,7 +62,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           appBar: GasosaAppbar(
             title: 'Registrar',
             showBackButton: true,
-            onBackPressed: () => context.go(RoutePaths.dashboard),
+            onBackPressed: () => context.go(Routes.dashboard),
           ),
           body: SafeArea(
             child: Center(

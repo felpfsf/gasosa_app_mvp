@@ -59,7 +59,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
     if (!mounted) {
       return;
     }
-    context.go(user != null ? RoutePaths.dashboard : RoutePaths.login);
+    context.go(user != null ? Routes.dashboard : Routes.login);
   }
 
   @override

@@ -1,5 +1,5 @@
-import 'package:dartz/dartz.dart';
 import 'package:gasosa_app/application/commands/vehicles/delete_vehicle_command.dart';
+import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/core/viewmodel/base_viewmodel.dart';
 import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
@@ -99,7 +99,7 @@ class VehicleDetailViewModel extends BaseViewModel {
     final vehicle = _state.vehicle;
     if (vehicle == null) return false;
     final response = await track(() => _delete(vehicle.id));
-    return response.isRight();
+    return response.isRight;
   }
 
   @override

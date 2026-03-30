@@ -1,11 +1,11 @@
 import 'dart:io';
 
-import 'package:dartz/dartz.dart';
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/application/commands/photos/delete_photo_command.dart';
 import 'package:gasosa_app/application/commands/photos/save_photo_command.dart';
 import 'package:gasosa_app/application/commands/refuel/create_or_update_refuel_command.dart';
 import 'package:gasosa_app/application/commands/refuel/delete_refuel_command.dart';
+import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/core/helpers/numeric_parser.dart';
 import 'package:gasosa_app/core/helpers/uuid.dart';

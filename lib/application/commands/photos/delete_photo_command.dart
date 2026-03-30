@@ -1,4 +1,4 @@
-import 'package:dartz/dartz.dart';
+import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/domain/services/local_photo_storage.dart';
 import 'package:injectable/injectable.dart';

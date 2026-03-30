@@ -68,7 +68,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       floatingActionButton: AnimatedBuilder(
         animation: _viewModel,
-        builder: (_, __) {
+        builder: (_, _) {
           final hasVehicles = _viewModel.state.vehicles.isNotEmpty;
           return hasVehicles
               ? FloatingActionButton.extended(
@@ -84,7 +84,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       body: AnimatedBuilder(
         animation: _viewModel,
-        builder: (_, __) {
+        builder: (_, _) {
           final state = _viewModel.state;
           final iVehicleListEmpty = state.vehicles.isEmpty;
 
@@ -116,7 +116,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           return ListView.separated(
             padding: AppSpacing.paddingMd,
             itemCount: state.vehicles.length,
-            separatorBuilder: (_, __) => AppSpacing.gap16,
+            separatorBuilder: (_, _) => AppSpacing.gap16,
             itemBuilder: (_, index) {
               final vehicle = state.vehicles[index];
               return VehicleCard(

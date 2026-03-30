@@ -39,7 +39,7 @@ class RefuelsList extends StatelessWidget {
         top: AppSpacing.md,
         bottom: AppSpacing.md + MediaQuery.of(context).viewPadding.bottom,
       ),
-      separatorBuilder: (_, __) => AppSpacing.gap16,
+      separatorBuilder: (_, _) => AppSpacing.gap16,
       itemCount: refuels.length,
       shrinkWrap: true,
       itemBuilder: (_, index) {

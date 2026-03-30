@@ -108,7 +108,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
       // floatingActionButton: _buildFloatingActionButton(),
       body: AnimatedBuilder(
         animation: _viewModel,
-        builder: (_, __) {
+        builder: (_, _) {
           final state = _viewModel.state;
           final error = state.errorMessage;
           final loading = state.isLoading;

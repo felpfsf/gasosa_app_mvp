@@ -84,7 +84,7 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
       ),
       body: AnimatedBuilder(
         animation: _viewmodel,
-        builder: (_, __) {
+        builder: (_, _) {
           final s = _viewmodel.state;
           _populateControllersIfNeeded(s);
           final currentImage = (s.photoPath != null && s.photoPath!.isNotEmpty) ? File(s.photoPath!) : null;

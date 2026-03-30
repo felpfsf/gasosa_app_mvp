@@ -19,7 +19,7 @@ class GlobalLoaderOverlay extends StatelessWidget {
     final controller = getIt<LoadingController>();
     return AnimatedBuilder(
       animation: controller,
-      builder: (_, __) {
+      builder: (_, _) {
         return Stack(
           children: [
             if (child != null) child!,

@@ -103,7 +103,7 @@ void main() {
       test('deve retornar Stream com Left(DatabaseFailure) quando falhar', () async {
         // Arrange
         const userId = 'user-error';
-        final failure = DatabaseFailure('Erro ao carregar veículos');
+        const failure = DatabaseFailure('Erro ao carregar veículos');
         when(() => mockRepository.watchAllByUserId(any())).thenAnswer(
           (_) => Stream.value(left(failure)),
         );
@@ -135,7 +135,7 @@ void main() {
       test('deve retornar Left após erro e depois Right quando recuperar', () async {
         // Arrange
         const userId = 'user-recovery';
-        final failure = DatabaseFailure('Erro temporário');
+        const failure = DatabaseFailure('Erro temporário');
         final vehicles = VehicleFactory.createList(2);
 
         when(() => mockRepository.watchAllByUserId(any())).thenAnswer(

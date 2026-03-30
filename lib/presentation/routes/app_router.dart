@@ -68,23 +68,23 @@ final GoRouter appRouter = GoRouter(
   routes: [
     GoRoute(
       path: RoutePaths.splash,
-      builder: (_, __) => const SplashScreen(),
+      builder: (_, _) => const SplashScreen(),
     ),
     GoRoute(
       path: RoutePaths.login,
-      builder: (_, __) => const LoginScreen(),
+      builder: (_, _) => const LoginScreen(),
     ),
     GoRoute(
       path: RoutePaths.register,
-      builder: (_, __) => const RegisterScreen(),
+      builder: (_, _) => const RegisterScreen(),
     ),
     GoRoute(
       path: RoutePaths.dashboard,
-      builder: (_, __) => const DashboardScreen(),
+      builder: (_, _) => const DashboardScreen(),
     ),
     GoRoute(
       path: RoutePaths.vehicleManageCreate,
-      builder: (_, __) => const ManageVehicleScreen(),
+      builder: (_, _) => const ManageVehicleScreen(),
     ),
     GoRoute(
       path: RoutePaths.vehicleManageEdit(':id'),

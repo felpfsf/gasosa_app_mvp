@@ -49,11 +49,10 @@ void main() {
     test('deve retornar Right com refuel anterior quando encontrado', () async {
       // Arrange
       const vehicleId = 'vehicle-456';
-      final createdAt = DateTime(2026, 2, 1);
+      final createdAt = DateTime(2026, 2);
       const mileage = 52000;
       final previousRefuel = RefuelFactory.createValid(
         id: 'refuel-prev',
-        vehicleId: vehicleId,
         mileage: 51000,
       );
       when(

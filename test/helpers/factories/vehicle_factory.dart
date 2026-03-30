@@ -89,8 +89,8 @@ class VehicleFactory {
       plate: plate,
       tankCapacity: tankCapacity,
       fuelType: fuelType,
-      createdAt: DateTime(2026, 1, 1),
-      updatedAt: DateTime(2026, 1, 1),
+      createdAt: DateTime(2026),
+      updatedAt: DateTime(2026),
     );
   }
 

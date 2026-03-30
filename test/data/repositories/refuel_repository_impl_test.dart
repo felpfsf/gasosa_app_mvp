@@ -261,7 +261,7 @@ void main() {
       test('deve retornar refuel anterior quando encontrado', () async {
         // Arrange
         const vehicleId = 'vehicle-999';
-        final createdAt = DateTime(2026, 2, 1);
+        final createdAt = DateTime(2026, 2);
         const mileage = 50000;
         final refuel = RefuelFactory.createValid(vehicleId: vehicleId, mileage: 49000);
         final row = _createRefuelRow(refuel);

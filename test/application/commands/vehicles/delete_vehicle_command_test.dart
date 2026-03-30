@@ -62,7 +62,7 @@ void main() {
       test('deve retornar Left(DatabaseFailure) quando repository falhar', () async {
         // Arrange
         const vehicleId = 'vehicle-999';
-        final failure = DatabaseFailure('Erro ao deletar veículo');
+        const failure = DatabaseFailure('Erro ao deletar veículo');
         when(() => mockRepository.deleteVehicle(any())).thenAnswer((_) async => left(failure));
 
         // Act
@@ -77,7 +77,7 @@ void main() {
       test('deve retornar Left(NotFoundFailure) quando veículo não existe', () async {
         // Arrange
         const vehicleId = 'nonexistent-id';
-        final failure = NotFoundFailure('Veículo não encontrado');
+        const failure = NotFoundFailure('Veículo não encontrado');
         when(() => mockRepository.deleteVehicle(any())).thenAnswer((_) async => left(failure));
 
         // Act
@@ -92,7 +92,7 @@ void main() {
       test('deve retornar Left(BusinessFailure) quando regra de negócio impedir', () async {
         // Arrange
         const vehicleId = 'vehicle-with-refuels';
-        final failure = BusinessFailure('Não é possível deletar veículo com abastecimentos');
+        const failure = BusinessFailure('Não é possível deletar veículo com abastecimentos');
         when(() => mockRepository.deleteVehicle(any())).thenAnswer((_) async => left(failure));
 
         // Act

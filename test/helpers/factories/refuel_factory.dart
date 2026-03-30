@@ -169,7 +169,7 @@ class RefuelFactory {
   }) {
     final refuels = <RefuelEntity>[];
     var currentMileage = startMileage;
-    var currentDate = DateTime(2026, 1, 1);
+    var currentDate = DateTime(2026);
 
     for (var i = 0; i < count; i++) {
       final liters = _faker.randomGenerator.decimal(scale: 50.0, min: 30.0);
@@ -209,12 +209,12 @@ class RefuelFactory {
       RefuelEntity(
         id: 'refuel-1',
         vehicleId: fixedVehicleId,
-        refuelDate: DateTime(2026, 1, 1),
+        refuelDate: DateTime(2026),
         fuelType: FuelType.gasoline,
         totalValue: liters1 * 5.5,
         mileage: mileage1,
         liters: liters1,
-        createdAt: DateTime(2026, 1, 1),
+        createdAt: DateTime(2026),
       ),
       RefuelEntity(
         id: 'refuel-2',

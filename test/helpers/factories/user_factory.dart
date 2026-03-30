@@ -30,7 +30,6 @@ class UserFactory {
       id: id ?? _faker.guid.guid(),
       name: name ?? _faker.person.name(),
       email: email ?? _faker.internet.email(),
-      photoUrl: null,
     );
   }
 

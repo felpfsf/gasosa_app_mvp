@@ -69,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _viewModel,
-      builder: (_, __) {
+      builder: (_, _) {
         final state = _viewModel.state;
         return Scaffold(
           body: SafeArea(

@@ -5,7 +5,9 @@ import 'package:gasosa_app/data/local/dao/user_dao.dart';
 import 'package:gasosa_app/data/mappers/user_mapper.dart';
 import 'package:gasosa_app/domain/entities/user.dart';
 import 'package:gasosa_app/domain/repositories/user_repository.dart';
+import 'package:injectable/injectable.dart';
 
+@LazySingleton(as: UserRepository)
 class UserRepositoryImpl implements UserRepository {
   UserRepositoryImpl(UserDao dao) : _dao = dao;
   final UserDao _dao;

@@ -2,9 +2,11 @@ import 'dart:io';
 
 import 'package:gasosa_app/core/helpers/uuid.dart';
 import 'package:gasosa_app/domain/services/local_photo_storage.dart';
+import 'package:injectable/injectable.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
+@LazySingleton(as: LocalPhotoStorage)
 class LocalPhotoStorageImpl implements LocalPhotoStorage {
   static const _folder = 'photos';
 

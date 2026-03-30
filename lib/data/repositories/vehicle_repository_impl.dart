@@ -4,7 +4,9 @@ import 'package:gasosa_app/data/local/dao/vehicle_dao.dart';
 import 'package:gasosa_app/data/mappers/vehicle_mapper.dart';
 import 'package:gasosa_app/domain/entities/vehicle.dart';
 import 'package:gasosa_app/domain/repositories/vehicle_repository.dart';
+import 'package:injectable/injectable.dart';
 
+@LazySingleton(as: VehicleRepository)
 class VehicleRepositoryImpl implements VehicleRepository {
   VehicleRepositoryImpl(VehicleDao dao) : _dao = dao;
 

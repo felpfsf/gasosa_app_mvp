@@ -4,13 +4,15 @@ import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/domain/services/auth_service.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:injectable/injectable.dart';
 
+@LazySingleton(as: AuthService)
 class FirebaseAuthService implements AuthService {
   FirebaseAuthService({
-    fb.FirebaseAuth? auth,
-    GoogleSignIn? google,
-  }) : _auth = auth ?? fb.FirebaseAuth.instance,
-       _google = google ?? GoogleSignIn.instance;
+    required fb.FirebaseAuth auth,
+    required GoogleSignIn google,
+  }) : _auth = auth,
+       _google = google;
 
   final fb.FirebaseAuth _auth;
   final GoogleSignIn _google;

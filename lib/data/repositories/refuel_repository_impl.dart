@@ -4,7 +4,9 @@ import 'package:gasosa_app/data/local/dao/refuel_dao.dart';
 import 'package:gasosa_app/data/mappers/refuel_mapper.dart';
 import 'package:gasosa_app/domain/entities/refuel.dart';
 import 'package:gasosa_app/domain/repositories/refuel_repository.dart';
+import 'package:injectable/injectable.dart';
 
+@LazySingleton(as: RefuelRepository)
 class RefuelRepositoryImpl implements RefuelRepository {
   RefuelRepositoryImpl(RefuelDao dao) : _dao = dao;
 

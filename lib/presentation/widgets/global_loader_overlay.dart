@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gasosa_app/core/di/locator.dart';
+import 'package:gasosa_app/core/di/injection.dart';
 import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
 import 'package:gasosa_app/theme/app_colors.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';

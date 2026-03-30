@@ -1,4 +1,3 @@
-import 'package:dartz/dartz.dart';
 import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/data/local/dao/user_dao.dart';
@@ -13,7 +12,7 @@ class UserRepositoryImpl implements UserRepository {
   final UserDao _dao;
 
   @override
-  FResult<Unit> save(UserEntity user) async {
+  Future<Either<Failure, Unit>> save(UserEntity user) async {
     try {
       await _dao.insert(UserMapper.toCompanion(user));
       return right(unit);
@@ -23,7 +22,7 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  FResult<UserEntity?> getById(String id) async {
+  Future<Either<Failure, UserEntity?>> getById(String id) async {
     try {
       final row = await _dao.getById(id);
       if (row == null) {
@@ -37,7 +36,7 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  FResult<UserEntity?> getByEmail(String email) async {
+  Future<Either<Failure, UserEntity?>> getByEmail(String email) async {
     try {
       final row = await _dao.getByEmail(email);
       if (row == null) {
@@ -51,7 +50,7 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  FResult<Unit> update(UserEntity user) async {
+  Future<Either<Failure, Unit>> update(UserEntity user) async {
     try {
       final updated = await _dao.updateUser(UserMapper.toData(user));
       if (!updated) {
@@ -65,7 +64,7 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  FResult<Unit> delete(String id) async {
+  Future<Either<Failure, Unit>> delete(String id) async {
     try {
       await _dao.deleteById(id);
       return right(unit);

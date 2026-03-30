@@ -74,12 +74,10 @@ linter:
     cast_nullable_to_non_nullable: true
     null_check_on_nullable_type_parameter: true
     tighten_type_of_initializing_formals: true
-    always_require_non_null_named_parameters: true
     collection_methods_unrelated_type: true
 
     # ===== Boas práticas de API/Design =====
     avoid_positional_boolean_parameters: true
-    avoid_returning_null_for_future: true
     avoid_void_async: true
     only_throw_errors: true
     use_super_parameters: true

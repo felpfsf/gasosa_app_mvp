@@ -18,7 +18,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
       await _dao.upsert(VehicleMapper.toCompanion(vehicle));
       return right(unit);
     } catch (e) {
-      return left(DatabaseFailure('Erro ao salvar veículo', cause: e));
+      return left(DatabaseFailure('Erro ao salvar veículo', e, null));
     }
   }
 
@@ -28,7 +28,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
       await _dao.deleteById(id);
       return right(unit);
     } catch (e) {
-      return left(DatabaseFailure('Erro ao deletar veículo', cause: e));
+      return left(DatabaseFailure('Erro ao deletar veículo', e, null));
     }
   }
 
@@ -38,7 +38,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
       final rows = await _dao.getAllByUserId(userId);
       return right(rows.map(VehicleMapper.toDomain).toList());
     } catch (e) {
-      return left(DatabaseFailure('Erro ao listar veículos', cause: e));
+      return left(DatabaseFailure('Erro ao listar veículos', e, null));
     }
   }
 
@@ -48,7 +48,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
       final row = await _dao.getById(id);
       return right(row == null ? null : VehicleMapper.toDomain(row));
     } catch (e) {
-      return left(DatabaseFailure('Erro ao buscar veículo', cause: e));
+      return left(DatabaseFailure('Erro ao buscar veículo', e, null));
     }
   }
 
@@ -58,7 +58,7 @@ class VehicleRepositoryImpl implements VehicleRepository {
       await _dao.upsert(VehicleMapper.toCompanion(vehicle));
       return right(unit);
     } catch (e) {
-      return left(DatabaseFailure('Erro ao atualizar veículo', cause: e));
+      return left(DatabaseFailure('Erro ao atualizar veículo', e, null));
     }
   }
 
@@ -70,7 +70,9 @@ class VehicleRepositoryImpl implements VehicleRepository {
           (rows) => right<Failure, List<VehicleEntity>>(rows.map(VehicleMapper.toDomain).toList()),
         )
         .handleError((e) {
-          return Stream.value(left<Failure, List<VehicleEntity>>(DatabaseFailure('Stream vehicles falhou: $e')));
+          return Stream.value(
+            left<Failure, List<VehicleEntity>>(DatabaseFailure('Stream vehicles falhou: $e', null, null)),
+          );
         });
   }
 }

@@ -17,7 +17,7 @@ class UserRepositoryImpl implements UserRepository {
       await _dao.insert(UserMapper.toCompanion(user));
       return right(unit);
     } catch (e, s) {
-      return left(DatabaseFailure('Erro ao salvar usuário', cause: e, stackTrace: s));
+      return left(DatabaseFailure('Erro ao salvar usuário', e, s));
     }
   }
 
@@ -26,12 +26,12 @@ class UserRepositoryImpl implements UserRepository {
     try {
       final row = await _dao.getById(id);
       if (row == null) {
-        return left(const NotFoundFailure('Usuário não encontrado'));
+        return left(const UnexpectedFailure('Usuário não encontrado', null, null));
       }
 
       return right(UserMapper.fromData(row));
     } catch (e, s) {
-      return left(DatabaseFailure('Erro ao buscar usuário', cause: e, stackTrace: s));
+      return left(DatabaseFailure('Erro ao buscar usuário', e, s));
     }
   }
 
@@ -40,12 +40,12 @@ class UserRepositoryImpl implements UserRepository {
     try {
       final row = await _dao.getByEmail(email);
       if (row == null) {
-        return left(const NotFoundFailure('Usuário não encontrado'));
+        return left(const UnexpectedFailure('Usuário não encontrado', null, null));
       }
 
       return right(UserMapper.fromData(row));
     } catch (e, s) {
-      return left(DatabaseFailure('Erro ao buscar usuário', cause: e, stackTrace: s));
+      return left(DatabaseFailure('Erro ao buscar usuário', e, s));
     }
   }
 
@@ -54,12 +54,12 @@ class UserRepositoryImpl implements UserRepository {
     try {
       final updated = await _dao.updateUser(UserMapper.toData(user));
       if (!updated) {
-        return left(const DatabaseFailure('Erro ao atualizar usuário'));
+        return left(const DatabaseFailure('Erro ao atualizar usuário', null, null));
       }
 
       return right(unit);
     } catch (e, s) {
-      return left(DatabaseFailure('Erro ao atualizar usuário', cause: e, stackTrace: s));
+      return left(DatabaseFailure('Erro ao atualizar usuário', e, s));
     }
   }
 
@@ -69,7 +69,7 @@ class UserRepositoryImpl implements UserRepository {
       await _dao.deleteById(id);
       return right(unit);
     } catch (e, s) {
-      return left(DatabaseFailure('Erro ao deletar usuário', cause: e, stackTrace: s));
+      return left(DatabaseFailure('Erro ao deletar usuário', e, s));
     }
   }
 }

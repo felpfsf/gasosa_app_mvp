@@ -13,7 +13,7 @@ class SavePhotoCommand {
   Future<Either<Failure, String>> call({required File file, String? oldPath}) async {
     try {
       if (!await file.exists()) {
-        return left(const StorageFailure('Arquivo de foto não encontrado'));
+        return left(const UnexpectedFailure('Arquivo de foto não encontrado', null, null));
       }
 
       final newPath = await _storage.savePhoto(file);
@@ -25,7 +25,7 @@ class SavePhotoCommand {
 
       return right(newPath);
     } catch (e) {
-      return left(StorageFailure('Falha ao salvar foto: $e'));
+      return left(UnexpectedFailure('Falha ao salvar foto: $e', null, null));
     }
   }
 }

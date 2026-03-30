@@ -13,7 +13,7 @@ class DeletePhotoCommand {
       await _storage.deletePhoto(path);
       return right(null);
     } catch (e) {
-      return left(StorageFailure('Error deleting photo: $e'));
+      return left(UnexpectedFailure('Error deleting photo: $e', null, null));
     }
   }
 }

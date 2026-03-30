@@ -30,6 +30,7 @@ dependencies:
 
   # DI
   get_it: ^9.2.0
+  injectable: ^2.5.0
   path: ^1.9.1
   google_fonts: ^8.0.1
   dartz: ^0.10.1
@@ -54,6 +55,7 @@ dev_dependencies:
   flutter_flavorizr: ^2.4.1
   build_runner: ^2.7.0
   drift_dev: ^2.28.1
+  injectable_generator: ^2.7.0
   
   # 👉 Testing
   faker: ^2.1.0

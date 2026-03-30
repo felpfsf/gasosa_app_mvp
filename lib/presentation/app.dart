@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:gasosa_app/core/di/locator.dart';
+import 'package:gasosa_app/core/di/injection.dart';
 import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
 import 'package:gasosa_app/presentation/routes/app_router.dart';
 import 'package:gasosa_app/presentation/widgets/global_loader_overlay.dart';

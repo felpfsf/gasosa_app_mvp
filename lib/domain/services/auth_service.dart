@@ -1,4 +1,5 @@
 import 'package:gasosa_app/core/either/either.dart';
+import 'package:gasosa_app/core/errors/failure.dart';
 
 class AuthUser {
   const AuthUser(
@@ -13,9 +14,9 @@ class AuthUser {
 }
 
 abstract interface class AuthService {
-  FResult<AuthUser> register(String name, String email, String password);
-  FResult<AuthUser> loginWithEmail(String email, String password);
-  FResult<AuthUser> loginWithGoogle();
-  FResult<Result<void>> linkGoogleAfterPasswordLogin();
-  FResult<void> logout();
+  Future<Either<Failure, AuthUser>> register(String name, String email, String password);
+  Future<Either<Failure, AuthUser>> loginWithEmail(String email, String password);
+  Future<Either<Failure, AuthUser>> loginWithGoogle();
+  Future<Either<Failure, Either<Failure, void>>> linkGoogleAfterPasswordLogin();
+  Future<Either<Failure, void>> logout();
 }

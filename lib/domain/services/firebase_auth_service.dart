@@ -1,4 +1,3 @@
-import 'package:dartz/dartz.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
@@ -18,7 +17,7 @@ class FirebaseAuthService implements AuthService {
   final GoogleSignIn _google;
 
   @override
-  FResult<AuthUser> loginWithEmail(String email, String password) async {
+  Future<Either<Failure, AuthUser>> loginWithEmail(String email, String password) async {
     try {
       final credential = await _auth.signInWithEmailAndPassword(email: email, password: password);
       final user = credential.user!;
@@ -32,7 +31,7 @@ class FirebaseAuthService implements AuthService {
   }
 
   @override
-  FResult<AuthUser> loginWithGoogle() async {
+  Future<Either<Failure, AuthUser>> loginWithGoogle() async {
     try {
       final account = await _google.authenticate(
         scopeHint: ['email', 'profile', 'openid'],
@@ -66,7 +65,7 @@ class FirebaseAuthService implements AuthService {
   }
 
   @override
-  FResult<void> logout() async {
+  Future<Either<Failure, void>> logout() async {
     try {
       await Future.wait([_auth.signOut(), _google.signOut()]);
       return right(null);
@@ -76,7 +75,7 @@ class FirebaseAuthService implements AuthService {
   }
 
   @override
-  FResult<AuthUser> register(String name, String email, String password) async {
+  Future<Either<Failure, AuthUser>> register(String name, String email, String password) async {
     try {
       final credential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
       final user = credential.user!;
@@ -89,7 +88,7 @@ class FirebaseAuthService implements AuthService {
   }
 
   @override
-  FResult<Result<void>> linkGoogleAfterPasswordLogin() async {
+  Future<Either<Failure, Either<Failure, void>>> linkGoogleAfterPasswordLogin() async {
     try {
       final account = await _google.authenticate(
         scopeHint: ['email', 'profile', 'openid'],

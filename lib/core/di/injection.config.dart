@@ -10,32 +10,30 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'package:firebase_auth/firebase_auth.dart' as _i59;
-import 'package:gasosa_app/application/commands/auth/loggin_with_google_command.dart'
-    as _i318;
-import 'package:gasosa_app/application/commands/auth/login_email_password_command.dart'
-    as _i13;
-import 'package:gasosa_app/application/commands/auth/register_command.dart'
-    as _i728;
-import 'package:gasosa_app/application/commands/photos/delete_photo_command.dart'
-    as _i458;
-import 'package:gasosa_app/application/commands/photos/save_photo_command.dart'
-    as _i180;
-import 'package:gasosa_app/application/commands/refuel/calculate_consumption_command.dart'
-    as _i53;
-import 'package:gasosa_app/application/commands/refuel/create_or_update_refuel_command.dart'
-    as _i188;
-import 'package:gasosa_app/application/commands/refuel/delete_refuel_command.dart'
-    as _i142;
-import 'package:gasosa_app/application/commands/refuel/load_refuels_by_vehicle_command.dart'
-    as _i237;
-import 'package:gasosa_app/application/commands/vehicles/create_or_update_vehicle_command.dart'
-    as _i328;
-import 'package:gasosa_app/application/commands/vehicles/delete_vehicle_command.dart'
-    as _i215;
-import 'package:gasosa_app/application/commands/vehicles/load_vehicles_command.dart'
-    as _i459;
+import 'package:gasosa_app/application/auth/login_email_password_use_case.dart'
+    as _i769;
+import 'package:gasosa_app/application/auth/login_with_google_use_case.dart'
+    as _i239;
+import 'package:gasosa_app/application/auth/register_use_case.dart' as _i345;
+import 'package:gasosa_app/application/photos/delete_photo_use_case.dart'
+    as _i596;
+import 'package:gasosa_app/application/photos/save_photo_use_case.dart'
+    as _i808;
+import 'package:gasosa_app/application/refuel/calculate_consumption_use_case.dart'
+    as _i684;
+import 'package:gasosa_app/application/refuel/create_or_update_refuel_use_case.dart'
+    as _i1031;
+import 'package:gasosa_app/application/refuel/delete_refuel_use_case.dart'
+    as _i693;
+import 'package:gasosa_app/application/refuel/load_refuels_by_vehicle_use_case.dart'
+    as _i1064;
+import 'package:gasosa_app/application/vehicles/create_or_update_vehicle_use_case.dart'
+    as _i469;
+import 'package:gasosa_app/application/vehicles/delete_vehicle_use_case.dart'
+    as _i62;
+import 'package:gasosa_app/application/vehicles/load_vehicles_use_case.dart'
+    as _i183;
 import 'package:gasosa_app/core/di/register_module.dart' as _i53;
-import 'package:gasosa_app/core/viewmodel/loading_controller.dart' as _i209;
 import 'package:gasosa_app/data/local/dao/refuel_dao.dart' as _i621;
 import 'package:gasosa_app/data/local/dao/user_dao.dart' as _i876;
 import 'package:gasosa_app/data/local/dao/vehicle_dao.dart' as _i353;
@@ -88,7 +86,6 @@ extension GetItInjectableX on _i174.GetIt {
       preResolve: true,
     );
     gh.lazySingleton<_i409.AppDatabase>(() => registerModule.appDatabase);
-    gh.lazySingleton<_i209.LoadingController>(() => _i209.LoadingController());
     gh.lazySingleton<_i188.RefuelBusinessRules>(
       () => const _i188.RefuelBusinessRules(),
     );
@@ -119,99 +116,90 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i754.UserRepository>(
       () => _i57.UserRepositoryImpl(gh<_i876.UserDao>()),
     );
-    gh.factory<_i458.DeletePhotoCommand>(
-      () => _i458.DeletePhotoCommand(gh<_i312.LocalPhotoStorage>()),
+    gh.factory<_i596.DeletePhotoUseCase>(
+      () => _i596.DeletePhotoUseCase(gh<_i312.LocalPhotoStorage>()),
     );
-    gh.factory<_i180.SavePhotoCommand>(
-      () => _i180.SavePhotoCommand(gh<_i312.LocalPhotoStorage>()),
+    gh.factory<_i808.SavePhotoUseCase>(
+      () => _i808.SavePhotoUseCase(gh<_i312.LocalPhotoStorage>()),
     );
-    gh.factory<_i53.CalculateConsumptionCommand>(
-      () => _i53.CalculateConsumptionCommand(
+    gh.factory<_i684.CalculateConsumptionUseCase>(
+      () => _i684.CalculateConsumptionUseCase(
         repository: gh<_i857.RefuelRepository>(),
       ),
     );
-    gh.factory<_i188.CreateOrUpdateRefuelCommand>(
-      () => _i188.CreateOrUpdateRefuelCommand(
+    gh.factory<_i1031.CreateOrUpdateRefuelUseCase>(
+      () => _i1031.CreateOrUpdateRefuelUseCase(
         repository: gh<_i857.RefuelRepository>(),
       ),
     );
-    gh.factory<_i142.DeleteRefuelCommand>(
-      () => _i142.DeleteRefuelCommand(repository: gh<_i857.RefuelRepository>()),
+    gh.factory<_i693.DeleteRefuelUseCase>(
+      () => _i693.DeleteRefuelUseCase(repository: gh<_i857.RefuelRepository>()),
     );
-    gh.factory<_i237.LoadRefuelsByVehicleCommand>(
-      () => _i237.LoadRefuelsByVehicleCommand(
+    gh.factory<_i1064.LoadRefuelsByVehicleUseCase>(
+      () => _i1064.LoadRefuelsByVehicleUseCase(
         repository: gh<_i857.RefuelRepository>(),
       ),
+    );
+    gh.factory<_i769.LoginEmailPasswordUseCase>(
+      () => _i769.LoginEmailPasswordUseCase(auth: gh<_i602.AuthService>()),
+    );
+    gh.factory<_i239.LoginWithGoogleUseCase>(
+      () => _i239.LoginWithGoogleUseCase(auth: gh<_i602.AuthService>()),
+    );
+    gh.factory<_i345.RegisterUseCase>(
+      () => _i345.RegisterUseCase(auth: gh<_i602.AuthService>()),
+    );
+    gh.factory<_i469.CreateOrUpdateVehicleUseCase>(
+      () => _i469.CreateOrUpdateVehicleUseCase(
+        repository: gh<_i35.VehicleRepository>(),
+      ),
+    );
+    gh.factory<_i62.DeleteVehicleUseCase>(
+      () => _i62.DeleteVehicleUseCase(repository: gh<_i35.VehicleRepository>()),
+    );
+    gh.factory<_i183.LoadVehiclesUseCase>(
+      () => _i183.LoadVehiclesUseCase(repository: gh<_i35.VehicleRepository>()),
     );
     gh.factory<_i1034.ManageRefuelViewmodel>(
       () => _i1034.ManageRefuelViewmodel(
-        repository: gh<_i857.RefuelRepository>(),
-        vehicleRepository: gh<_i35.VehicleRepository>(),
-        loading: gh<_i209.LoadingController>(),
-        saveRefuel: gh<_i188.CreateOrUpdateRefuelCommand>(),
-        saveReceiptPhoto: gh<_i180.SavePhotoCommand>(),
-        deleteReceiptPhoto: gh<_i458.DeletePhotoCommand>(),
-        deleteRefuel: gh<_i142.DeleteRefuelCommand>(),
-        businessRules: gh<_i188.RefuelBusinessRules>(),
+        gh<_i857.RefuelRepository>(),
+        gh<_i35.VehicleRepository>(),
+        gh<_i1031.CreateOrUpdateRefuelUseCase>(),
+        gh<_i808.SavePhotoUseCase>(),
+        gh<_i596.DeletePhotoUseCase>(),
+        gh<_i693.DeleteRefuelUseCase>(),
+        gh<_i188.RefuelBusinessRules>(),
       ),
-    );
-    gh.factory<_i318.LoginWithGoogleCommand>(
-      () => _i318.LoginWithGoogleCommand(auth: gh<_i602.AuthService>()),
-    );
-    gh.factory<_i13.LoginEmailPasswordCommand>(
-      () => _i13.LoginEmailPasswordCommand(auth: gh<_i602.AuthService>()),
-    );
-    gh.factory<_i728.RegisterCommand>(
-      () => _i728.RegisterCommand(auth: gh<_i602.AuthService>()),
-    );
-    gh.factory<_i328.CreateOrUpdateVehicleCommand>(
-      () => _i328.CreateOrUpdateVehicleCommand(
-        repository: gh<_i35.VehicleRepository>(),
-      ),
-    );
-    gh.factory<_i215.DeleteVehicleCommand>(
-      () =>
-          _i215.DeleteVehicleCommand(repository: gh<_i35.VehicleRepository>()),
-    );
-    gh.factory<_i459.LoadVehiclesCommand>(
-      () => _i459.LoadVehiclesCommand(repository: gh<_i35.VehicleRepository>()),
     );
     gh.factory<_i464.VehicleDetailViewModel>(
       () => _i464.VehicleDetailViewModel(
-        repository: gh<_i35.VehicleRepository>(),
-        delete: gh<_i215.DeleteVehicleCommand>(),
-        loading: gh<_i209.LoadingController>(),
-        refuelRepository: gh<_i857.RefuelRepository>(),
+        gh<_i35.VehicleRepository>(),
+        gh<_i62.DeleteVehicleUseCase>(),
+        gh<_i857.RefuelRepository>(),
       ),
     );
-    gh.factory<_i212.ManageVehicleViewModel>(
-      () => _i212.ManageVehicleViewModel(
-        repository: gh<_i35.VehicleRepository>(),
-        saveVehicle: gh<_i328.CreateOrUpdateVehicleCommand>(),
-        deleteVehicle: gh<_i215.DeleteVehicleCommand>(),
-        savePhoto: gh<_i180.SavePhotoCommand>(),
-        deletePhoto: gh<_i458.DeletePhotoCommand>(),
-        loading: gh<_i209.LoadingController>(),
+    gh.factory<_i979.RegisterViewModel>(
+      () => _i979.RegisterViewModel(gh<_i345.RegisterUseCase>()),
+    );
+    gh.factory<_i327.DashboardViewModel>(
+      () => _i327.DashboardViewModel(
+        gh<_i183.LoadVehiclesUseCase>(),
+        gh<_i62.DeleteVehicleUseCase>(),
       ),
     );
     gh.factory<_i788.LoginViewModel>(
       () => _i788.LoginViewModel(
-        loginGoogle: gh<_i318.LoginWithGoogleCommand>(),
-        loginEmailPassword: gh<_i13.LoginEmailPasswordCommand>(),
-        loading: gh<_i209.LoadingController>(),
+        gh<_i239.LoginWithGoogleUseCase>(),
+        gh<_i769.LoginEmailPasswordUseCase>(),
       ),
     );
-    gh.factory<_i327.DashboardViewModel>(
-      () => _i327.DashboardViewModel(
-        loadVehicles: gh<_i459.LoadVehiclesCommand>(),
-        loading: gh<_i209.LoadingController>(),
-        deleteVehicle: gh<_i215.DeleteVehicleCommand>(),
-      ),
-    );
-    gh.factory<_i979.RegisterViewModel>(
-      () => _i979.RegisterViewModel(
-        registerCommand: gh<_i728.RegisterCommand>(),
-        loading: gh<_i209.LoadingController>(),
+    gh.factory<_i212.ManageVehicleViewModel>(
+      () => _i212.ManageVehicleViewModel(
+        gh<_i35.VehicleRepository>(),
+        gh<_i469.CreateOrUpdateVehicleUseCase>(),
+        gh<_i62.DeleteVehicleUseCase>(),
+        gh<_i808.SavePhotoUseCase>(),
+        gh<_i596.DeletePhotoUseCase>(),
       ),
     );
     return this;

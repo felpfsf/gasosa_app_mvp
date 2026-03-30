@@ -1,106 +1,28 @@
-import 'package:gasosa_app/application/commands/auth/register_command.dart';
-import 'package:gasosa_app/core/viewmodel/base_viewmodel.dart';
-import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
+import 'package:gasosa_app/application/auth/register_use_case.dart';
+import 'package:gasosa_app/core/either/either.dart';
+import 'package:gasosa_app/core/errors/failure.dart';
+import 'package:gasosa_app/core/presentation/command.dart';
+import 'package:gasosa_app/domain/services/auth_service.dart';
 import 'package:injectable/injectable.dart';
 
-class RegisterState {
-  const RegisterState({
-    this.isLoading = false,
-    this.errorMessage,
-    this.name = '',
-    this.email = '',
-    this.password = '',
-  });
-
-  final bool isLoading;
-  final String? errorMessage;
-  final String name, email, password;
-
-  RegisterState copyWith({
-    bool? isLoading,
-    String? errorMessage,
-    String? name,
-    String? email,
-    String? password,
-  }) => RegisterState(
-    isLoading: isLoading ?? this.isLoading,
-    errorMessage: errorMessage,
-    name: name ?? this.name,
-    email: email ?? this.email,
-    password: password ?? this.password,
-  );
-}
-
 @injectable
-class RegisterViewModel extends BaseViewModel {
-  RegisterViewModel({
-    required RegisterCommand registerCommand,
-    required LoadingController loading,
-  }) : _registerCommand = registerCommand,
-       super(loading);
+class RegisterViewModel {
+  RegisterViewModel(this._registerUseCase) : registerCommand = Command<AuthUser>();
 
-  final RegisterCommand _registerCommand;
+  final RegisterUseCase _registerUseCase;
 
-  RegisterState _state = const RegisterState();
-  RegisterState get state => _state;
+  final Command<AuthUser> registerCommand;
 
-  @override
-  void setViewLoading({bool value = false}) {
-    _state = _state.copyWith(isLoading: value);
-    notifyListeners();
-  }
+  String name = '';
+  String email = '';
+  String password = '';
 
-  void _setError(String message) {
-    _state = _state.copyWith(isLoading: false, errorMessage: message);
-    notifyListeners();
-  }
+  void setName(String v) => name = v;
+  void setEmail(String v) => email = v;
+  void setPassword(String v) => password = v;
 
-  void setName(String name) {
-    _state = _state.copyWith(name: name);
-    notifyListeners();
-  }
+  Future<Either<Failure, AuthUser>?> register() =>
+      registerCommand.run(() => _registerUseCase(name: name, email: email, password: password));
 
-  void setEmail(String email) {
-    _state = _state.copyWith(email: email);
-    notifyListeners();
-  }
-
-  void setPassword(String password) {
-    _state = _state.copyWith(password: password);
-    notifyListeners();
-  }
-
-  Future<bool> register() async {
-    // _setLoading(true);
-    // final response = await _registerCommand(email: _state.email, name: _state.name, password: _state.password);
-    // return response.fold(
-    //   (failure) {
-    //     _setLoading(false);
-    //     _setError(failure.message);
-    //     return false;
-    //   },
-    //   (_) {
-    //     _setLoading(false);
-    //     return true;
-    //   },
-    // );
-    return track(
-      () async {
-        final response = await _registerCommand(
-          email: _state.email,
-          name: _state.name,
-          password: _state.password,
-        );
-        return response.fold(
-          (failure) {
-            _setError(failure.message);
-            return false;
-          },
-          (_) {
-            return true;
-          },
-        );
-      },
-    );
-  }
+  void dispose() => registerCommand.dispose();
 }

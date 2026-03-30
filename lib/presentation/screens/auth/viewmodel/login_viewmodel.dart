@@ -1,125 +1,38 @@
-import 'package:gasosa_app/application/commands/auth/loggin_with_google_command.dart';
-import 'package:gasosa_app/application/commands/auth/login_email_password_command.dart';
-import 'package:gasosa_app/core/viewmodel/base_viewmodel.dart';
-import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
+import 'package:gasosa_app/application/auth/login_email_password_use_case.dart';
+import 'package:gasosa_app/application/auth/login_with_google_use_case.dart';
+import 'package:gasosa_app/core/either/either.dart';
+import 'package:gasosa_app/core/errors/failure.dart';
+import 'package:gasosa_app/core/presentation/command.dart';
+import 'package:gasosa_app/domain/services/auth_service.dart';
 import 'package:injectable/injectable.dart';
 
-class LoginState {
-  const LoginState({
-    this.isLoading = false,
-    this.errorMessage,
-    this.email = '',
-    this.password = '',
-  });
-
-  final bool isLoading;
-  final String? errorMessage;
-  final String email;
-  final String password;
-
-  LoginState copyWith({
-    bool? isLoading,
-    String? errorMessage,
-    String? email,
-    String? password,
-  }) => LoginState(
-    isLoading: isLoading ?? this.isLoading,
-    errorMessage: errorMessage,
-    email: email ?? this.email,
-    password: password ?? this.password,
-  );
-}
-
 @injectable
-class LoginViewModel extends BaseViewModel {
-  LoginViewModel({
-    required LoginWithGoogleCommand loginGoogle,
-    required LoginEmailPasswordCommand loginEmailPassword,
-    required LoadingController loading,
-  }) : _loginGoogle = loginGoogle,
-       _loginEmailPassword = loginEmailPassword,
-       super(loading);
+class LoginViewModel {
+  LoginViewModel(
+    this._loginGoogle,
+    this._loginEmailPassword,
+  ) : googleCommand = Command<AuthUser>(),
+      loginCommand = Command<AuthUser>();
 
-  final LoginWithGoogleCommand _loginGoogle;
-  final LoginEmailPasswordCommand _loginEmailPassword;
+  final LoginWithGoogleUseCase _loginGoogle;
+  final LoginEmailPasswordUseCase _loginEmailPassword;
 
-  LoginState _state = const LoginState();
-  LoginState get state => _state;
+  final Command<AuthUser> googleCommand;
+  final Command<AuthUser> loginCommand;
 
-  @override
-  void setViewLoading({bool value = false}) {
-    _state = _state.copyWith(isLoading: value);
-    notifyListeners();
-  }
+  String email = '';
+  String password = '';
 
-  void _setError(String message) {
-    _state = _state.copyWith(isLoading: false, errorMessage: message);
-    notifyListeners();
-  }
+  void setEmail(String v) => email = v;
+  void setPassword(String v) => password = v;
 
-  void setEmail(String email) {
-    _state = _state.copyWith(email: email);
-    notifyListeners();
-  }
+  Future<Either<Failure, AuthUser>?> googleSignIn() => googleCommand.run(() => _loginGoogle());
 
-  void setPassword(String password) {
-    _state = _state.copyWith(password: password);
-    notifyListeners();
-  }
+  Future<Either<Failure, AuthUser>?> loginWithEmailPassword() =>
+      loginCommand.run(() => _loginEmailPassword(email: email, password: password));
 
-  Future<bool> googleSignIn() async {
-    // _setLoading(true);
-    // final response = await _loginGoogle();
-    // return response.fold(
-    //   (failure) {
-    //     _setLoading(false);
-    //     _setError(failure.message);
-    //     return false;
-    //   },
-    //   (_) {
-    //     _setLoading(false);
-    //     return true;
-    //   },
-    // );
-    return track(() async {
-      final response = await _loginGoogle();
-      return response.fold(
-        (failure) {
-          _setError(failure.message);
-          return false;
-        },
-        (_) {
-          return true;
-        },
-      );
-    });
-  }
-
-  Future<bool> loginWithEmailPassword() async {
-    // _setLoading(true);
-    // final response = await _loginEmailPassword(email: _state.email, password: _state.password);
-    // return response.fold(
-    //   (failure) {
-    //     _setLoading(false);
-    //     _setError(failure.message);
-    //     return false;
-    //   },
-    //   (_) {
-    //     _setLoading(false);
-    //     return true;
-    //   },
-    // );
-    return track(() async {
-      final response = await _loginEmailPassword(email: _state.email, password: _state.password);
-      return response.fold(
-        (failure) {
-          _setError(failure.message);
-          return false;
-        },
-        (_) {
-          return true;
-        },
-      );
-    });
+  void dispose() {
+    googleCommand.dispose();
+    loginCommand.dispose();
   }
 }

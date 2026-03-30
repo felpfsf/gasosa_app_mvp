@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/di/injection.dart';
 import 'package:gasosa_app/core/helpers/formatters.dart';
+import 'package:gasosa_app/core/presentation/ui_state.dart';
 import 'package:gasosa_app/core/validators/vehicle_validators.dart';
 import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/presentation/screens/vehicle/viewmodel/manage_vehicle_viewmodel.dart';
@@ -51,7 +52,7 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
   Future<void> _onSave() async {
     if (!_formKey.currentState!.validate()) return;
     final response = await _viewmodel.save();
-    response.fold(
+    response?.fold(
       (failure) => Messages.showError(context, failure.message),
       (_) {
         Messages.showSuccess(context, 'Veículo salvo com sucesso!');
@@ -63,7 +64,7 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
   Future<void> _onDelete() async {
     // GasosaConfirmDialog
     final res = await _viewmodel.delete();
-    res.fold(
+    res?.fold(
       (f) => Messages.showError(context, f.message),
       (_) {
         Messages.showSuccess(context, 'Veículo excluído!');
@@ -82,11 +83,22 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
         showBackButton: true,
         onBackPressed: () => context.pop(),
       ),
-      body: AnimatedBuilder(
-        animation: _viewmodel,
+      body: ListenableBuilder(
+        listenable: Listenable.merge([
+          _viewmodel.state,
+          _viewmodel.loadCommand.state,
+          _viewmodel.saveCommand.state,
+          _viewmodel.deleteCommand.state,
+          _viewmodel.photoCommand.state,
+        ]),
         builder: (_, _) {
-          final s = _viewmodel.state;
+          final s = _viewmodel.state.value;
           _populateControllersIfNeeded(s);
+          final isLoading =
+              _viewmodel.loadCommand.state.value is UiLoading ||
+              _viewmodel.saveCommand.state.value is UiLoading ||
+              _viewmodel.deleteCommand.state.value is UiLoading ||
+              _viewmodel.photoCommand.state.value is UiLoading;
           final currentImage = (s.photoPath != null && s.photoPath!.isNotEmpty) ? File(s.photoPath!) : null;
 
           return Stack(
@@ -155,14 +167,14 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
                           spacing: AppSpacing.md,
                           children: [
                             Expanded(
-                              child: GasosaButton(label: 'Salvar', onPressed: s.isLoading ? null : _onSave),
+                              child: GasosaButton(label: 'Salvar', onPressed: isLoading ? null : _onSave),
                             ),
                             if (s.isEdit) ...[
                               Expanded(
                                 child: GasosaButton(
                                   label: 'Excluir',
                                   variant: GasosaButtonVariant.danger,
-                                  onPressed: s.isLoading ? null : _onDelete,
+                                  onPressed: isLoading ? null : _onDelete,
                                 ),
                               ),
                             ],
@@ -174,7 +186,7 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
                 ),
               ),
 
-              if (s.isLoading)
+              if (isLoading)
                 Container(
                   color: Colors.black.withValues(alpha: .08),
                   child: ColoredBox(

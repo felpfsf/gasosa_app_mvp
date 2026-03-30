@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/di/injection.dart';
+import 'package:gasosa_app/core/presentation/ui_state.dart';
 import 'package:gasosa_app/core/validators/user_validators.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/screens/auth/viewmodel/register_viewmodel.dart';
@@ -37,27 +38,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _handleRegister() async {
-    if (_viewModel.state.isLoading) return;
+    if (_viewModel.registerCommand.state.value is UiLoading) return;
     if (!_formKey.currentState!.validate()) return;
-    final ok = await _viewModel.register();
+    final result = await _viewModel.register();
 
     if (!mounted) return;
-
-    if (ok) {
-      final email = FirebaseAuth.instance.currentUser?.email ?? '';
-      context.go(RoutePaths.dashboard, extra: {'email': email});
-    } else {
-      final message = _viewModel.state.errorMessage ?? 'Erro desconhecido';
-      Messages.showError(context, message);
-    }
+    result?.fold(
+      (failure) => Messages.showError(context, failure.message),
+      (_) {
+        final email = FirebaseAuth.instance.currentUser?.email ?? '';
+        context.go(RoutePaths.dashboard, extra: {'email': email});
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _viewModel,
+    return ListenableBuilder(
+      listenable: _viewModel.registerCommand.state,
       builder: (_, _) {
-        final state = _viewModel.state;
+        final isLoading = _viewModel.registerCommand.state.value is UiLoading;
         return Scaffold(
           appBar: GasosaAppbar(
             title: 'Registrar',
@@ -107,7 +107,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             AppSpacing.gap8,
                             GasosaButton(
                               label: 'Cadastrar',
-                              onPressed: state.isLoading ? null : () => _handleRegister(),
+                              onPressed: isLoading ? null : () => _handleRegister(),
                             ),
                           ],
                         ),

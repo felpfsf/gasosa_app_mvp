@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gasosa_app/core/di/injection.dart';
 import 'package:gasosa_app/core/helpers/formatters.dart';
+import 'package:gasosa_app/core/presentation/ui_state.dart';
 import 'package:gasosa_app/core/validators/refuel_validators.dart';
 import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/presentation/screens/refuel/viewmodel/manage_refuel_viewmodel.dart';
@@ -44,7 +45,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
     if (!_formKey.currentState!.validate()) return;
     final response = await _viewmodel.save();
 
-    response.fold(
+    response?.fold(
       (failure) => Messages.showError(context, failure.message),
       (_) {
         Messages.showSuccess(context, 'Abastecimento salvo com sucesso!');
@@ -55,7 +56,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
 
   Future<void> _onDelete() async {
     final response = await _viewmodel.delete();
-    response.fold(
+    response?.fold(
       (failure) => Messages.showError(context, failure.message),
       (_) {
         Messages.showSuccess(context, 'Abastecimento excluído com sucesso!');
@@ -72,10 +73,19 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
         showBackButton: true,
         onBackPressed: () => context.pop(),
       ),
-      body: AnimatedBuilder(
-        animation: _viewmodel,
+      body: ListenableBuilder(
+        listenable: Listenable.merge([
+          _viewmodel.state,
+          _viewmodel.loadCommand.state,
+          _viewmodel.saveCommand.state,
+          _viewmodel.deleteCommand.state,
+          _viewmodel.photoCommand.state,
+        ]),
         builder: (context, _) {
-          final state = _viewmodel.state;
+          final state = _viewmodel.state.value;
+          final isLoading = _viewmodel.loadCommand.state.value is UiLoading ||
+              _viewmodel.saveCommand.state.value is UiLoading ||
+              _viewmodel.deleteCommand.state.value is UiLoading;
 
           return SafeArea(
             child: SingleChildScrollView(
@@ -181,7 +191,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                         Expanded(
                           child: GasosaButton(
                             label: 'Salvar',
-                            onPressed: state.isLoading ? null : _onSave,
+                            onPressed: isLoading ? null : _onSave,
                           ),
                         ),
                         if (state.isEditing) ...[
@@ -189,7 +199,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                             child: GasosaButton(
                               label: 'Excluir',
                               variant: GasosaButtonVariant.danger,
-                              onPressed: state.isLoading ? null : _onDelete,
+                                onPressed: isLoading ? null : _onDelete,
                             ),
                           ),
                         ],

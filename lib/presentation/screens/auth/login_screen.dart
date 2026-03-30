@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/di/injection.dart';
+import 'package:gasosa_app/core/presentation/ui_state.dart';
 import 'package:gasosa_app/core/validators/user_validators.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/screens/auth/viewmodel/login_viewmodel.dart';
@@ -35,42 +36,41 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleGoogleSignIn() async {
-    if (_viewModel.state.isLoading) return;
+    if (_viewModel.googleCommand.state.value is UiLoading) return;
 
-    final ok = await _viewModel.googleSignIn();
+    final result = await _viewModel.googleSignIn();
     if (!mounted) return;
-    if (ok) {
-      final email = FirebaseAuth.instance.currentUser?.email ?? '';
-      context.go(RoutePaths.dashboard, extra: {'email': email});
-    } else {
-      final message = _viewModel.state.errorMessage ?? 'Erro desconhecido';
-      Messages.showWarning(context, message);
-    }
+    result?.fold(
+      (failure) => Messages.showWarning(context, failure.message),
+      (_) {
+        final email = FirebaseAuth.instance.currentUser?.email ?? '';
+        context.go(RoutePaths.dashboard, extra: {'email': email});
+      },
+    );
   }
 
   Future<void> _handleLoginWithEmailPassword() async {
-    if (_viewModel.state.isLoading) return;
+    if (_viewModel.loginCommand.state.value is UiLoading) return;
     if (!_formKey.currentState!.validate()) return;
 
-    final ok = await _viewModel.loginWithEmailPassword();
-
+    final result = await _viewModel.loginWithEmailPassword();
     if (!mounted) return;
-
-    if (ok) {
-      final email = FirebaseAuth.instance.currentUser?.email ?? '';
-      context.go(RoutePaths.dashboard, extra: {'email': email});
-    } else {
-      final message = _viewModel.state.errorMessage ?? 'Erro desconhecido';
-      Messages.showError(context, message);
-    }
+    result?.fold(
+      (failure) => Messages.showError(context, failure.message),
+      (_) {
+        final email = FirebaseAuth.instance.currentUser?.email ?? '';
+        context.go(RoutePaths.dashboard, extra: {'email': email});
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _viewModel,
+    return ListenableBuilder(
+      listenable: Listenable.merge([_viewModel.googleCommand.state, _viewModel.loginCommand.state]),
       builder: (_, _) {
-        final state = _viewModel.state;
+        final isLoading =
+            _viewModel.googleCommand.state.value is UiLoading || _viewModel.loginCommand.state.value is UiLoading;
         return Scaffold(
           body: SafeArea(
             child: Center(
@@ -84,8 +84,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       const LogoHero(size: 200),
                       Text('Entrar no Gasosa', style: AppTypography.titleLg),
                       AuthGoogleButton(
-                        onPressed: state.isLoading ? null : () => _handleGoogleSignIn(),
-                        isLoading: state.isLoading,
+                        onPressed: isLoading ? null : () => _handleGoogleSignIn(),
+                        isLoading: isLoading,
                       ),
                       _buildDivider(),
                       Form(
@@ -108,8 +108,8 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             GasosaButton(
                               label: 'Entrar',
-                              isDisabled: state.isLoading,
-                              onPressed: state.isLoading ? null : () => _handleLoginWithEmailPassword(),
+                              isDisabled: isLoading,
+                              onPressed: isLoading ? null : () => _handleLoginWithEmailPassword(),
                             ),
                           ],
                         ),

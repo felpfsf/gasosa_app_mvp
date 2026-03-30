@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:gasosa_app/core/di/injection.dart';
-import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
 import 'package:gasosa_app/presentation/routes/app_router.dart';
-import 'package:gasosa_app/presentation/widgets/global_loader_overlay.dart';
 import 'package:gasosa_app/theme/app_theme.dart';
 
 class GasosaApp extends StatelessWidget {
@@ -11,7 +8,6 @@ class GasosaApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final loading = getIt<LoadingController>();
     return MaterialApp.router(
       title: 'Gasosa',
       theme: AppTheme.dark,
@@ -25,10 +21,6 @@ class GasosaApp extends StatelessWidget {
       supportedLocales: const [
         Locale('pt', 'BR'),
       ],
-      builder: (context, child) => GlobalLoaderOverlay(
-        controller: loading,
-        child: child,
-      ),
     );
   }
 }

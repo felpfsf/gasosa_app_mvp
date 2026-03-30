@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/di/injection.dart';
+import 'package:gasosa_app/core/presentation/ui_state.dart';
 import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/screens/dashboard/widgets/show_delete_vehicle_confirm_dialog.dart';
@@ -65,10 +66,10 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
   Future<void> _deleteVehicle() async {
     final confirmed = await showDeleteVehicleConfirmDialog(
       context,
-      vehicleName: _viewModel.state.vehicle?.name,
+      vehicleName: _viewModel.vehicle.value?.name,
     );
     if (confirmed) {
-      _viewModel.deleteVehicle();
+      await _viewModel.deleteVehicle(widget.vehicleId);
       if (mounted) context.pop(true);
     }
   }
@@ -106,14 +107,16 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
         showBackButton: true,
       ),
       // floatingActionButton: _buildFloatingActionButton(),
-      body: AnimatedBuilder(
-        animation: _viewModel,
+      body: ListenableBuilder(
+        listenable: Listenable.merge([
+          _viewModel.loadCommand.state,
+          _viewModel.vehicle,
+          _viewModel.refuels,
+        ]),
         builder: (_, _) {
-          final state = _viewModel.state;
-          final error = state.errorMessage;
-          final loading = state.isLoading;
+          final loadState = _viewModel.loadCommand.state.value;
 
-          if (loading) {
+          if (loadState is UiLoading || loadState is UiInitial) {
             return ColoredBox(
               color: AppColors.background.withValues(alpha: 0.8),
               child: Center(
@@ -122,12 +125,12 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
             );
           }
 
-          if (error != null) {
+          if (loadState is UiError) {
             return Padding(
               padding: AppSpacing.paddingMd,
               child: Center(
                 child: Text(
-                  error,
+                  loadState.message,
                   style: AppTypography.textMdBold.copyWith(color: AppColors.error),
                   textAlign: TextAlign.center,
                 ),
@@ -135,7 +138,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
             );
           }
 
-          final vehicle = state.vehicle!;
+          final vehicle = _viewModel.vehicle.value!;
           final plate = (vehicle.plate ?? '').toUpperCase();
           final cap = vehicle.tankCapacity?.toStringAsFixed(0) ?? 'N/A';
           final subtitle = [
@@ -144,7 +147,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
           ].join(' • ');
           final fuelType = vehicle.fuelType.displayName;
 
-          final refuels = state.refuels!;
+          final refuels = _viewModel.refuels.value;
 
           return Column(
             children: [

@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/di/injection.dart';
+import 'package:gasosa_app/core/presentation/ui_state.dart';
+import 'package:gasosa_app/domain/entities/vehicle.dart';
 import 'package:gasosa_app/domain/services/auth_service.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/screens/dashboard/viewmodel/dashboard_viewmodel.dart';
@@ -66,10 +68,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
           ),
         ],
       ),
-      floatingActionButton: AnimatedBuilder(
-        animation: _viewModel,
-        builder: (_, _) {
-          final hasVehicles = _viewModel.state.vehicles.isNotEmpty;
+      floatingActionButton: ValueListenableBuilder<UiState<List<VehicleEntity>>>(
+        valueListenable: _viewModel.watchVehicles.state,
+        builder: (_, uiState, _) {
+          final hasVehicles = uiState is UiData<List<VehicleEntity>> && uiState.data.isNotEmpty;
           return hasVehicles
               ? FloatingActionButton.extended(
                   onPressed: _goToCreateVehicle,
@@ -82,13 +84,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
               : const SizedBox.shrink();
         },
       ),
-      body: AnimatedBuilder(
-        animation: _viewModel,
-        builder: (_, _) {
-          final state = _viewModel.state;
-          final iVehicleListEmpty = state.vehicles.isEmpty;
-
-          if (state.isLoading) {
+      body: ValueListenableBuilder<UiState<List<VehicleEntity>>>(
+        valueListenable: _viewModel.watchVehicles.state,
+        builder: (_, uiState, _) {
+          if (uiState is UiInitial || uiState is UiLoading) {
             return ColoredBox(
               color: AppColors.background.withValues(alpha: 0.8),
               child: Center(
@@ -97,14 +96,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
             );
           }
 
-          if (state.errorMessage != null) {
+          if (uiState is UiError<List<VehicleEntity>>) {
             return GasosaErrorStateWidget(
-              errorMessage: state.errorMessage!,
+              errorMessage: uiState.message,
               onPressed: _viewModel.retry,
             );
           }
 
-          if (iVehicleListEmpty) {
+          final vehicles = (uiState as UiData<List<VehicleEntity>>).data;
+
+          if (vehicles.isEmpty) {
             return GasosaEmptyStateWidget(
               title: 'Nenhum veículo cadastrado',
               message: 'Cadastre seu primeiro veículo para começar a usar o app.',
@@ -115,10 +116,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
           return ListView.separated(
             padding: AppSpacing.paddingMd,
-            itemCount: state.vehicles.length,
+            itemCount: vehicles.length,
             separatorBuilder: (_, _) => AppSpacing.gap16,
             itemBuilder: (_, index) {
-              final vehicle = state.vehicles[index];
+              final vehicle = vehicles[index];
               return VehicleCard(
                 vehicle: vehicle,
                 onTap: () async {
@@ -127,13 +128,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     _viewModel.init();
                   }
                 },
-                // onEdit: () => context.push(RoutePaths.vehicleManageEdit(vehicle.id)),
-                // onDelete: () async {
-                //   final confirmed = await showDeleteVehicleConfirmDialog(context, vehicleName: vehicle.name);
-                //   if (confirmed) {
-                //     _viewModel.deleteVehicle(vehicle.id);
-                //   }
-                // },
               );
             },
           );

@@ -1,141 +1,57 @@
 import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:gasosa_app/application/commands/vehicles/delete_vehicle_command.dart';
-import 'package:gasosa_app/application/commands/vehicles/load_vehicles_command.dart';
-import 'package:gasosa_app/core/either/either.dart';
+import 'package:gasosa_app/application/vehicles/delete_vehicle_use_case.dart';
+import 'package:gasosa_app/application/vehicles/load_vehicles_use_case.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
-import 'package:gasosa_app/core/viewmodel/base_viewmodel.dart';
-import 'package:gasosa_app/core/viewmodel/loading_controller.dart';
+import 'package:gasosa_app/core/presentation/command.dart';
+import 'package:gasosa_app/core/presentation/stream_command.dart';
+import 'package:gasosa_app/core/presentation/ui_state.dart';
 import 'package:gasosa_app/domain/entities/vehicle.dart';
 import 'package:injectable/injectable.dart';
 
-class DashboardState {
-  DashboardState({
-    this.isLoading = false,
-    this.errorMessage,
-    this.vehicles = const [],
-  });
-
-  final bool isLoading;
-  final String? errorMessage;
-  final List<VehicleEntity> vehicles;
-
-  DashboardState copyWith({
-    bool? isLoading,
-    String? errorMessage,
-    bool clearError = false,
-    List<VehicleEntity>? vehicles,
-  }) => DashboardState(
-    isLoading: isLoading ?? this.isLoading,
-    errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
-    vehicles: vehicles ?? this.vehicles,
-  );
-}
-
 @injectable
-class DashboardViewModel extends BaseViewModel {
-  DashboardViewModel({
-    required LoadVehiclesCommand loadVehicles,
-    required LoadingController loading,
-    required DeleteVehicleCommand deleteVehicle,
-  }) : _loadVehicles = loadVehicles,
-       _deleteVehicle = deleteVehicle,
-       super(loading);
+class DashboardViewModel {
+  DashboardViewModel(
+    this._loadVehicles,
+    this._deleteVehicle,
+  ) : watchVehicles = StreamCommand<List<VehicleEntity>>(),
+      deleteCommand = Command<void>();
 
-  final LoadVehiclesCommand _loadVehicles;
-  final DeleteVehicleCommand _deleteVehicle;
+  final LoadVehiclesUseCase _loadVehicles;
+  final DeleteVehicleUseCase _deleteVehicle;
 
-  DashboardState _state = DashboardState();
-  DashboardState get state => _state;
+  final StreamCommand<List<VehicleEntity>> watchVehicles;
+  final Command<void> deleteCommand;
 
-  StreamSubscription<Either<Failure, List<VehicleEntity>>>? _sub;
-  bool _awaitingFirstEmission = false;
-  bool _initialized = false;
-
-  Future<void> init() async {
-    // Evita múltiplas inicializações
-    if (_initialized) {
-      return;
-    }
-    _initialized = true;
-
+  void init() {
     final uid = FirebaseAuth.instance.currentUser?.uid;
-
     if (uid == null || uid.isEmpty) {
-      _setError('Usuário não autenticado');
+      watchVehicles.state.value = const UiError(ValidationFailure('Usuário não autenticado'));
       return;
     }
-    _awaitingFirstEmission = true;
-    setViewLoading(value: true);
 
-    // TODO(felipe): delaying for testing purpose
-    await Future.delayed(const Duration(milliseconds: 300));
-
-    _sub = _loadVehicles
-        .watchAllByUserId(uid)
-        .listen(
-          (either) {
-            if (_awaitingFirstEmission) {
-              _awaitingFirstEmission = false;
-              setViewLoading();
-            }
-            either.fold(
-              (failure) {
-                _setError('Erro ao carregar veículos: ${failure.message}');
-              },
-              (vehicles) {
-                _state = _state.copyWith(
-                  isLoading: false,
-                  clearError: true,
-                  vehicles: vehicles,
-                );
-                notifyListeners();
-              },
-            );
-          },
-          onError: (err, stack) {
-            if (_awaitingFirstEmission) {
-              _awaitingFirstEmission = false;
-              setViewLoading();
-            }
-            _setError('Erro ao carregar veículos $err: $stack');
-          },
-        );
-  }
-
-  Future<void> deleteVehicle(String vehicleId) async {
-    final response = await track(() => _deleteVehicle.call(vehicleId));
-    response.fold(
-      (failure) => _setError(failure.message),
-      (_) => {},
+    watchVehicles.watch(
+      () => _loadVehicles
+          .watchAllByUserId(uid)
+          .transform(
+            StreamTransformer.fromHandlers(
+              handleData: (either, sink) => either.fold(
+                (f) => sink.addError(f),
+                (v) => sink.add(v),
+              ),
+            ),
+          ),
+      keepLastData: true,
     );
   }
 
-  @override
-  void setViewLoading({bool value = false}) {
-    _state = _state.copyWith(isLoading: value);
-    notifyListeners();
-  }
+  Future<void> deleteVehicle(String vehicleId) => deleteCommand.run(() => _deleteVehicle(vehicleId));
 
-  void _setError(String message) {
-    _state = _state.copyWith(
-      isLoading: false,
-      errorMessage: message.isEmpty ? 'Erro inesperado' : message,
-    );
-    notifyListeners();
-  }
+  void retry() => init();
 
-  Future<void> retry() async {
-    await _sub?.cancel();
-    _sub = null;
-    _initialized = false;
-    await init();
-  }
-
-  @override
   void dispose() {
-    _sub?.cancel();
-    super.dispose();
+    watchVehicles.dispose();
+    deleteCommand.dispose();
   }
 }

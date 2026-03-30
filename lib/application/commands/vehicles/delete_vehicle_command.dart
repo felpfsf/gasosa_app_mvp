@@ -1,7 +1,9 @@
 import 'package:dartz/dartz.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/domain/repositories/vehicle_repository.dart';
+import 'package:injectable/injectable.dart';
 
+@injectable
 class DeleteVehicleCommand {
   DeleteVehicleCommand({required VehicleRepository repository}) : _repository = repository;
 

@@ -71,13 +71,13 @@ class VehicleDetailViewModel extends BaseViewModel {
       await Future.delayed(const Duration(milliseconds: 500));
       vehicleResponse.fold(
         (failure) {
-          _setError(const BusinessFailure('Erro ao carregar veículo'));
+          _setError(const ValidationFailure('Erro ao carregar veículo'));
         },
         (vehicle) {
           _state = _state.copyWith(vehicle: vehicle);
           refuelsResponse.fold(
             (failure) {
-              _setError(const BusinessFailure('Erro ao carregar abastecimentos'));
+              _setError(const ValidationFailure('Erro ao carregar abastecimentos'));
               _state = _state.copyWith(refuels: []);
             },
             (refuels) {
@@ -89,7 +89,7 @@ class VehicleDetailViewModel extends BaseViewModel {
         },
       );
     } catch (e) {
-      _setError(const BusinessFailure('Erro inesperado ao carregar detalhes do veículo'));
+      _setError(const ValidationFailure('Erro inesperado ao carregar detalhes do veículo'));
     } finally {
       setViewLoading();
     }

@@ -190,7 +190,7 @@ class ManageRefuelViewmodel extends BaseViewModel {
         _setFailure,
         (refuel) async {
           if (refuel == null) {
-            _setFailure(const BusinessFailure('Abastecimento não encontrado'));
+            _setFailure(const ValidationFailure('Abastecimento não encontrado'));
             return;
           }
 
@@ -219,7 +219,7 @@ class ManageRefuelViewmodel extends BaseViewModel {
     } else if (vehicleId != null && vehicleId.isNotEmpty) {
       await initWithVehicle(vehicleId);
     } else {
-      _setFailure(const BusinessFailure('ID do veículo é obrigatório para novo abastecimento.'));
+      _setFailure(const ValidationFailure('ID do veículo é obrigatório para novo abastecimento.'));
     }
   }
 
@@ -358,7 +358,7 @@ class ManageRefuelViewmodel extends BaseViewModel {
 
   Future<Either<Failure, Unit>> delete() async {
     if (!state.isEditing || state.initial == null) {
-      const failure = BusinessFailure('Não é possível excluir um abastecimento que não foi salvo.');
+      const failure = ValidationFailure('Não é possível excluir um abastecimento que não foi salvo.');
       _setFailure(failure);
       return left(failure);
     }

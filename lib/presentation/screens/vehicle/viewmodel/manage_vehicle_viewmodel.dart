@@ -109,7 +109,7 @@ class ManageVehicleViewModel extends BaseViewModel {
         _setFailure,
         (vehicle) {
           if (vehicle == null) {
-            _setFailure(const BusinessFailure('Veículo não encontrado'));
+            _setFailure(const ValidationFailure('Veículo não encontrado'));
             return;
           }
           _state = _state.copyWith(
@@ -176,7 +176,7 @@ class ManageVehicleViewModel extends BaseViewModel {
 
   Future<Either<Failure, Unit>> delete() async {
     if (!state.isEdit || state.initial == null) {
-      const failure = BusinessFailure('Não é possível deletar um veículo que não foi salvo.');
+      const failure = ValidationFailure('Não é possível deletar um veículo que não foi salvo.');
       _setFailure(failure);
       return left(failure);
     }

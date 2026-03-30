@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:injectable/injectable.dart';
 
+@lazySingleton
 class LoadingController extends ChangeNotifier {
   bool _visible = false;
   bool get visible => _visible;

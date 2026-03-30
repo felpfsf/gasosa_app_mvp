@@ -1,8 +1,10 @@
 import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/domain/entities/vehicle.dart';
+import 'package:injectable/injectable.dart';
 
 /// Domain service that encapsulates refuel business rules.
 /// These rules are pure domain logic and don't depend on infrastructure.
+@lazySingleton
 class RefuelBusinessRules {
   const RefuelBusinessRules();
 

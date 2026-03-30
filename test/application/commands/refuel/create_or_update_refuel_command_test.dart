@@ -52,7 +52,7 @@ void main() {
     test('deve retornar Left(DatabaseFailure) quando repository falhar', () async {
       // Arrange
       final refuel = RefuelFactory.createNew();
-      const failure = DatabaseFailure('Erro ao salvar reabastecimento');
+      const failure = DatabaseFailure('Erro ao salvar reabastecimento', null, null);
       when(() => mockRepository.upsertRefuel(any())).thenAnswer((_) async => left(failure));
 
       // Act

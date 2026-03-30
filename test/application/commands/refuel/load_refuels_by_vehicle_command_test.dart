@@ -56,7 +56,7 @@ void main() {
     test('deve propagar falha do repository', () async {
       // Arrange
       const vehicleId = 'vehicle-error';
-      const failure = DatabaseFailure('Erro ao buscar reabastecimentos');
+      const failure = DatabaseFailure('Erro ao buscar reabastecimentos', null, null);
       when(() => mockRepository.watchAllByVehicleId(any())).thenAnswer(
         (_) => Stream.value(left(failure)),
       );

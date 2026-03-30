@@ -62,7 +62,7 @@ void main() {
       test('deve retornar Left(DatabaseFailure) quando repository falhar', () async {
         // Arrange
         const vehicleId = 'vehicle-999';
-        const failure = DatabaseFailure('Erro ao deletar veículo');
+        const failure = DatabaseFailure('Erro ao deletar veículo', null, null);
         when(() => mockRepository.deleteVehicle(any())).thenAnswer((_) async => left(failure));
 
         // Act
@@ -77,7 +77,7 @@ void main() {
       test('deve retornar Left(NotFoundFailure) quando veículo não existe', () async {
         // Arrange
         const vehicleId = 'nonexistent-id';
-        const failure = NotFoundFailure('Veículo não encontrado');
+        const failure = UnexpectedFailure('Veículo não encontrado', null, null);
         when(() => mockRepository.deleteVehicle(any())).thenAnswer((_) async => left(failure));
 
         // Act
@@ -85,14 +85,14 @@ void main() {
 
         // Assert
         expect(result, isLeft());
-        expect(result, isLeftWith<NotFoundFailure>());
+        expect(result, isLeftWith<UnexpectedFailure>());
         expect(leftFailure(result).message, 'Veículo não encontrado');
       });
 
       test('deve retornar Left(BusinessFailure) quando regra de negócio impedir', () async {
         // Arrange
         const vehicleId = 'vehicle-with-refuels';
-        const failure = BusinessFailure('Não é possível deletar veículo com abastecimentos');
+        const failure = ValidationFailure('Não é possível deletar veículo com abastecimentos');
         when(() => mockRepository.deleteVehicle(any())).thenAnswer((_) async => left(failure));
 
         // Act
@@ -100,7 +100,7 @@ void main() {
 
         // Assert
         expect(result, isLeft());
-        expect(result, isLeftWith<BusinessFailure>());
+        expect(result, isLeftWith<ValidationFailure>());
         expect(leftFailure(result).message, 'Não é possível deletar veículo com abastecimentos');
       });
     });

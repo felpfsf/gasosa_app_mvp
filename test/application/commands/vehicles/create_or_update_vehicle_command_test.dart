@@ -54,7 +54,7 @@ void main() {
       test('deve retornar Left(DatabaseFailure) quando criar falhar', () async {
         // Arrange
         final newVehicle = VehicleFactory.createNew();
-        const failure = DatabaseFailure('Erro ao salvar veículo');
+        const failure = DatabaseFailure('Erro ao salvar veículo', null, null);
         when(() => mockRepository.createVehicle(any())).thenAnswer((_) async => left(failure));
 
         // Act
@@ -126,7 +126,7 @@ void main() {
       test('deve retornar Left(DatabaseFailure) quando atualizar falhar', () async {
         // Arrange
         final existingVehicle = VehicleFactory.create();
-        const failure = DatabaseFailure('Erro ao atualizar veículo');
+        const failure = DatabaseFailure('Erro ao atualizar veículo', null, null);
         when(() => mockRepository.updateVehicle(any())).thenAnswer((_) async => left(failure));
 
         // Act

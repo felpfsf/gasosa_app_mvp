@@ -46,7 +46,7 @@ void main() {
     test('deve retornar Left(NotFoundFailure) quando não encontrado', () async {
       // Arrange
       const refuelId = 'refuel-missing';
-      const failure = NotFoundFailure('Abastecimento não encontrado');
+      const failure = UnexpectedFailure('Abastecimento não encontrado', null, null);
       when(() => mockRepository.deleteRefuel(any())).thenAnswer((_) async => left(failure));
 
       // Act
@@ -54,14 +54,14 @@ void main() {
 
       // Assert
       expect(result, isLeft());
-      expect(result, isLeftWith<NotFoundFailure>());
+      expect(result, isLeftWith<UnexpectedFailure>());
       expect(leftFailure(result).message, 'Abastecimento não encontrado');
     });
 
     test('deve retornar Left(DatabaseFailure) quando repository falhar', () async {
       // Arrange
       const refuelId = 'refuel-error';
-      const failure = DatabaseFailure('Erro ao deletar reabastecimento');
+      const failure = DatabaseFailure('Erro ao deletar reabastecimento', null, null);
       when(() => mockRepository.deleteRefuel(any())).thenAnswer((_) async => left(failure));
 
       // Act

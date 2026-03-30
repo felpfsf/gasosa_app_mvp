@@ -97,7 +97,7 @@ void main() {
       const vehicleId = 'vehicle-error';
       final createdAt = DateTime(2026, 2, 10);
       const mileage = 65000;
-      const failure = DatabaseFailure('Erro ao buscar reabastecimento anterior');
+      const failure = DatabaseFailure('Erro ao buscar reabastecimento anterior', null, null);
       when(
         () => mockRepository.getPreviousByVehicleId(
           vehicleId,

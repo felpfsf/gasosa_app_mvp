@@ -102,7 +102,7 @@ void main() {
         // Arrange
         when(
           () => mockAuthService.register('', testEmail, testPassword),
-        ).thenAnswer((_) async => left(const BusinessFailure('Nome não pode ser vazio')));
+        ).thenAnswer((_) async => left(const ValidationFailure('Nome não pode ser vazio')));
 
         // Act
         final result = await command(name: '', email: testEmail, password: testPassword);
@@ -111,7 +111,7 @@ void main() {
         expect(result, isA<Left<Failure, AuthUser>>());
         result.fold(
           (failure) {
-            expect(failure, isA<BusinessFailure>());
+            expect(failure, isA<ValidationFailure>());
             expect(failure.message, 'Nome não pode ser vazio');
           },
           (user) => fail('Não deveria retornar sucesso'),
@@ -122,7 +122,7 @@ void main() {
         // Arrange
         when(
           () => mockAuthService.register(testName, '', testPassword),
-        ).thenAnswer((_) async => left(const BusinessFailure('Email não pode ser vazio')));
+        ).thenAnswer((_) async => left(const ValidationFailure('Email não pode ser vazio')));
 
         // Act
         final result = await command(name: testName, email: '', password: testPassword);
@@ -130,7 +130,7 @@ void main() {
         // Assert
         result.fold(
           (failure) {
-            expect(failure, isA<BusinessFailure>());
+            expect(failure, isA<ValidationFailure>());
             expect(failure.message, 'Email não pode ser vazio');
           },
           (user) => fail('Não deveria retornar sucesso'),
@@ -141,7 +141,7 @@ void main() {
         // Arrange
         when(
           () => mockAuthService.register(testName, testEmail, ''),
-        ).thenAnswer((_) async => left(const BusinessFailure('Senha não pode ser vazia')));
+        ).thenAnswer((_) async => left(const ValidationFailure('Senha não pode ser vazia')));
 
         // Act
         final result = await command(name: testName, email: testEmail, password: '');
@@ -149,7 +149,7 @@ void main() {
         // Assert
         result.fold(
           (failure) {
-            expect(failure, isA<BusinessFailure>());
+            expect(failure, isA<ValidationFailure>());
             expect(failure.message, 'Senha não pode ser vazia');
           },
           (user) => fail('Não deveria retornar sucesso'),
@@ -161,7 +161,7 @@ void main() {
         const invalidEmail = 'invalid-email-format';
         when(
           () => mockAuthService.register(testName, invalidEmail, testPassword),
-        ).thenAnswer((_) async => left(const BusinessFailure('Email inválido')));
+        ).thenAnswer((_) async => left(const ValidationFailure('Email inválido')));
 
         // Act
         final result = await command(name: testName, email: invalidEmail, password: testPassword);
@@ -169,7 +169,7 @@ void main() {
         // Assert
         result.fold(
           (failure) {
-            expect(failure, isA<BusinessFailure>());
+            expect(failure, isA<ValidationFailure>());
             expect(failure.message, 'Email inválido');
           },
           (user) => fail('Não deveria retornar sucesso'),
@@ -181,7 +181,7 @@ void main() {
         const weakPassword = '123';
         when(
           () => mockAuthService.register(testName, testEmail, weakPassword),
-        ).thenAnswer((_) async => left(const BusinessFailure('Senha muito fraca')));
+        ).thenAnswer((_) async => left(const ValidationFailure('Senha muito fraca')));
 
         // Act
         final result = await command(name: testName, email: testEmail, password: weakPassword);
@@ -189,7 +189,7 @@ void main() {
         // Assert
         result.fold(
           (failure) {
-            expect(failure, isA<BusinessFailure>());
+            expect(failure, isA<ValidationFailure>());
             expect(failure.message, 'Senha muito fraca');
           },
           (user) => fail('Não deveria retornar sucesso'),
@@ -201,7 +201,7 @@ void main() {
         const shortPassword = '12345';
         when(
           () => mockAuthService.register(testName, testEmail, shortPassword),
-        ).thenAnswer((_) async => left(const BusinessFailure('Senha deve ter no mínimo 6 caracteres')));
+        ).thenAnswer((_) async => left(const ValidationFailure('Senha deve ter no mínimo 6 caracteres')));
 
         // Act
         final result = await command(name: testName, email: testEmail, password: shortPassword);
@@ -218,7 +218,7 @@ void main() {
         const shortName = 'A';
         when(
           () => mockAuthService.register(shortName, testEmail, testPassword),
-        ).thenAnswer((_) async => left(const BusinessFailure('Nome muito curto')));
+        ).thenAnswer((_) async => left(const ValidationFailure('Nome muito curto')));
 
         // Act
         final result = await command(name: shortName, email: testEmail, password: testPassword);
@@ -236,7 +236,7 @@ void main() {
         // Arrange
         when(
           () => mockAuthService.register(testName, testEmail, testPassword),
-        ).thenAnswer((_) async => left(const AuthFailure('Email já cadastrado')));
+        ).thenAnswer((_) async => left(const UnexpectedFailure('Email já cadastrado', null, null)));
 
         // Act
         final result = await command(name: testName, email: testEmail, password: testPassword);
@@ -245,7 +245,7 @@ void main() {
         expect(result, isA<Left<Failure, AuthUser>>());
         result.fold(
           (failure) {
-            expect(failure, isA<AuthFailure>());
+            expect(failure, isA<UnexpectedFailure>());
             expect(failure.message, 'Email já cadastrado');
           },
           (user) => fail('Não deveria retornar sucesso'),
@@ -257,7 +257,7 @@ void main() {
         const blockedEmail = 'user@blocked-domain.com';
         when(
           () => mockAuthService.register(testName, blockedEmail, testPassword),
-        ).thenAnswer((_) async => left(const AuthFailure('Domínio de email não autorizado')));
+        ).thenAnswer((_) async => left(const UnexpectedFailure('Domínio de email não autorizado', null, null)));
 
         // Act
         final result = await command(name: testName, email: blockedEmail, password: testPassword);
@@ -273,7 +273,9 @@ void main() {
         // Arrange
         when(
           () => mockAuthService.register(testName, testEmail, testPassword),
-        ).thenAnswer((_) async => left(const AuthFailure('Muitas tentativas, tente novamente mais tarde')));
+        ).thenAnswer(
+          (_) async => left(const UnexpectedFailure('Muitas tentativas, tente novamente mais tarde', null, null)),
+        );
 
         // Act
         final result = await command(name: testName, email: testEmail, password: testPassword);
@@ -291,7 +293,7 @@ void main() {
         // Arrange
         when(
           () => mockAuthService.register(testName, testEmail, testPassword),
-        ).thenAnswer((_) async => left(const AuthFailure('Sem conexão com a internet')));
+        ).thenAnswer((_) async => left(const UnexpectedFailure('Sem conexão com a internet', null, null)));
 
         // Act
         final result = await command(name: testName, email: testEmail, password: testPassword);
@@ -300,7 +302,7 @@ void main() {
         expect(result, isA<Left<Failure, AuthUser>>());
         result.fold(
           (failure) {
-            expect(failure, isA<AuthFailure>());
+            expect(failure, isA<UnexpectedFailure>());
             expect(failure.message, 'Sem conexão com a internet');
           },
           (user) => fail('Não deveria retornar sucesso'),
@@ -311,7 +313,7 @@ void main() {
         // Arrange
         when(
           () => mockAuthService.register(testName, testEmail, testPassword),
-        ).thenAnswer((_) async => left(const AuthFailure('Timeout na requisição')));
+        ).thenAnswer((_) async => left(const UnexpectedFailure('Timeout na requisição', null, null)));
 
         // Act
         final result = await command(name: testName, email: testEmail, password: testPassword);
@@ -319,7 +321,7 @@ void main() {
         // Assert
         result.fold(
           (failure) {
-            expect(failure, isA<AuthFailure>());
+            expect(failure, isA<UnexpectedFailure>());
             expect(failure.message, 'Timeout na requisição');
           },
           (user) => fail('Não deveria retornar sucesso'),
@@ -330,7 +332,7 @@ void main() {
         // Arrange
         when(
           () => mockAuthService.register(testName, testEmail, testPassword),
-        ).thenAnswer((_) async => left(const AuthFailure('Erro inesperado no registro')));
+        ).thenAnswer((_) async => left(const UnexpectedFailure('Erro inesperado no registro', null, null)));
 
         // Act
         final result = await command(name: testName, email: testEmail, password: testPassword);
@@ -338,7 +340,7 @@ void main() {
         // Assert
         result.fold(
           (failure) {
-            expect(failure, isA<AuthFailure>());
+            expect(failure, isA<UnexpectedFailure>());
             expect(failure.message, 'Erro inesperado no registro');
           },
           (user) => fail('Não deveria retornar sucesso'),
@@ -387,7 +389,7 @@ void main() {
         // Arrange
         when(
           () => mockAuthService.register('  $testName  ', '  $testEmail  ', '  $testPassword  '),
-        ).thenAnswer((_) async => left(const BusinessFailure('Campos com espaços em branco')));
+        ).thenAnswer((_) async => left(const ValidationFailure('Campos com espaços em branco')));
 
         // Act
         final result = await command(
@@ -398,7 +400,7 @@ void main() {
 
         // Assert
         result.fold(
-          (failure) => expect(failure, isA<BusinessFailure>()),
+          (failure) => expect(failure, isA<ValidationFailure>()),
           (user) => fail('Não deveria retornar sucesso'),
         );
       });

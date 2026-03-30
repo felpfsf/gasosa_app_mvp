@@ -61,11 +61,11 @@ void main() {
     });
 
     group('Falhas de Validação', () {
-      test('deve retornar Left com BusinessFailure quando email vazio', () async {
+      test('deve retornar Left com ValidationFailure quando email vazio', () async {
         // Arrange
         when(
           () => mockAuthService.loginWithEmail('', testPassword),
-        ).thenAnswer((_) async => left(const BusinessFailure('Email não pode ser vazio')));
+        ).thenAnswer((_) async => left(const ValidationFailure('Email não pode ser vazio')));
 
         // Act
         final result = await command(email: '', password: testPassword);
@@ -74,7 +74,7 @@ void main() {
         expect(result, isA<Left<Failure, AuthUser>>());
         result.fold(
           (failure) {
-            expect(failure, isA<BusinessFailure>());
+            expect(failure, isA<ValidationFailure>());
             expect(failure.message, 'Email não pode ser vazio');
           },
           (user) => fail('Não deveria retornar sucesso'),
@@ -82,11 +82,11 @@ void main() {
         verify(() => mockAuthService.loginWithEmail('', testPassword)).called(1);
       });
 
-      test('deve retornar Left com BusinessFailure quando password vazio', () async {
+      test('deve retornar Left com ValidationFailure quando password vazio', () async {
         // Arrange
         when(
           () => mockAuthService.loginWithEmail(testEmail, ''),
-        ).thenAnswer((_) async => left(const BusinessFailure('Senha não pode ser vazia')));
+        ).thenAnswer((_) async => left(const ValidationFailure('Senha não pode ser vazia')));
 
         // Act
         final result = await command(email: testEmail, password: '');
@@ -95,19 +95,19 @@ void main() {
         expect(result, isA<Left<Failure, AuthUser>>());
         result.fold(
           (failure) {
-            expect(failure, isA<BusinessFailure>());
+            expect(failure, isA<ValidationFailure>());
             expect(failure.message, 'Senha não pode ser vazia');
           },
           (user) => fail('Não deveria retornar sucesso'),
         );
       });
 
-      test('deve retornar Left com BusinessFailure quando email inválido', () async {
+      test('deve retornar Left com ValidationFailure quando email inválido', () async {
         // Arrange
         const invalidEmail = 'invalid-email';
         when(
           () => mockAuthService.loginWithEmail(invalidEmail, testPassword),
-        ).thenAnswer((_) async => left(const BusinessFailure('Email inválido')));
+        ).thenAnswer((_) async => left(const ValidationFailure('Email inválido')));
 
         // Act
         final result = await command(email: invalidEmail, password: testPassword);
@@ -115,7 +115,7 @@ void main() {
         // Assert
         result.fold(
           (failure) {
-            expect(failure, isA<BusinessFailure>());
+            expect(failure, isA<ValidationFailure>());
             expect(failure.message, 'Email inválido');
           },
           (user) => fail('Não deveria retornar sucesso'),
@@ -124,11 +124,11 @@ void main() {
     });
 
     group('Falhas de Autenticação', () {
-      test('deve retornar Left com AuthFailure quando credenciais inválidas', () async {
+      test('deve retornar Left com UnexpectedFailure quando credenciais inválidas', () async {
         // Arrange
         when(
           () => mockAuthService.loginWithEmail(testEmail, 'wrong-password'),
-        ).thenAnswer((_) async => left(const AuthFailure('Credenciais inválidas')));
+        ).thenAnswer((_) async => left(const UnexpectedFailure('Credenciais inválidas', null, null)));
 
         // Act
         final result = await command(email: testEmail, password: 'wrong-password');
@@ -137,18 +137,18 @@ void main() {
         expect(result, isA<Left<Failure, AuthUser>>());
         result.fold(
           (failure) {
-            expect(failure, isA<AuthFailure>());
+            expect(failure, isA<UnexpectedFailure>());
             expect(failure.message, 'Credenciais inválidas');
           },
           (user) => fail('Não deveria retornar sucesso'),
         );
       });
 
-      test('deve retornar Left com AuthFailure quando usuário não existe', () async {
+      test('deve retornar Left com UnexpectedFailure quando usuário não existe', () async {
         // Arrange
         when(
           () => mockAuthService.loginWithEmail('nonexistent@test.com', testPassword),
-        ).thenAnswer((_) async => left(const AuthFailure('Usuário não encontrado')));
+        ).thenAnswer((_) async => left(const UnexpectedFailure('Usuário não encontrado', null, null)));
 
         // Act
         final result = await command(email: 'nonexistent@test.com', password: testPassword);
@@ -156,18 +156,18 @@ void main() {
         // Assert
         result.fold(
           (failure) {
-            expect(failure, isA<AuthFailure>());
+            expect(failure, isA<UnexpectedFailure>());
             expect(failure.message, 'Usuário não encontrado');
           },
           (user) => fail('Não deveria retornar sucesso'),
         );
       });
 
-      test('deve retornar Left com AuthFailure quando email não verificado', () async {
+      test('deve retornar Left com UnexpectedFailure quando email não verificado', () async {
         // Arrange
         when(
           () => mockAuthService.loginWithEmail(testEmail, testPassword),
-        ).thenAnswer((_) async => left(const AuthFailure('Email não verificado')));
+        ).thenAnswer((_) async => left(const UnexpectedFailure('Email não verificado', null, null)));
 
         // Act
         final result = await command(email: testEmail, password: testPassword);
@@ -175,18 +175,18 @@ void main() {
         // Assert
         result.fold(
           (failure) {
-            expect(failure, isA<AuthFailure>());
+            expect(failure, isA<UnexpectedFailure>());
             expect(failure.message, 'Email não verificado');
           },
           (user) => fail('Não deveria retornar sucesso'),
         );
       });
 
-      test('deve retornar Left com AuthFailure quando conta desabilitada', () async {
+      test('deve retornar Left com UnexpectedFailure quando conta desabilitada', () async {
         // Arrange
         when(
           () => mockAuthService.loginWithEmail(testEmail, testPassword),
-        ).thenAnswer((_) async => left(const AuthFailure('Conta desabilitada')));
+        ).thenAnswer((_) async => left(const UnexpectedFailure('Conta desabilitada', null, null)));
 
         // Act
         final result = await command(email: testEmail, password: testPassword);
@@ -200,11 +200,11 @@ void main() {
     });
 
     group('Falhas de Sistema', () {
-      test('deve retornar Left com AuthFailure quando sem conexão', () async {
+      test('deve retornar Left com UnexpectedFailure quando sem conexão', () async {
         // Arrange
         when(
           () => mockAuthService.loginWithEmail(testEmail, testPassword),
-        ).thenAnswer((_) async => left(const AuthFailure('Sem conexão com a internet')));
+        ).thenAnswer((_) async => left(const UnexpectedFailure('Sem conexão com a internet', null, null)));
 
         // Act
         final result = await command(email: testEmail, password: testPassword);
@@ -213,18 +213,18 @@ void main() {
         expect(result, isA<Left<Failure, AuthUser>>());
         result.fold(
           (failure) {
-            expect(failure, isA<AuthFailure>());
+            expect(failure, isA<UnexpectedFailure>());
             expect(failure.message, 'Sem conexão com a internet');
           },
           (user) => fail('Não deveria retornar sucesso'),
         );
       });
 
-      test('deve retornar Left com AuthFailure quando erro inesperado', () async {
+      test('deve retornar Left com UnexpectedFailure quando erro inesperado', () async {
         // Arrange
         when(
           () => mockAuthService.loginWithEmail(testEmail, testPassword),
-        ).thenAnswer((_) async => left(const AuthFailure('Erro inesperado')));
+        ).thenAnswer((_) async => left(const UnexpectedFailure('Erro inesperado', null, null)));
 
         // Act
         final result = await command(email: testEmail, password: testPassword);
@@ -232,18 +232,18 @@ void main() {
         // Assert
         result.fold(
           (failure) {
-            expect(failure, isA<AuthFailure>());
+            expect(failure, isA<UnexpectedFailure>());
             expect(failure.message, 'Erro inesperado');
           },
           (user) => fail('Não deveria retornar sucesso'),
         );
       });
 
-      test('deve retornar Left com AuthFailure quando timeout', () async {
+      test('deve retornar Left com UnexpectedFailure quando timeout', () async {
         // Arrange
         when(
           () => mockAuthService.loginWithEmail(testEmail, testPassword),
-        ).thenAnswer((_) async => left(const AuthFailure('Timeout na requisição')));
+        ).thenAnswer((_) async => left(const UnexpectedFailure('Timeout na requisição', null, null)));
 
         // Act
         final result = await command(email: testEmail, password: testPassword);
@@ -251,7 +251,7 @@ void main() {
         // Assert
         result.fold(
           (failure) {
-            expect(failure, isA<AuthFailure>());
+            expect(failure, isA<UnexpectedFailure>());
             expect(failure.message, 'Timeout na requisição');
           },
           (user) => fail('Não deveria retornar sucesso'),
@@ -266,14 +266,14 @@ void main() {
         const passwordWithSpaces = '  password123  ';
         when(
           () => mockAuthService.loginWithEmail(emailWithSpaces, passwordWithSpaces),
-        ).thenAnswer((_) async => left(const BusinessFailure('Email/senha com espaços')));
+        ).thenAnswer((_) async => left(const ValidationFailure('Email/senha com espaços')));
 
         // Act
         final result = await command(email: emailWithSpaces, password: passwordWithSpaces);
 
         // Assert
         result.fold(
-          (failure) => expect(failure, isA<BusinessFailure>()),
+          (failure) => expect(failure, isA<ValidationFailure>()),
           (user) => fail('Não deveria retornar sucesso'),
         );
         verify(() => mockAuthService.loginWithEmail(emailWithSpaces, passwordWithSpaces)).called(1);

@@ -44,7 +44,7 @@ void main() {
       });
 
       test('isLeft() deve detectar Left', () {
-        final result = left<Failure, String>(const AuthFailure('error'));
+        final result = left<Failure, String>(const UnexpectedFailure('error', null, null));
 
         expect(result, isLeft());
       });
@@ -56,13 +56,13 @@ void main() {
       });
 
       test('isLeftWith() deve validar tipo de Failure', () {
-        final result = left<Failure, String>(const AuthFailure('error'));
+        final result = left<Failure, String>(const UnexpectedFailure('error', null, null));
 
-        expect(result, isLeftWith<AuthFailure>());
+        expect(result, isLeftWith<UnexpectedFailure>());
       });
 
       test('isLeftWithMessage() deve validar mensagem', () {
-        final result = left<Failure, String>(const AuthFailure('Email inválido'));
+        final result = left<Failure, String>(const UnexpectedFailure('Email inválido', null, null));
 
         expect(result, isLeftWithMessage('Email'));
       });
@@ -76,11 +76,11 @@ void main() {
       });
 
       test('leftFailure() deve extrair Failure', () {
-        final result = left<Failure, String>(const AuthFailure('error'));
+        final result = left<Failure, String>(const UnexpectedFailure('error', null, null));
 
         final failure = leftFailure(result);
 
-        expect(failure, isA<AuthFailure>());
+        expect(failure, isA<UnexpectedFailure>());
         expect(failure.message, 'error');
       });
     });

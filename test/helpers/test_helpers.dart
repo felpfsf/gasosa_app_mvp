@@ -1,5 +1,5 @@
-import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 
 /// Matcher customizado para Either<Failure, T> - verifica se é Right
@@ -21,7 +21,7 @@ class _IsRight extends Matcher {
   @override
   bool matches(dynamic item, Map matchState) {
     if (item is Either) {
-      return item.isRight();
+      return item.isRight;
     }
     return false;
   }
@@ -49,7 +49,7 @@ class _IsLeft extends Matcher {
   @override
   bool matches(dynamic item, Map matchState) {
     if (item is Either) {
-      return item.isLeft();
+      return item.isLeft;
     }
     return false;
   }

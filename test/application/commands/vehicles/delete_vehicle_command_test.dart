@@ -1,6 +1,6 @@
-import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gasosa_app/application/commands/vehicles/delete_vehicle_command.dart';
+import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -163,7 +163,7 @@ void main() {
         );
 
         // Assert
-        expect(results.every((r) => r.isRight()), true);
+        expect(results.every((r) => r.isRight), true);
         expect(results.length, 3);
         verify(() => mockRepository.deleteVehicle(any())).called(3);
       });

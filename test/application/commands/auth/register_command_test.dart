@@ -1,6 +1,6 @@
-import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gasosa_app/application/commands/auth/register_command.dart';
+import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/domain/services/auth_service.dart';
 import 'package:mocktail/mocktail.dart';
@@ -74,7 +74,7 @@ void main() {
         final result = await command(name: testName, email: testEmail, password: strongPassword);
 
         // Assert
-        expect(result.isRight(), true);
+        expect(result.isRight, true);
         verify(() => mockAuthService.register(testName, testEmail, strongPassword)).called(1);
       });
 
@@ -434,8 +434,8 @@ void main() {
         final result2 = await command(name: 'User Two', email: 'user2@test.com', password: 'pass2');
 
         // Assert
-        expect(result1.isRight(), true);
-        expect(result2.isRight(), true);
+        expect(result1.isRight, true);
+        expect(result2.isRight, true);
       });
     });
   });

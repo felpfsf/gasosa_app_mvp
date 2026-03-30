@@ -1,6 +1,6 @@
-import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gasosa_app/application/commands/auth/loggin_with_google_command.dart';
+import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/domain/services/auth_service.dart';
 import 'package:mocktail/mocktail.dart';
@@ -291,8 +291,8 @@ void main() {
         final result2 = await command();
 
         // Assert
-        expect(result1.isLeft(), true);
-        expect(result2.isRight(), true);
+        expect(result1.isLeft, true);
+        expect(result2.isRight, true);
       });
     });
 

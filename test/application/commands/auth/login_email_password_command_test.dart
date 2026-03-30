@@ -1,6 +1,6 @@
-import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gasosa_app/application/commands/auth/login_email_password_command.dart';
+import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/domain/services/auth_service.dart';
 import 'package:mocktail/mocktail.dart';
@@ -288,7 +288,7 @@ void main() {
         final result = await command(email: testEmail, password: specialPassword);
 
         // Assert
-        expect(result.isRight(), true);
+        expect(result.isRight, true);
         verify(() => mockAuthService.loginWithEmail(testEmail, specialPassword)).called(1);
       });
 
@@ -303,7 +303,7 @@ void main() {
         final result = await command(email: uppercaseEmail, password: testPassword);
 
         // Assert
-        expect(result.isRight(), true);
+        expect(result.isRight, true);
       });
 
       test('deve chamar AuthService apenas uma vez por comando', () async {

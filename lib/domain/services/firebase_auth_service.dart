@@ -26,7 +26,7 @@ class FirebaseAuthService implements AuthService {
     } on fb.FirebaseAuthException catch (e, s) {
       return left(_mapFirebaseAuthError(e, s));
     } catch (e, s) {
-      return left(AuthFailure('Erro inesperado de autenticação', cause: e, stackTrace: s));
+      return left(UnexpectedFailure('Erro inesperado de autenticação', e, s));
     }
   }
 
@@ -39,14 +39,14 @@ class FirebaseAuthService implements AuthService {
 
       final idToken = account.authentication.idToken;
       if (idToken == null || idToken.isEmpty) {
-        return left(const AuthFailure('Erro ao obter credenciais do Google'));
+        return left(const UnexpectedFailure('Erro ao obter credenciais do Google', null, null));
       }
 
       final credential = fb.GoogleAuthProvider.credential(idToken: idToken);
       final userCredentials = await _auth.signInWithCredential(credential);
       final user = userCredentials.user;
       if (user == null) {
-        return left(const AuthFailure('Falha de autenticação, usuário nulo'));
+        return left(const UnexpectedFailure('Falha de autenticação, usuário nulo', null, null));
       }
 
       final email = user.email ?? account.email;
@@ -60,7 +60,7 @@ class FirebaseAuthService implements AuthService {
     } on fb.FirebaseAuthException catch (e, s) {
       return left(_mapFirebaseAuthError(e, s));
     } catch (e, s) {
-      return left(AuthFailure('Erro inesperado de autenticação', cause: e, stackTrace: s));
+      return left(UnexpectedFailure('Erro inesperado de autenticação', e, s));
     }
   }
 
@@ -70,7 +70,7 @@ class FirebaseAuthService implements AuthService {
       await Future.wait([_auth.signOut(), _google.signOut()]);
       return right(null);
     } catch (e, s) {
-      return left(AuthFailure('Falha ao sair', cause: e, stackTrace: s));
+      return left(UnexpectedFailure('Falha ao sair', e, s));
     }
   }
 
@@ -83,7 +83,7 @@ class FirebaseAuthService implements AuthService {
     } on fb.FirebaseAuthException catch (e, s) {
       return left(_mapFirebaseAuthError(e, s));
     } catch (e, s) {
-      return left(AuthFailure('Erro inesperado de autenticação', cause: e, stackTrace: s));
+      return left(UnexpectedFailure('Erro inesperado de autenticação', e, s));
     }
   }
 
@@ -95,7 +95,7 @@ class FirebaseAuthService implements AuthService {
       );
       final idToken = account.authentication.idToken;
       if (idToken == null || idToken.isEmpty) {
-        return left(const AuthFailure('Sem credenciais do Google'));
+        return left(const UnexpectedFailure('Sem credenciais do Google', null, null));
       }
       final credential = fb.GoogleAuthProvider.credential(idToken: idToken);
 
@@ -105,7 +105,7 @@ class FirebaseAuthService implements AuthService {
     } on fb.FirebaseAuthException catch (e, s) {
       return left(_mapFirebaseAuthError(e, s));
     } catch (e, s) {
-      return left(AuthFailure('Falha ao vincular com o Google', cause: e, stackTrace: s));
+      return left(UnexpectedFailure('Falha ao vincular com o Google', e, s));
     }
   }
 }
@@ -115,22 +115,22 @@ Failure _mapFirebaseAuthError(fb.FirebaseAuthException e, StackTrace s) {
     case 'user-not-found':
     case 'wrong-password':
     case 'invalid-credential':
-      return AuthFailure('Email ou senha inválidos', cause: e, stackTrace: s);
+      return UnexpectedFailure('Email ou senha inválidos', e, s);
     case 'email-already-in-use':
-      return AuthFailure('Email já está em uso', cause: e, stackTrace: s);
+      return UnexpectedFailure('Email já está em uso', e, s);
     case 'network-request-failed':
-      return AuthFailure('Falha na conexão com a internet', cause: e, stackTrace: s);
+      return UnexpectedFailure('Falha na conexão com a internet', e, s);
     case 'account-exists-with-different-credential':
-      return AuthFailure(
+      return UnexpectedFailure(
         'Este e-mail já está vinculado a outro método de login. '
         'Entre pelo método original e depois vincule o Google nas Configurações.',
-        cause: e,
-        stackTrace: s,
+        e,
+        s,
       );
     case 'user-disabled':
-      return AuthFailure('Usuário desativado', cause: e, stackTrace: s);
+      return UnexpectedFailure('Usuário desativado', e, s);
     default:
-      return AuthFailure('Erro inesperado de autenticação', cause: e, stackTrace: s);
+      return UnexpectedFailure('Erro inesperado de autenticação', e, s);
   }
 }
 
@@ -139,11 +139,11 @@ Failure _mapGoogleSignInError(GoogleSignInException e, StackTrace s) {
 
   // [16] Account reauth failed: SHA-1/SHA-256 não configurados no Firebase
   if (description.contains('[16]') || description.toLowerCase().contains('reauth failed')) {
-    return AuthFailure(
+    return UnexpectedFailure(
       'Erro de configuração do Google Sign-In. '
       'Verifique as credenciais SHA no Firebase Console.',
-      cause: e,
-      stackTrace: s,
+      e,
+      s,
     );
   }
 
@@ -151,14 +151,14 @@ Failure _mapGoogleSignInError(GoogleSignInException e, StackTrace s) {
     case GoogleSignInExceptionCode.canceled:
       // Se tem description relevante, use ela
       if (description.isNotEmpty && !description.toLowerCase().contains('cancel')) {
-        return AuthFailure('Falha no Google Sign-In: $description', cause: e, stackTrace: s);
+        return UnexpectedFailure('Falha no Google Sign-In: $description', e, s);
       }
-      return AuthFailure('Login cancelado pelo usuário', cause: e, stackTrace: s);
+      return UnexpectedFailure('Login cancelado pelo usuário', e, s);
     case GoogleSignInExceptionCode.interrupted:
-      return AuthFailure('Login interrompido. Tente novamente.', cause: e, stackTrace: s);
+      return UnexpectedFailure('Login interrompido. Tente novamente.', e, s);
     case GoogleSignInExceptionCode.uiUnavailable:
-      return AuthFailure('UI de login indisponível.', cause: e, stackTrace: s);
+      return UnexpectedFailure('UI de login indisponível.', e, s);
     default:
-      return AuthFailure('Falha no Google Sign-In', cause: e, stackTrace: s);
+      return UnexpectedFailure('Falha no Google Sign-In', e, s);
   }
 }

@@ -1,92 +1,48 @@
 {
   "project_info": {
-    "project_number": "155550412551",
-    "project_id": "etharch-gasosa-app-dev",
-    "storage_bucket": "etharch-gasosa-app-dev.firebasestorage.app"
+    "project_number": "765304904141",
+    "project_id": "etherarc-gasosa",
+    "storage_bucket": "etherarc-gasosa.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:155550412551:android:55e88abc40ea9abad01fa2",
+        "mobilesdk_app_id": "1:765304904141:android:de9242d22e45a8c044cc84",
         "android_client_info": {
-          "package_name": "dev.etherealcodes.gasosa_app.gasosa_app"
+          "package_name": "etherealarc.tech.gasosapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "155550412551-85oe0abfd0r4crc5cb03dpkcqk0pudsn.apps.googleusercontent.com",
+          "client_id": "765304904141-e80jl4rnjfdiq95fjr9ph8aglvr8bsia.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "dev.etherealcodes.gasosa_app.gasosa_app",
+            "package_name": "etherealarc.tech.gasosapp",
             "certificate_hash": "70bb325b35cde79ab70bf710b9bbe23e0750dc2c"
           }
         },
         {
-          "client_id": "155550412551-nbpuob2r24bt5j0tt5ta3cuupuel8t4j.apps.googleusercontent.com",
+          "client_id": "765304904141-7rn5g0i5e7j3tt2h24iejanh3t2eme09.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyA6ttWgTlt0Bsa0hNZGE5jt3sVg8h_MWAE"
+          "current_key": "AIzaSyC3hVggHaNKz27cvZR4UkN5yxxssWA5Qp0"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "155550412551-nbpuob2r24bt5j0tt5ta3cuupuel8t4j.apps.googleusercontent.com",
+              "client_id": "765304904141-7rn5g0i5e7j3tt2h24iejanh3t2eme09.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "155550412551-a6e96q636maf4ail7m5b6f3jd5nhg8oi.apps.googleusercontent.com",
+              "client_id": "765304904141-0h6lt2a0pmovs5eucq7c2gpr9kqketp7.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "dev.etherealcodes.gasosaapp.dev"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:155550412551:android:764259cefe63e9add01fa2",
-        "android_client_info": {
-          "package_name": "dev.etherealcodes.gasosaapp.dev"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "155550412551-m9talpkcoqs7s6f1gfk6l398p8jjfn14.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "dev.etherealcodes.gasosaapp.dev",
-            "certificate_hash": "70bb325b35cde79ab70bf710b9bbe23e0750dc2c"
-          }
-        },
-        {
-          "client_id": "155550412551-nbpuob2r24bt5j0tt5ta3cuupuel8t4j.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyA6ttWgTlt0Bsa0hNZGE5jt3sVg8h_MWAE"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "155550412551-nbpuob2r24bt5j0tt5ta3cuupuel8t4j.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "155550412551-a6e96q636maf4ail7m5b6f3jd5nhg8oi.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "dev.etherealcodes.gasosaapp.dev"
+                "bundle_id": "etherealarc.tech.gasosapp"
               }
             }
           ]

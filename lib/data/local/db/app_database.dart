@@ -8,7 +8,6 @@ import 'package:gasosa_app/data/local/dao/vehicle_dao.dart';
 import 'package:gasosa_app/data/local/tables/refuel_table.dart';
 import 'package:gasosa_app/data/local/tables/user_table.dart';
 import 'package:gasosa_app/data/local/tables/vehicle_table.dart';
-import 'package:gasosa_app/flavor.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
@@ -43,7 +42,7 @@ class AppDatabase extends _$AppDatabase {
 LazyDatabase _open() {
   return LazyDatabase(() async {
     final dir = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dir.path, Flavor.instance.dbName));
+    final file = File(p.join(dir.path, 'gasosa_db'));
 
     return NativeDatabase.createInBackground(file);
   });

@@ -2,46 +2,24 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Gasosa Dev",
+      "name": "Gasosa",
       "request": "launch",
       "type": "dart",
-      "program": "lib/main_dev.dart",
-      "args": [
-        "--flavor", "dev",
-        "--target", "lib/main_dev.dart"
-      ]
+      "program": "lib/main.dart"
     },
     {
-      "name": "Gasosa Prod",
-      "request": "launch",
-      "type": "dart",
-      "program": "lib/main_prod.dart",
-      "args": [
-        "--flavor", "prod",
-        "--target", "lib/main_prod.dart"
-      ]
-    },
-    {
-      "name": "Gasosa Dev (profile)",
+      "name": "Gasosa (profile)",
       "request": "launch",
       "type": "dart",
       "flutterMode": "profile",
-      "program": "lib/main_dev.dart",
-      "args": [
-        "--flavor", "dev",
-        "--target", "lib/main_dev.dart"
-      ]
+      "program": "lib/main.dart"
     },
     {
-      "name": "Gasosa Prod (release)",
+      "name": "Gasosa (release)",
       "request": "launch",
       "type": "dart",
       "flutterMode": "release",
-      "program": "lib/main_prod.dart",
-      "args": [
-        "--flavor", "prod",
-        "--target", "lib/main_prod.dart"
-      ]
+      "program": "lib/main.dart"
     }
   ]
 }

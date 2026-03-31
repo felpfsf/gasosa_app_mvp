@@ -56,7 +56,6 @@ dev_dependencies:
   build_runner: ^2.7.0
   drift_dev: ^2.28.1
   injectable_generator: ^2.7.0
-  flutter_flavorizr: ^2.4.1
 
   # Testes
   mocktail: ^1.0.4
@@ -70,41 +69,3 @@ flutter:
   assets:
     - assets/images/
     - assets/icons/
-# ---------- FLAVORIZR CONFIG ----------
-flavorizr:
-  app:
-    android:
-      flavorDimensions: "env"
-    ios: {}
-
-  flavors:
-    dev:
-      app:
-        name: "Gasosa [Dev]"
-      android:
-        applicationId: "dev.etherealcodes.gasosaapp.dev"
-      ios:
-        bundleId: "dev.etherealcodes.gasosaapp.dev"
-      firebase:
-        # Coloque estes arquivos nos caminhos abaixo:
-        android: "firebase/dev/google-services.json"
-        ios: "firebase/dev/GoogleService-Info.plist"
-      icons:
-        android: "assets/icons/dev.png"   # opcional
-        ios: "assets/icons/dev.png"       # opcional
-
-    prod:
-      app:
-        name: "Gasosa"
-      android:
-        applicationId: "dev.etherealcodes.gasosaapp"
-      ios:
-        bundleId: "dev.etherealcodes.gasosaapp"
-      firebase:
-        # Trocar para prod futuramente
-        android: "firebase/dev/google-services.json"
-        ios: "firebase/dev/GoogleService-Info.plist"
-      icons:
-        android: "assets/icons/prod.png"  # opcional
-        ios: "assets/icons/prod.png"      # opcional
-# --------------------------------------

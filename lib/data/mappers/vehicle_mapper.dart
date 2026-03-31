@@ -36,10 +36,7 @@ class VehicleMapper {
   }
 
   static VehicleEntity toDomain(VehicleRow row) {
-    // print('💜 Mapping VehicleRow to VehicleEntity: id=${row.id}, name=${row.name}, fuelType=${row.fuelType}');
-
     final fuelType = _stringToFuelType(row.fuelType);
-    // print('💜 Mapped fuelType: $fuelType');
 
     return VehicleEntity(
       id: row.id,

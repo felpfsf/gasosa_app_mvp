@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/app_strings.dart';
 import 'package:gasosa_app/core/di/injection.dart';
@@ -46,9 +45,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (!mounted) return;
     result?.fold(
       (failure) => Messages.showError(context, failure.message),
-      (_) {
-        final email = FirebaseAuth.instance.currentUser?.email ?? '';
-        context.go(Routes.dashboard, extra: {'email': email});
+      (user) {
+        context.go(Routes.dashboard, extra: {'email': user.email});
       },
     );
   }

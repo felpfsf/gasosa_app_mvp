@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/app_strings.dart';
 import 'package:gasosa_app/core/di/injection.dart';
@@ -36,7 +35,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _logout() async {
-    await getIt<AuthService>().logout();
+    await _viewModel.logout();
     if (mounted) {
       context.go(Routes.login);
     }
@@ -51,89 +50,91 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-    final name = user?.displayName;
-
-    return Scaffold(
-      appBar: GasosaAppbar(
-        title: 'Bem vindo $name',
-        leading: GestureDetector(
-          onTap: () => {},
-          child: GasosaAvatar(photoUrl: user?.photoURL, size: 32),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () async => _logout(),
-            icon: const Icon(Icons.logout),
-            tooltip: DashboardStrings.logoutTooltip,
-          ),
-        ],
-      ),
-      floatingActionButton: ValueListenableBuilder<UiState<List<VehicleEntity>>>(
-        valueListenable: _viewModel.watchVehicles.state,
-        builder: (_, uiState, _) {
-          final hasVehicles = uiState is UiData<List<VehicleEntity>> && uiState.data.isNotEmpty;
-          return hasVehicles
-              ? FloatingActionButton.extended(
-                  onPressed: _goToCreateVehicle,
-                  icon: const Icon(Icons.directions_car_filled_rounded, color: AppColors.text),
-                  label: Text(
-                    DashboardStrings.addVehicleLabel,
-                    style: AppTypography.textSmBold.copyWith(color: AppColors.text),
-                  ),
-                )
-              : const SizedBox.shrink();
-        },
-      ),
-      body: ValueListenableBuilder<UiState<List<VehicleEntity>>>(
-        valueListenable: _viewModel.watchVehicles.state,
-        builder: (_, uiState, _) {
-          if (uiState is UiInitial || uiState is UiLoading) {
-            return ColoredBox(
-              color: AppColors.background.withValues(alpha: 0.8),
-              child: Center(
-                child: LoadingAnimationWidget.waveDots(color: AppColors.primary, size: 48),
+    return ValueListenableBuilder<AuthUser?>(
+      valueListenable: _viewModel.currentUser,
+      builder: (context, user, _) {
+        return Scaffold(
+          appBar: GasosaAppbar(
+            title: 'Bem vindo ${user?.name}',
+            leading: GestureDetector(
+              onTap: () => {},
+              child: GasosaAvatar(photoUrl: user?.photoUrl, size: 32),
+            ),
+            actions: [
+              IconButton(
+                onPressed: () async => _logout(),
+                icon: const Icon(Icons.logout),
+                tooltip: DashboardStrings.logoutTooltip,
               ),
-            );
-          }
+            ],
+          ),
+          floatingActionButton: ValueListenableBuilder<UiState<List<VehicleEntity>>>(
+            valueListenable: _viewModel.watchVehicles.state,
+            builder: (_, uiState, _) {
+              final hasVehicles = uiState is UiData<List<VehicleEntity>> && uiState.data.isNotEmpty;
+              return hasVehicles
+                  ? FloatingActionButton.extended(
+                      onPressed: _goToCreateVehicle,
+                      icon: const Icon(Icons.directions_car_filled_rounded, color: AppColors.text),
+                      label: Text(
+                        DashboardStrings.addVehicleLabel,
+                        style: AppTypography.textSmBold.copyWith(color: AppColors.text),
+                      ),
+                    )
+                  : const SizedBox.shrink();
+            },
+          ),
+          body: ValueListenableBuilder<UiState<List<VehicleEntity>>>(
+            valueListenable: _viewModel.watchVehicles.state,
+            builder: (_, uiState, _) {
+              if (uiState is UiInitial || uiState is UiLoading) {
+                return ColoredBox(
+                  color: AppColors.background.withValues(alpha: 0.8),
+                  child: Center(
+                    child: LoadingAnimationWidget.waveDots(color: AppColors.primary, size: 48),
+                  ),
+                );
+              }
 
-          if (uiState is UiError<List<VehicleEntity>>) {
-            return GasosaErrorStateWidget(
-              errorMessage: uiState.message,
-              onPressed: _viewModel.retry,
-            );
-          }
+              if (uiState is UiError<List<VehicleEntity>>) {
+                return GasosaErrorStateWidget(
+                  errorMessage: uiState.message,
+                  onPressed: _viewModel.retry,
+                );
+              }
 
-          final vehicles = (uiState as UiData<List<VehicleEntity>>).data;
+              final vehicles = (uiState as UiData<List<VehicleEntity>>).data;
 
-          if (vehicles.isEmpty) {
-            return GasosaEmptyStateWidget(
-              title: DashboardStrings.emptyStateTitle,
-              message: DashboardStrings.emptyStateMessage,
-              actionLabel: DashboardStrings.emptyStateAction,
-              onPressed: _goToCreateVehicle,
-            );
-          }
+              if (vehicles.isEmpty) {
+                return GasosaEmptyStateWidget(
+                  title: DashboardStrings.emptyStateTitle,
+                  message: DashboardStrings.emptyStateMessage,
+                  actionLabel: DashboardStrings.emptyStateAction,
+                  onPressed: _goToCreateVehicle,
+                );
+              }
 
-          return ListView.separated(
-            padding: AppSpacing.paddingMd,
-            itemCount: vehicles.length,
-            separatorBuilder: (_, _) => AppSpacing.gap16,
-            itemBuilder: (_, index) {
-              final vehicle = vehicles[index];
-              return VehicleCard(
-                vehicle: vehicle,
-                onTap: () async {
-                  final result = await context.push(Routes.vehicleDetailPath(vehicle.id));
-                  if (result == true) {
-                    _viewModel.init();
-                  }
+              return ListView.separated(
+                padding: AppSpacing.paddingMd,
+                itemCount: vehicles.length,
+                separatorBuilder: (_, _) => AppSpacing.gap16,
+                itemBuilder: (_, index) {
+                  final vehicle = vehicles[index];
+                  return VehicleCard(
+                    vehicle: vehicle,
+                    onTap: () async {
+                      final result = await context.push(Routes.vehicleDetailPath(vehicle.id));
+                      if (result == true) {
+                        _viewModel.init();
+                      }
+                    },
+                  );
                 },
               );
             },
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

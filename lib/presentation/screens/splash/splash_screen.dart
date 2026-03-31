@@ -1,7 +1,8 @@
 import 'dart:async';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:gasosa_app/core/di/injection.dart';
+import 'package:gasosa_app/domain/services/auth_service.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:go_router/go_router.dart';
 
@@ -55,7 +56,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
   Future<void> playAndNavigate() async {
     await _controller.forward();
     await Future.delayed(const Duration(milliseconds: 800));
-    final user = await FirebaseAuth.instance.authStateChanges().first;
+    final user = await getIt<AuthService>().currentUser();
     if (!mounted) {
       return;
     }

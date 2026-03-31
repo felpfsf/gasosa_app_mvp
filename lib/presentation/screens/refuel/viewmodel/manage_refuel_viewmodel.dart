@@ -5,6 +5,9 @@ import 'package:gasosa_app/application/photos/delete_photo_use_case.dart';
 import 'package:gasosa_app/application/photos/save_photo_use_case.dart';
 import 'package:gasosa_app/application/refuel/create_or_update_refuel_use_case.dart';
 import 'package:gasosa_app/application/refuel/delete_refuel_use_case.dart';
+import 'package:gasosa_app/application/refuel/get_previous_refuel_use_case.dart';
+import 'package:gasosa_app/application/refuel/get_refuel_by_id_use_case.dart';
+import 'package:gasosa_app/application/vehicles/get_vehicle_by_id_use_case.dart';
 import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/core/helpers/numeric_parser.dart';
@@ -15,8 +18,6 @@ import 'package:gasosa_app/core/validators/refuel_validators.dart';
 import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/domain/entities/refuel.dart';
 import 'package:gasosa_app/domain/entities/vehicle.dart';
-import 'package:gasosa_app/domain/repositories/refuel_repository.dart';
-import 'package:gasosa_app/domain/repositories/vehicle_repository.dart';
 import 'package:gasosa_app/domain/services/refuel_business_rules.dart';
 import 'package:injectable/injectable.dart';
 
@@ -93,12 +94,13 @@ class ManageRefuelState {
 @injectable
 class ManageRefuelViewmodel {
   ManageRefuelViewmodel(
-    this._repository,
-    this._vehicleRepository,
+    this._getVehicleById,
     this._saveRefuel,
+    this._deleteRefuel,
+    this._getRefuelById,
+    this._getPreviousRefuel,
     this._saveReceiptPhoto,
     this._deleteReceiptPhoto,
-    this._deleteRefuel,
     this._businessRules,
   ) : state = ValueNotifier(ManageRefuelState()),
       loadCommand = Command<void>(),
@@ -106,10 +108,11 @@ class ManageRefuelViewmodel {
       deleteCommand = Command<Unit>(),
       photoCommand = Command<String>();
 
-  final RefuelRepository _repository;
-  final VehicleRepository _vehicleRepository;
+  final GetVehicleByIdUseCase _getVehicleById;
   final CreateOrUpdateRefuelUseCase _saveRefuel;
   final DeleteRefuelUseCase _deleteRefuel;
+  final GetRefuelByIdUseCase _getRefuelById;
+  final GetPreviousRefuelUseCase _getPreviousRefuel;
   final SavePhotoUseCase _saveReceiptPhoto;
   final DeletePhotoUseCase _deleteReceiptPhoto;
   final RefuelBusinessRules _businessRules;
@@ -159,7 +162,7 @@ class ManageRefuelViewmodel {
   Future<void> init(String? id, String? vehicleId) async {
     if (id != null && id.isNotEmpty) {
       await loadCommand.run(() async {
-        final either = await _repository.getRefuelById(id);
+        final either = await _getRefuelById(id);
         if (either is Left<Failure, RefuelEntity?>) {
           return Left<Failure, void>(either.value);
         }
@@ -236,7 +239,7 @@ class ManageRefuelViewmodel {
   }
 
   Future<void> _loadVehicleData(String vehicleId) async {
-    final vehicleEither = await _vehicleRepository.getVehicleById(vehicleId);
+    final vehicleEither = await _getVehicleById(vehicleId);
     vehicleEither.fold(
       (_) {},
       (vehicle) {
@@ -253,11 +256,7 @@ class ManageRefuelViewmodel {
   }
 
   Future<void> _loadPreviousMileage(String vehicleId, DateTime createdAt, int mileage) async {
-    final previousEither = await _repository.getPreviousByVehicleId(
-      vehicleId,
-      createdAt: createdAt,
-      mileage: mileage,
-    );
+    final previousEither = await _getPreviousRefuel(vehicleId, createdAt, mileage);
     previousEither.fold(
       (_) {},
       (previousRefuel) {

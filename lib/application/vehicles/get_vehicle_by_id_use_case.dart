@@ -5,10 +5,10 @@ import 'package:gasosa_app/domain/repositories/vehicle_repository.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
-class LoadVehiclesUseCase {
-  LoadVehiclesUseCase({required VehicleRepository repository}) : _repository = repository;
+class GetVehicleByIdUseCase {
+  GetVehicleByIdUseCase({required VehicleRepository repository}) : _repository = repository;
 
   final VehicleRepository _repository;
 
-  Stream<Either<Failure, List<VehicleEntity>>> call(String userId) => _repository.watchAllByUserId(userId);
+  Future<Either<Failure, VehicleEntity?>> call(String id) => _repository.getVehicleById(id);
 }

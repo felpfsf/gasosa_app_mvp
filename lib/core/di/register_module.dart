@@ -4,6 +4,7 @@ import 'package:gasosa_app/data/local/dao/user_dao.dart';
 import 'package:gasosa_app/data/local/dao/vehicle_dao.dart';
 import 'package:gasosa_app/data/local/db/app_database.dart';
 import 'package:gasosa_app/presentation/routes/app_router.dart';
+import 'package:gasosa_app/presentation/routes/auth_refresh_notifier.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:injectable/injectable.dart';
@@ -21,7 +22,7 @@ abstract class RegisterModule {
   // Router
   // -------------------------
   @lazySingleton
-  GoRouter get router => appRouter;
+  GoRouter router(fb.FirebaseAuth auth) => buildAppRouter(AuthRefreshNotifier(auth), auth);
 
   // -------------------------
   // Firebase / Auth

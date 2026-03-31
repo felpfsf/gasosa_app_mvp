@@ -5,8 +5,8 @@ import 'package:gasosa_app/domain/repositories/refuel_repository.dart';
 import 'package:injectable/injectable.dart';
 
 @injectable
-class CalculateConsumptionUseCase {
-  CalculateConsumptionUseCase({required RefuelRepository repository}) : _repository = repository;
+class GetPreviousRefuelUseCase {
+  GetPreviousRefuelUseCase({required RefuelRepository repository}) : _repository = repository;
 
   final RefuelRepository _repository;
 

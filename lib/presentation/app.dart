@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:gasosa_app/presentation/routes/app_router.dart';
+import 'package:gasosa_app/core/di/injection.dart';
 import 'package:gasosa_app/theme/app_theme.dart';
+import 'package:go_router/go_router.dart';
 
 class GasosaApp extends StatelessWidget {
   const GasosaApp({super.key});
@@ -11,7 +12,7 @@ class GasosaApp extends StatelessWidget {
     return MaterialApp.router(
       title: 'Gasosa',
       theme: AppTheme.dark,
-      routerConfig: appRouter,
+      routerConfig: getIt<GoRouter>(),
       debugShowCheckedModeBanner: false,
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,

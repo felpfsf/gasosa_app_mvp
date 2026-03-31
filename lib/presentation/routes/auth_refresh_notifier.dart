@@ -4,8 +4,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class AuthRefreshNotifier extends ChangeNotifier {
-  AuthRefreshNotifier() {
-    _sub = FirebaseAuth.instance.authStateChanges().listen((_) {
+  AuthRefreshNotifier(FirebaseAuth auth) {
+    _sub = auth.authStateChanges().listen((_) {
       notifyListeners();
     });
   }

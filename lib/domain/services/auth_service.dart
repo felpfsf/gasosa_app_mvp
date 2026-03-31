@@ -14,6 +14,7 @@ class AuthUser {
 }
 
 abstract interface class AuthService {
+  Future<AuthUser?> currentUser();
   Future<Either<Failure, AuthUser>> register(String name, String email, String password);
   Future<Either<Failure, AuthUser>> loginWithEmail(String email, String password);
   Future<Either<Failure, AuthUser>> loginWithGoogle();

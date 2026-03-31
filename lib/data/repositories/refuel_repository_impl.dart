@@ -17,8 +17,8 @@ class RefuelRepositoryImpl implements RefuelRepository {
     try {
       await _dao.upsert(RefuelMapper.toCompanion(refuel));
       return right(unit);
-    } catch (e) {
-      return left(DatabaseFailure('Erro ao salvar reabastecimento', e, null));
+    } catch (e, st) {
+      return left(DatabaseFailure('Erro ao salvar reabastecimento', e, st));
     }
   }
 
@@ -27,8 +27,8 @@ class RefuelRepositoryImpl implements RefuelRepository {
     try {
       await _dao.deleteById(id);
       return right(unit);
-    } catch (e) {
-      return left(DatabaseFailure('Erro ao deletar reabastecimento', e, null));
+    } catch (e, st) {
+      return left(DatabaseFailure('Erro ao deletar reabastecimento', e, st));
     }
   }
 
@@ -37,8 +37,8 @@ class RefuelRepositoryImpl implements RefuelRepository {
     try {
       final refuels = await _dao.getAllByVehicleId(vehicleId);
       return right(refuels.map(RefuelMapper.toDomain).toList());
-    } catch (e) {
-      return left(DatabaseFailure('Erro ao buscar reabastecimentos', e, null));
+    } catch (e, st) {
+      return left(DatabaseFailure('Erro ao buscar reabastecimentos', e, st));
     }
   }
 
@@ -47,8 +47,8 @@ class RefuelRepositoryImpl implements RefuelRepository {
     try {
       final row = await _dao.getById(id);
       return right(row == null ? null : RefuelMapper.toDomain(row));
-    } catch (e) {
-      return left(DatabaseFailure('Erro ao buscar reabastecimento', e, null));
+    } catch (e, st) {
+      return left(DatabaseFailure('Erro ao buscar reabastecimento', e, st));
     }
   }
 
@@ -56,14 +56,11 @@ class RefuelRepositoryImpl implements RefuelRepository {
   Stream<Either<Failure, List<RefuelEntity>>> watchAllByVehicleId(String vehicleId) {
     return _dao
         .watchByVehicleId(vehicleId)
-        .map(
-          (rows) => right<Failure, List<RefuelEntity>>(rows.map(RefuelMapper.toDomain).toList()),
-        )
-        .handleError((e) {
-          return Stream.value(
-            left<Failure, List<RefuelEntity>>(DatabaseFailure('Stream reabastecimentos falhou: $e', null, null)),
-          );
-        });
+        .map((rows) => right<Failure, List<RefuelEntity>>(rows.map(RefuelMapper.toDomain).toList()))
+        .handleError(
+          (Object e, StackTrace st) =>
+              left<Failure, List<RefuelEntity>>(DatabaseFailure('Stream reabastecimentos falhou', e, st)),
+        );
   }
 
   @override
@@ -73,10 +70,11 @@ class RefuelRepositoryImpl implements RefuelRepository {
     required int mileage,
   }) async {
     try {
-      final result = await _dao.getPreviousByVehicleId(vehicleId, createdAt: createdAt, mileage: mileage);
-      return right(result == null ? null : RefuelMapper.toDomain(result));
-    } catch (e) {
-      return left(DatabaseFailure('Erro ao buscar reabastecimento anterior', e, null));
+      final byMileage = await _dao.getPreviousByMileage(vehicleId, mileage: mileage);
+      final row = byMileage ?? await _dao.getPreviousByDate(vehicleId, createdAt: createdAt);
+      return right(row == null ? null : RefuelMapper.toDomain(row));
+    } catch (e, st) {
+      return left(DatabaseFailure('Erro ao buscar reabastecimento anterior', e, st));
     }
   }
 }

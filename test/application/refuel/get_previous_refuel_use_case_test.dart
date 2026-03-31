@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:gasosa_app/application/refuel/calculate_consumption_use_case.dart';
+import 'package:gasosa_app/application/refuel/get_previous_refuel_use_case.dart';
 import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/domain/entities/refuel.dart';
@@ -11,14 +11,14 @@ import '../../helpers/test_helpers.dart';
 
 void main() {
   late MockRefuelRepository mockRepository;
-  late CalculateConsumptionUseCase command;
+  late GetPreviousRefuelUseCase command;
 
   setUp(() {
     mockRepository = MockRefuelRepository();
-    command = CalculateConsumptionUseCase(repository: mockRepository);
+    command = GetPreviousRefuelUseCase(repository: mockRepository);
   });
 
-  group('CalculateConsumptionUseCase -', () {
+  group('GetPreviousRefuelUseCase -', () {
     test('deve chamar getPreviousByVehicleId com parâmetros corretos', () async {
       // Arrange
       const vehicleId = 'vehicle-123';

@@ -65,6 +65,13 @@ class FirebaseAuthService implements AuthService {
   }
 
   @override
+  Future<AuthUser?> currentUser() async {
+    final fbUser = await _auth.authStateChanges().first;
+    if (fbUser == null) return null;
+    return AuthUser(fbUser.uid, fbUser.displayName ?? '', fbUser.email ?? '');
+  }
+
+  @override
   Future<Either<Failure, void>> logout() async {
     try {
       await Future.wait([_auth.signOut(), _google.signOut()]);
@@ -99,7 +106,7 @@ class FirebaseAuthService implements AuthService {
       }
       final credential = fb.GoogleAuthProvider.credential(idToken: idToken);
 
-      await fb.FirebaseAuth.instance.currentUser?.linkWithCredential(credential);
+      await _auth.currentUser?.linkWithCredential(credential);
 
       return right(right(null));
     } on fb.FirebaseAuthException catch (e, s) {

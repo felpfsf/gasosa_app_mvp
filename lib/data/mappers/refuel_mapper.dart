@@ -4,6 +4,13 @@ import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/domain/entities/refuel.dart';
 
 class RefuelMapper {
+  static FuelType _stringToFuelType(String value) {
+    return FuelType.values.firstWhere(
+      (e) => e.name == value,
+      orElse: () => FuelType.gasoline,
+    );
+  }
+
   static RefuelsCompanion toCompanion(RefuelEntity e) => RefuelsCompanion(
     id: Value(e.id),
     vehicleId: Value(e.vehicleId),
@@ -23,7 +30,7 @@ class RefuelMapper {
     id: row.id,
     vehicleId: row.vehicleId,
     refuelDate: row.refuelDate,
-    fuelType: FuelType.values.firstWhere((e) => e.name == row.fuelType),
+    fuelType: _stringToFuelType(row.fuelType),
     totalValue: row.totalValue,
     mileage: row.mileage,
     liters: row.liters,

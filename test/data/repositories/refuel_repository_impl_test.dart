@@ -258,7 +258,7 @@ void main() {
     });
 
     group('getPreviousByVehicleId', () {
-      test('deve retornar refuel anterior quando encontrado', () async {
+      test('deve retornar byMileage quando encontrado por hodômetro', () async {
         // Arrange
         const vehicleId = 'vehicle-999';
         final createdAt = DateTime(2026, 2);
@@ -266,11 +266,7 @@ void main() {
         final refuel = RefuelFactory.createValid(vehicleId: vehicleId, mileage: 49000);
         final row = _createRefuelRow(refuel);
         when(
-          () => mockDao.getPreviousByVehicleId(
-            vehicleId,
-            createdAt: createdAt,
-            mileage: mileage,
-          ),
+          () => mockDao.getPreviousByMileage(vehicleId, mileage: mileage),
         ).thenAnswer((_) async => row);
 
         // Act
@@ -283,19 +279,46 @@ void main() {
         // Assert
         expect(result, isRight());
         expect(rightValue(result)!.vehicleId, vehicleId);
+        verifyNever(() => mockDao.getPreviousByDate(any(), createdAt: any(named: 'createdAt')));
       });
 
-      test('deve retornar Right(null) quando não houver anterior', () async {
+      test('deve retornar byDate quando byMileage for null', () async {
+        // Arrange
+        const vehicleId = 'vehicle-999';
+        final createdAt = DateTime(2026, 2);
+        const mileage = 50000;
+        final refuel = RefuelFactory.createValid(vehicleId: vehicleId, mileage: 49000);
+        final row = _createRefuelRow(refuel);
+        when(
+          () => mockDao.getPreviousByMileage(vehicleId, mileage: mileage),
+        ).thenAnswer((_) async => null);
+        when(
+          () => mockDao.getPreviousByDate(vehicleId, createdAt: createdAt),
+        ).thenAnswer((_) async => row);
+
+        // Act
+        final result = await repository.getPreviousByVehicleId(
+          vehicleId,
+          createdAt: createdAt,
+          mileage: mileage,
+        );
+
+        // Assert
+        expect(result, isRight());
+        expect(rightValue(result)!.vehicleId, vehicleId);
+        verify(() => mockDao.getPreviousByDate(vehicleId, createdAt: createdAt)).called(1);
+      });
+
+      test('deve retornar Right(null) quando ambas as queries retornarem null', () async {
         // Arrange
         const vehicleId = 'vehicle-none';
         final createdAt = DateTime(2026, 2, 10);
         const mileage = 60000;
         when(
-          () => mockDao.getPreviousByVehicleId(
-            vehicleId,
-            createdAt: createdAt,
-            mileage: mileage,
-          ),
+          () => mockDao.getPreviousByMileage(vehicleId, mileage: mileage),
+        ).thenAnswer((_) async => null);
+        when(
+          () => mockDao.getPreviousByDate(vehicleId, createdAt: createdAt),
         ).thenAnswer((_) async => null);
 
         // Act
@@ -316,11 +339,7 @@ void main() {
         final createdAt = DateTime(2026, 2, 15);
         const mileage = 70000;
         when(
-          () => mockDao.getPreviousByVehicleId(
-            vehicleId,
-            createdAt: createdAt,
-            mileage: mileage,
-          ),
+          () => mockDao.getPreviousByMileage(vehicleId, mileage: mileage),
         ).thenThrow(Exception('Query failed'));
 
         // Act

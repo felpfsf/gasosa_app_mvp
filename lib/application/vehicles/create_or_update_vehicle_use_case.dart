@@ -11,6 +11,6 @@ class CreateOrUpdateVehicleUseCase {
   final VehicleRepository _repository;
 
   Future<Either<Failure, Unit>> call(VehicleEntity entity) async {
-    return entity.id.isEmpty ? _repository.createVehicle(entity) : _repository.updateVehicle(entity);
+    return _repository.upsertVehicle(entity);
   }
 }

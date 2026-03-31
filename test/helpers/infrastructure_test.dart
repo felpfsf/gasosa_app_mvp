@@ -3,21 +3,12 @@ import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 
 import 'factories/refuel_factory.dart';
-import 'factories/user_factory.dart';
 import 'factories/vehicle_factory.dart';
 import 'test_helpers.dart';
 
 void main() {
   group('Test Infrastructure Validation', () {
     group('Factories', () {
-      test('UserFactory deve criar usuário válido', () {
-        final user = UserFactory.create();
-
-        expect(user.id, isNotEmpty);
-        expect(user.name, isNotEmpty);
-        expect(user.email, isNotEmpty);
-      });
-
       test('VehicleFactory deve criar veículo válido', () {
         final vehicle = VehicleFactory.create();
 

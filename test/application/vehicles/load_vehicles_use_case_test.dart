@@ -29,7 +29,7 @@ void main() {
         );
 
         // Act
-        final stream = command.watchAllByUserId(userId);
+        final stream = command(userId);
         final result = await stream.first;
 
         // Assert
@@ -46,7 +46,7 @@ void main() {
         );
 
         // Act
-        final stream = command.watchAllByUserId(userId);
+        final stream = command(userId);
         final result = await stream.first;
 
         // Assert
@@ -68,7 +68,7 @@ void main() {
         );
 
         // Act
-        final stream = command.watchAllByUserId(userId);
+        final stream = command(userId);
         final results = await stream.take(2).toList();
 
         // Assert
@@ -90,7 +90,7 @@ void main() {
         );
 
         // Act
-        final stream = command.watchAllByUserId(userId);
+        final stream = command(userId);
         final results = await stream.take(3).toList();
 
         // Assert
@@ -109,7 +109,7 @@ void main() {
         );
 
         // Act
-        final stream = command.watchAllByUserId(userId);
+        final stream = command(userId);
         final result = await stream.first;
 
         // Assert
@@ -126,7 +126,7 @@ void main() {
         );
 
         // Act
-        final stream = command.watchAllByUserId(userId);
+        final stream = command(userId);
 
         // Assert
         expect(stream, emitsError(isA<Exception>()));
@@ -146,7 +146,7 @@ void main() {
         );
 
         // Act
-        final stream = command.watchAllByUserId(userId);
+        final stream = command(userId);
         final results = await stream.take(2).toList();
 
         // Assert
@@ -165,7 +165,7 @@ void main() {
         );
 
         // Act
-        final stream = command.watchAllByUserId(userId);
+        final stream = command(userId);
         await stream.first;
 
         // Assert
@@ -181,7 +181,7 @@ void main() {
         );
 
         // Act
-        final stream = command.watchAllByUserId(userId);
+        final stream = command(userId);
         await stream.first;
 
         // Assert
@@ -199,7 +199,7 @@ void main() {
         );
 
         // Act
-        final stream = command.watchAllByUserId(userId);
+        final stream = command(userId);
         final result1 = stream.first;
         final result2 = stream.first;
 
@@ -219,7 +219,7 @@ void main() {
         );
 
         // Act
-        final stream = command.watchAllByUserId(userId);
+        final stream = command(userId);
         final subscription = stream.listen((_) {});
         await delay(const Duration(milliseconds: 50));
         await subscription.cancel();
@@ -237,7 +237,7 @@ void main() {
         );
 
         // Act
-        final stream = command.watchAllByUserId(userId);
+        final stream = command(userId);
 
         // Assert
         await expectLater(
@@ -260,7 +260,7 @@ void main() {
         );
 
         // Act
-        final stream = command.watchAllByUserId(userId);
+        final stream = command(userId);
         final result = await stream.first;
 
         // Assert
@@ -277,7 +277,7 @@ void main() {
         );
 
         // Act
-        final stream = command.watchAllByUserId(userId);
+        final stream = command(userId);
         final result = await stream.first;
 
         // Assert

@@ -44,27 +44,27 @@ void main() {
   });
 
   group('VehicleRepositoryImpl -', () {
-    group('createVehicle', () {
+    group('upsertVehicle', () {
       test('deve chamar dao.upsert com companion correto', () async {
         // Arrange
         final vehicle = VehicleFactory.createNew();
         when(() => mockDao.upsert(any())).thenAnswer((_) async => 1);
 
         // Act
-        final result = await repository.createVehicle(vehicle);
+        final result = await repository.upsertVehicle(vehicle);
 
         // Assert
         expect(result, isRight());
         verify(() => mockDao.upsert(any(that: isA<VehiclesCompanion>()))).called(1);
       });
 
-      test('deve retornar Right(unit) quando criar com sucesso', () async {
+      test('deve retornar Right(unit) quando salvar com sucesso', () async {
         // Arrange
         final vehicle = VehicleFactory.createNew();
         when(() => mockDao.upsert(any())).thenAnswer((_) async => 1);
 
         // Act
-        final result = await repository.createVehicle(vehicle);
+        final result = await repository.upsertVehicle(vehicle);
 
         // Assert
         expect(result, isRight());
@@ -77,7 +77,7 @@ void main() {
         when(() => mockDao.upsert(any())).thenThrow(Exception('DB error'));
 
         // Act
-        final result = await repository.createVehicle(vehicle);
+        final result = await repository.upsertVehicle(vehicle);
 
         // Assert
         expect(result, isLeft());
@@ -92,53 +92,11 @@ void main() {
         when(() => mockDao.upsert(any())).thenThrow(exception);
 
         // Act
-        final result = await repository.createVehicle(vehicle);
+        final result = await repository.upsertVehicle(vehicle);
 
         // Assert
         final failure = leftFailure(result) as DatabaseFailure;
         expect(failure.cause, exception);
-      });
-    });
-
-    group('updateVehicle', () {
-      test('deve chamar dao.upsert com companion correto', () async {
-        // Arrange
-        final vehicle = VehicleFactory.create();
-        when(() => mockDao.upsert(any())).thenAnswer((_) async => 1);
-
-        // Act
-        final result = await repository.updateVehicle(vehicle);
-
-        // Assert
-        expect(result, isRight());
-        verify(() => mockDao.upsert(any(that: isA<VehiclesCompanion>()))).called(1);
-      });
-
-      test('deve retornar Right(unit) quando atualizar com sucesso', () async {
-        // Arrange
-        final vehicle = VehicleFactory.create();
-        when(() => mockDao.upsert(any())).thenAnswer((_) async => 1);
-
-        // Act
-        final result = await repository.updateVehicle(vehicle);
-
-        // Assert
-        expect(result, isRight());
-        expect(rightValue(result), unit);
-      });
-
-      test('deve retornar Left(DatabaseFailure) quando dao lançar exceção', () async {
-        // Arrange
-        final vehicle = VehicleFactory.create();
-        when(() => mockDao.upsert(any())).thenThrow(Exception('Update failed'));
-
-        // Act
-        final result = await repository.updateVehicle(vehicle);
-
-        // Assert
-        expect(result, isLeft());
-        expect(result, isLeftWith<DatabaseFailure>());
-        expect(leftFailure(result).message, 'Erro ao atualizar veículo');
       });
     });
 
@@ -399,7 +357,7 @@ void main() {
         when(() => mockDao.upsert(any())).thenAnswer((_) async => 1);
 
         // Act
-        await repository.createVehicle(vehicle);
+        await repository.upsertVehicle(vehicle);
 
         // Assert
         final companion = verify(() => mockDao.upsert(captureAny())).captured.first as VehiclesCompanion;

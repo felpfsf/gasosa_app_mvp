@@ -13,12 +13,12 @@ class VehicleRepositoryImpl implements VehicleRepository {
   final VehicleDao _dao;
 
   @override
-  Future<Either<Failure, Unit>> createVehicle(VehicleEntity vehicle) async {
+  Future<Either<Failure, Unit>> upsertVehicle(VehicleEntity vehicle) async {
     try {
       await _dao.upsert(VehicleMapper.toCompanion(vehicle));
       return right(unit);
-    } catch (e) {
-      return left(DatabaseFailure('Erro ao salvar veículo', e, null));
+    } catch (e, st) {
+      return left(DatabaseFailure('Erro ao salvar veículo', e, st));
     }
   }
 
@@ -27,8 +27,8 @@ class VehicleRepositoryImpl implements VehicleRepository {
     try {
       await _dao.deleteById(id);
       return right(unit);
-    } catch (e) {
-      return left(DatabaseFailure('Erro ao deletar veículo', e, null));
+    } catch (e, st) {
+      return left(DatabaseFailure('Erro ao deletar veículo', e, st));
     }
   }
 
@@ -37,8 +37,8 @@ class VehicleRepositoryImpl implements VehicleRepository {
     try {
       final rows = await _dao.getAllByUserId(userId);
       return right(rows.map(VehicleMapper.toDomain).toList());
-    } catch (e) {
-      return left(DatabaseFailure('Erro ao listar veículos', e, null));
+    } catch (e, st) {
+      return left(DatabaseFailure('Erro ao listar veículos', e, st));
     }
   }
 
@@ -47,18 +47,8 @@ class VehicleRepositoryImpl implements VehicleRepository {
     try {
       final row = await _dao.getById(id);
       return right(row == null ? null : VehicleMapper.toDomain(row));
-    } catch (e) {
-      return left(DatabaseFailure('Erro ao buscar veículo', e, null));
-    }
-  }
-
-  @override
-  Future<Either<Failure, Unit>> updateVehicle(VehicleEntity vehicle) async {
-    try {
-      await _dao.upsert(VehicleMapper.toCompanion(vehicle));
-      return right(unit);
-    } catch (e) {
-      return left(DatabaseFailure('Erro ao atualizar veículo', e, null));
+    } catch (e, st) {
+      return left(DatabaseFailure('Erro ao buscar veículo', e, st));
     }
   }
 
@@ -66,13 +56,10 @@ class VehicleRepositoryImpl implements VehicleRepository {
   Stream<Either<Failure, List<VehicleEntity>>> watchAllByUserId(String userId) {
     return _dao
         .watchAllByUserId(userId)
-        .map(
-          (rows) => right<Failure, List<VehicleEntity>>(rows.map(VehicleMapper.toDomain).toList()),
-        )
-        .handleError((e) {
-          return Stream.value(
-            left<Failure, List<VehicleEntity>>(DatabaseFailure('Stream vehicles falhou: $e', null, null)),
-          );
-        });
+        .map((rows) => right<Failure, List<VehicleEntity>>(rows.map(VehicleMapper.toDomain).toList()))
+        .handleError(
+          (Object e, StackTrace st) =>
+              left<Failure, List<VehicleEntity>>(DatabaseFailure('Stream veículos falhou', e, st)),
+        );
   }
 }

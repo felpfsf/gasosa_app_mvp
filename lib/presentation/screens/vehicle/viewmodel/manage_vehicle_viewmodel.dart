@@ -1,11 +1,11 @@
 import 'dart:io';
 
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:gasosa_app/application/photos/delete_photo_use_case.dart';
 import 'package:gasosa_app/application/photos/save_photo_use_case.dart';
 import 'package:gasosa_app/application/vehicles/create_or_update_vehicle_use_case.dart';
 import 'package:gasosa_app/application/vehicles/delete_vehicle_use_case.dart';
+import 'package:gasosa_app/application/vehicles/get_vehicle_by_id_use_case.dart';
 import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/core/helpers/numeric_parser.dart';
@@ -13,7 +13,7 @@ import 'package:gasosa_app/core/helpers/uuid.dart';
 import 'package:gasosa_app/core/presentation/command.dart';
 import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/domain/entities/vehicle.dart';
-import 'package:gasosa_app/domain/repositories/vehicle_repository.dart';
+import 'package:gasosa_app/domain/services/auth_service.dart';
 import 'package:injectable/injectable.dart';
 
 class ManageVehicleState {
@@ -60,7 +60,8 @@ class ManageVehicleState {
 @injectable
 class ManageVehicleViewModel {
   ManageVehicleViewModel(
-    this._repository,
+    this._auth,
+    this._getVehicleById,
     this._saveVehicle,
     this._deleteVehicle,
     this._savePhoto,
@@ -71,7 +72,9 @@ class ManageVehicleViewModel {
       deleteCommand = Command<Unit>(),
       photoCommand = Command<String>();
 
-  final VehicleRepository _repository;
+  final AuthService _auth;
+  String _userId = '';
+  final GetVehicleByIdUseCase _getVehicleById;
   final CreateOrUpdateVehicleUseCase _saveVehicle;
   final DeleteVehicleUseCase _deleteVehicle;
   final SavePhotoUseCase _savePhoto;
@@ -88,10 +91,11 @@ class ManageVehicleViewModel {
   FuelType get fuelType => state.value.fuelType;
 
   Future<void> init({String? vehicleId}) async {
+    _userId = (await _auth.currentUser())?.id ?? '';
     if (vehicleId == null || vehicleId.isEmpty) return;
 
     await loadCommand.run(() async {
-      final either = await _repository.getVehicleById(vehicleId);
+      final either = await _getVehicleById(vehicleId);
       return either.flatMap((vehicle) {
         if (vehicle == null) {
           return const Left(ValidationFailure('Veículo não encontrado'));
@@ -111,7 +115,7 @@ class ManageVehicleViewModel {
   }
 
   VehicleEntity _buildEntity() {
-    final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+    final uid = _userId;
     final s = state.value;
     final isEdit = s.isEdit && s.initial != null;
 

@@ -24,24 +24,23 @@ void main() {
 
   group('CreateOrUpdateVehicleUseCase -', () {
     group('Criar novo veículo', () {
-      test('deve chamar createVehicle quando entity.id está vazio', () async {
+      test('deve chamar upsertVehicle quando entity.id está vazio', () async {
         // Arrange
         final newVehicle = VehicleFactory.createNew();
-        when(() => mockRepository.createVehicle(any())).thenAnswer((_) async => right(unit));
+        when(() => mockRepository.upsertVehicle(any())).thenAnswer((_) async => right(unit));
 
         // Act
         final result = await command(newVehicle);
 
         // Assert
         expect(result, isRight());
-        verify(() => mockRepository.createVehicle(newVehicle)).called(1);
-        verifyNever(() => mockRepository.updateVehicle(any()));
+        verify(() => mockRepository.upsertVehicle(newVehicle)).called(1);
       });
 
       test('deve retornar Right(unit) quando criar com sucesso', () async {
         // Arrange
         final newVehicle = VehicleFactory.createNew();
-        when(() => mockRepository.createVehicle(any())).thenAnswer((_) async => right(unit));
+        when(() => mockRepository.upsertVehicle(any())).thenAnswer((_) async => right(unit));
 
         // Act
         final result = await command(newVehicle);
@@ -55,7 +54,7 @@ void main() {
         // Arrange
         final newVehicle = VehicleFactory.createNew();
         const failure = DatabaseFailure('Erro ao salvar veículo', null, null);
-        when(() => mockRepository.createVehicle(any())).thenAnswer((_) async => left(failure));
+        when(() => mockRepository.upsertVehicle(any())).thenAnswer((_) async => left(failure));
 
         // Act
         final result = await command(newVehicle);
@@ -69,51 +68,49 @@ void main() {
       test('deve criar veículo com dados mínimos obrigatórios', () async {
         // Arrange
         final minimalVehicle = VehicleFactory.createMinimal();
-        when(() => mockRepository.createVehicle(any())).thenAnswer((_) async => right(unit));
+        when(() => mockRepository.upsertVehicle(any())).thenAnswer((_) async => right(unit));
 
         // Act
         final result = await command(minimalVehicle);
 
         // Assert
         expect(result, isRight());
-        verify(() => mockRepository.createVehicle(minimalVehicle)).called(1);
+        verify(() => mockRepository.upsertVehicle(minimalVehicle)).called(1);
       });
 
       test('deve criar veículo com todos os campos opcionais preenchidos', () async {
         // Arrange
         final fullVehicle = VehicleFactory.createFull();
-        // ID vazio para forçar criação
         final newFullVehicle = fullVehicle.copyWith(id: '');
-        when(() => mockRepository.createVehicle(any())).thenAnswer((_) async => right(unit));
+        when(() => mockRepository.upsertVehicle(any())).thenAnswer((_) async => right(unit));
 
         // Act
         final result = await command(newFullVehicle);
 
         // Assert
         expect(result, isRight());
-        verify(() => mockRepository.createVehicle(newFullVehicle)).called(1);
+        verify(() => mockRepository.upsertVehicle(newFullVehicle)).called(1);
       });
     });
 
     group('Atualizar veículo existente', () {
-      test('deve chamar updateVehicle quando entity.id não está vazio', () async {
+      test('deve chamar upsertVehicle quando entity.id não está vazio', () async {
         // Arrange
         final existingVehicle = VehicleFactory.create();
-        when(() => mockRepository.updateVehicle(any())).thenAnswer((_) async => right(unit));
+        when(() => mockRepository.upsertVehicle(any())).thenAnswer((_) async => right(unit));
 
         // Act
         final result = await command(existingVehicle);
 
         // Assert
         expect(result, isRight());
-        verify(() => mockRepository.updateVehicle(existingVehicle)).called(1);
-        verifyNever(() => mockRepository.createVehicle(any()));
+        verify(() => mockRepository.upsertVehicle(existingVehicle)).called(1);
       });
 
       test('deve retornar Right(unit) quando atualizar com sucesso', () async {
         // Arrange
         final existingVehicle = VehicleFactory.create();
-        when(() => mockRepository.updateVehicle(any())).thenAnswer((_) async => right(unit));
+        when(() => mockRepository.upsertVehicle(any())).thenAnswer((_) async => right(unit));
 
         // Act
         final result = await command(existingVehicle);
@@ -127,7 +124,7 @@ void main() {
         // Arrange
         final existingVehicle = VehicleFactory.create();
         const failure = DatabaseFailure('Erro ao atualizar veículo', null, null);
-        when(() => mockRepository.updateVehicle(any())).thenAnswer((_) async => left(failure));
+        when(() => mockRepository.upsertVehicle(any())).thenAnswer((_) async => left(failure));
 
         // Act
         final result = await command(existingVehicle);
@@ -142,14 +139,14 @@ void main() {
         // Arrange
         final vehicle = VehicleFactory.create();
         final updatedVehicle = vehicle.copyWith(plate: 'XYZ9876');
-        when(() => mockRepository.updateVehicle(any())).thenAnswer((_) async => right(unit));
+        when(() => mockRepository.upsertVehicle(any())).thenAnswer((_) async => right(unit));
 
         // Act
         final result = await command(updatedVehicle);
 
         // Assert
         expect(result, isRight());
-        final captured = verify(() => mockRepository.updateVehicle(captureAny())).captured.first as VehicleEntity;
+        final captured = verify(() => mockRepository.upsertVehicle(captureAny())).captured.first as VehicleEntity;
         expect(captured.plate, 'XYZ9876');
       });
 
@@ -157,14 +154,14 @@ void main() {
         // Arrange
         final vehicle = VehicleFactory.create();
         final withoutPhoto = vehicle.copyWith(photoPath: '');
-        when(() => mockRepository.updateVehicle(any())).thenAnswer((_) async => right(unit));
+        when(() => mockRepository.upsertVehicle(any())).thenAnswer((_) async => right(unit));
 
         // Act
         final result = await command(withoutPhoto);
 
         // Assert
         expect(result, isRight());
-        final captured = verify(() => mockRepository.updateVehicle(captureAny())).captured.first as VehicleEntity;
+        final captured = verify(() => mockRepository.upsertVehicle(captureAny())).captured.first as VehicleEntity;
         expect(captured.photoPath, isEmpty);
       });
     });
@@ -173,31 +170,27 @@ void main() {
       test('deve preservar timestamps ao criar', () async {
         // Arrange
         final vehicle = VehicleFactory.createNew();
-        when(() => mockRepository.createVehicle(any())).thenAnswer((_) async => right(unit));
+        when(() => mockRepository.upsertVehicle(any())).thenAnswer((_) async => right(unit));
 
         // Act
         await command(vehicle);
 
         // Assert
-        final captured = verify(() => mockRepository.createVehicle(captureAny())).captured.first as VehicleEntity;
+        final captured = verify(() => mockRepository.upsertVehicle(captureAny())).captured.first as VehicleEntity;
         expect(captured.createdAt, vehicle.createdAt);
         expect(captured.updatedAt, vehicle.updatedAt);
       });
 
-      test('não deve chamar repository quando entity é inválido (id null)', () async {
+      test('deve delegar para repository sem lógica adicional', () async {
         // Arrange
         final vehicle = VehicleFactory.create();
-        // Simular entity mal formado não faz sentido porque construtor garante integridade
-        // Este teste documenta que validação acontece antes da chamada
-        when(() => mockRepository.updateVehicle(any())).thenAnswer((_) async => right(unit));
+        when(() => mockRepository.upsertVehicle(any())).thenAnswer((_) async => right(unit));
 
         // Act
         await command(vehicle);
 
         // Assert
-        // Validações acontecem em camadas superiores (UI/BLoC)
-        // Command delega para repository
-        verify(() => mockRepository.updateVehicle(vehicle)).called(1);
+        verify(() => mockRepository.upsertVehicle(vehicle)).called(1);
       });
     });
 
@@ -205,21 +198,21 @@ void main() {
       test('deve tratar veículo com tankCapacity = 0', () async {
         // Arrange
         final vehicle = VehicleFactory.create().copyWith(tankCapacity: 0.0);
-        when(() => mockRepository.updateVehicle(any())).thenAnswer((_) async => right(unit));
+        when(() => mockRepository.upsertVehicle(any())).thenAnswer((_) async => right(unit));
 
         // Act
         final result = await command(vehicle);
 
         // Assert
         expect(result, isRight());
-        final captured = verify(() => mockRepository.updateVehicle(captureAny())).captured.first as VehicleEntity;
+        final captured = verify(() => mockRepository.upsertVehicle(captureAny())).captured.first as VehicleEntity;
         expect(captured.tankCapacity, 0.0);
       });
 
       test('deve criar múltiplos veículos sequencialmente', () async {
         // Arrange
         final vehicles = VehicleFactory.createList(3);
-        when(() => mockRepository.createVehicle(any())).thenAnswer((_) async => right(unit));
+        when(() => mockRepository.upsertVehicle(any())).thenAnswer((_) async => right(unit));
 
         // Act
         final results = await Future.wait(
@@ -228,7 +221,7 @@ void main() {
 
         // Assert
         expect(results.every((r) => r.isRight), true);
-        verify(() => mockRepository.createVehicle(any())).called(3);
+        verify(() => mockRepository.upsertVehicle(any())).called(3);
       });
     });
   });

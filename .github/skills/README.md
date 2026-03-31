@@ -124,6 +124,30 @@ Documenta:
 
 ---
 
+### [gasosa-viewmodel-pattern.skill.md](./gasosa-viewmodel-pattern.skill.md)
+
+**Padrões e convenções de ViewModel**
+
+Documenta:
+
+- Responsabilidades da ViewModel vs. da Tela
+- Tipo 1: formulário simples (valores no submit, sem campos públicos)
+- Tipo 2: formulário com estado contínuo (`onChanged` + `updateX`)
+- `Command<Unit>` — nunca `Command<void>`
+- `flatMap`/`map` puros (sem side effects)
+- Cast seguro de `Either` via `fold`
+- Use Cases obrigatórios (sem bypass de serviços)
+- `dispose()` na tela
+
+**Use quando:**
+
+- Criar novas ViewModels
+- Revisar ViewModels existentes
+- Decidir onde colocar `TextEditingController`s
+- Entender o padrão `ValueNotifier` + `Command<T>`
+
+---
+
 ### [gasosa-testing-strategy.skill.md](./gasosa-testing-strategy.skill.md)
 
 **Estratégia de testes**

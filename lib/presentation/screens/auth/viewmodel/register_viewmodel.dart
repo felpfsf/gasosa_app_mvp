@@ -13,16 +13,11 @@ class RegisterViewModel {
 
   final Command<AuthUser> registerCommand;
 
-  String name = '';
-  String email = '';
-  String password = '';
-
-  void setName(String v) => name = v;
-  void setEmail(String v) => email = v;
-  void setPassword(String v) => password = v;
-
-  Future<Either<Failure, AuthUser>?> register() =>
-      registerCommand.run(() => _registerUseCase(name: name, email: email, password: password));
+  Future<Either<Failure, AuthUser>?> register({
+    required String name,
+    required String email,
+    required String password,
+  }) => registerCommand.run(() => _registerUseCase(name: name, email: email, password: password));
 
   void dispose() => registerCommand.dispose();
 }

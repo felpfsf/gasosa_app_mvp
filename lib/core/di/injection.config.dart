@@ -14,6 +14,7 @@ import 'package:gasosa_app/application/auth/login_email_password_use_case.dart'
     as _i769;
 import 'package:gasosa_app/application/auth/login_with_google_use_case.dart'
     as _i239;
+import 'package:gasosa_app/application/auth/logout_use_case.dart' as _i310;
 import 'package:gasosa_app/application/auth/register_use_case.dart' as _i345;
 import 'package:gasosa_app/application/photos/delete_photo_use_case.dart'
     as _i596;
@@ -157,6 +158,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i239.LoginWithGoogleUseCase>(
       () => _i239.LoginWithGoogleUseCase(auth: gh<_i602.AuthService>()),
     );
+    gh.factory<_i310.LogoutUseCase>(
+      () => _i310.LogoutUseCase(auth: gh<_i602.AuthService>()),
+    );
     gh.factory<_i345.RegisterUseCase>(
       () => _i345.RegisterUseCase(auth: gh<_i602.AuthService>()),
     );
@@ -178,20 +182,23 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i464.VehicleDetailViewModel>(
       () => _i464.VehicleDetailViewModel(
-        gh<_i35.VehicleRepository>(),
+        gh<_i1042.GetVehicleByIdUseCase>(),
         gh<_i62.DeleteVehicleUseCase>(),
         gh<_i182.GetRefuelsByVehicleUseCase>(),
       ),
     );
-    gh.factory<_i327.DashboardViewModel>(
-      () => _i327.DashboardViewModel(
-        gh<_i602.AuthService>(),
-        gh<_i183.LoadVehiclesUseCase>(),
-        gh<_i62.DeleteVehicleUseCase>(),
-      ),
-    );
     gh.factory<_i979.RegisterViewModel>(
       () => _i979.RegisterViewModel(gh<_i345.RegisterUseCase>()),
+    );
+    gh.factory<_i212.ManageVehicleViewModel>(
+      () => _i212.ManageVehicleViewModel(
+        gh<_i602.AuthService>(),
+        gh<_i1042.GetVehicleByIdUseCase>(),
+        gh<_i469.CreateOrUpdateVehicleUseCase>(),
+        gh<_i62.DeleteVehicleUseCase>(),
+        gh<_i808.SavePhotoUseCase>(),
+        gh<_i596.DeletePhotoUseCase>(),
+      ),
     );
     gh.factory<_i788.LoginViewModel>(
       () => _i788.LoginViewModel(
@@ -199,8 +206,8 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i769.LoginEmailPasswordUseCase>(),
       ),
     );
-    gh.factory<_i1034.ManageRefuelViewmodel>(
-      () => _i1034.ManageRefuelViewmodel(
+    gh.factory<_i1034.ManageRefuelViewModel>(
+      () => _i1034.ManageRefuelViewModel(
         gh<_i1042.GetVehicleByIdUseCase>(),
         gh<_i1031.CreateOrUpdateRefuelUseCase>(),
         gh<_i693.DeleteRefuelUseCase>(),
@@ -211,14 +218,12 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i188.RefuelBusinessRules>(),
       ),
     );
-    gh.factory<_i212.ManageVehicleViewModel>(
-      () => _i212.ManageVehicleViewModel(
-        gh<_i59.FirebaseAuth>(),
-        gh<_i1042.GetVehicleByIdUseCase>(),
-        gh<_i469.CreateOrUpdateVehicleUseCase>(),
+    gh.factory<_i327.DashboardViewModel>(
+      () => _i327.DashboardViewModel(
+        gh<_i602.AuthService>(),
+        gh<_i183.LoadVehiclesUseCase>(),
         gh<_i62.DeleteVehicleUseCase>(),
-        gh<_i808.SavePhotoUseCase>(),
-        gh<_i596.DeletePhotoUseCase>(),
+        gh<_i310.LogoutUseCase>(),
       ),
     );
     return this;

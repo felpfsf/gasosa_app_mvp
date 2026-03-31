@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:gasosa_app/application/photos/delete_photo_use_case.dart';
 import 'package:gasosa_app/application/photos/save_photo_use_case.dart';
 import 'package:gasosa_app/application/refuel/create_or_update_refuel_use_case.dart';
@@ -92,8 +92,8 @@ class ManageRefuelState {
 }
 
 @injectable
-class ManageRefuelViewmodel {
-  ManageRefuelViewmodel(
+class ManageRefuelViewModel {
+  ManageRefuelViewModel(
     this._getVehicleById,
     this._saveRefuel,
     this._deleteRefuel,
@@ -103,7 +103,7 @@ class ManageRefuelViewmodel {
     this._deleteReceiptPhoto,
     this._businessRules,
   ) : state = ValueNotifier(ManageRefuelState()),
-      loadCommand = Command<void>(),
+      loadCommand = Command<Unit>(),
       saveCommand = Command<Unit>(),
       deleteCommand = Command<Unit>(),
       photoCommand = Command<String>();
@@ -118,18 +118,12 @@ class ManageRefuelViewmodel {
   final RefuelBusinessRules _businessRules;
 
   final ValueNotifier<ManageRefuelState> state;
-  final Command<void> loadCommand;
+  final Command<Unit> loadCommand;
   final Command<Unit> saveCommand;
   final Command<Unit> deleteCommand;
   final Command<String> photoCommand;
 
   String? _stagedToDeletePhotoPath;
-
-  final mileageEC = TextEditingController();
-  final totalValueEC = TextEditingController();
-  final litersEC = TextEditingController();
-  final coldStartLitersEC = TextEditingController();
-  final coldStartValueEC = TextEditingController();
 
   bool get hasColdStart => state.value.coldStartLiters != null && state.value.coldStartValue != null;
 
@@ -138,8 +132,6 @@ class ManageRefuelViewmodel {
       state.value = state.value.copyWith(coldStartLiters: 0.0, coldStartValue: 0.0);
     } else if (!value && hasColdStart) {
       state.value = state.value.copyWith(clearColdStart: true);
-      coldStartLitersEC.clear();
-      coldStartValueEC.clear();
     }
   }
 
@@ -157,39 +149,44 @@ class ManageRefuelViewmodel {
     }
   }
 
-  FuelType get fuelType => state.value.fuelType;
-
   Future<void> init(String? id, String? vehicleId) async {
     if (id != null && id.isNotEmpty) {
       await loadCommand.run(() async {
         final either = await _getRefuelById(id);
-        if (either is Left<Failure, RefuelEntity?>) {
-          return Left<Failure, void>(either.value);
-        }
-        final refuel = (either as Right<Failure, RefuelEntity?>).value;
+        Failure? failure;
+        RefuelEntity? refuel;
+        either.fold(
+          (f) {
+            failure = f;
+          },
+          (r) {
+            refuel = r;
+          },
+        );
+        if (failure != null) return Left(failure!);
         if (refuel == null) {
           return const Left(ValidationFailure('Abastecimento não encontrado'));
         }
-        await _loadVehicleData(refuel.vehicleId);
-        await _loadPreviousMileage(refuel.vehicleId, refuel.createdAt, refuel.mileage);
+        final r = refuel!;
+        await _loadVehicleData(r.vehicleId);
+        await _loadPreviousMileage(r.vehicleId, r.createdAt, r.mileage);
         state.value = state.value.copyWith(
           isEditing: true,
-          initial: refuel,
-          mileage: refuel.mileage,
-          totalValue: refuel.totalValue,
-          liters: refuel.liters,
-          coldStartLiters: refuel.coldStartLiters,
-          coldStartValue: refuel.coldStartValue,
-          receiptPath: refuel.receiptPath,
-          wantsReceiptPhoto: refuel.receiptPath != null,
-          refuelDate: refuel.refuelDate,
-          fuelType: refuel.fuelType,
+          initial: r,
+          mileage: r.mileage,
+          totalValue: r.totalValue,
+          liters: r.liters,
+          coldStartLiters: r.coldStartLiters,
+          coldStartValue: r.coldStartValue,
+          receiptPath: r.receiptPath,
+          wantsReceiptPhoto: r.receiptPath != null,
+          refuelDate: r.refuelDate,
+          fuelType: r.fuelType,
         );
-        _populateControllers();
-        return right(null);
+        return right(unit);
       });
     } else if (vehicleId != null && vehicleId.isNotEmpty) {
-      await initWithVehicle(vehicleId);
+      await _initWithVehicle(vehicleId);
     } else {
       loadCommand.state.value = const UiError(
         ValidationFailure('ID do veículo é obrigatório para novo abastecimento.'),
@@ -197,12 +194,11 @@ class ManageRefuelViewmodel {
     }
   }
 
-  Future<void> initWithVehicle(String vehicleId) async {
+  Future<void> _initWithVehicle(String vehicleId) async {
     await loadCommand.run(() async {
       await _loadVehicleData(vehicleId);
       await _loadPreviousMileage(vehicleId, DateTime.now(), 0);
-      _populateControllers();
-      return right(null);
+      return right(unit);
     });
   }
 
@@ -265,23 +261,6 @@ class ManageRefuelViewmodel {
         }
       },
     );
-  }
-
-  void _populateControllers() {
-    final s = state.value;
-    if (s.isEditing && s.initial != null) {
-      mileageEC.text = NumericParser.formatInt(s.mileage);
-      totalValueEC.text = NumericParser.formatDouble(s.totalValue);
-      litersEC.text = NumericParser.formatDouble(s.liters);
-      coldStartLitersEC.text = s.coldStartLiters != null ? NumericParser.formatDouble(s.coldStartLiters!) : '';
-      coldStartValueEC.text = s.coldStartValue != null ? NumericParser.formatDouble(s.coldStartValue!) : '';
-    } else {
-      mileageEC.clear();
-      totalValueEC.clear();
-      litersEC.clear();
-      coldStartLitersEC.clear();
-      coldStartValueEC.clear();
-    }
   }
 
   RefuelEntity _buildEntity() {
@@ -362,19 +341,11 @@ class ManageRefuelViewmodel {
 
   void updateFuelType(FuelType value) => state.value = state.value.copyWith(fuelType: value);
 
-  void updateReceiptPath(String? value) =>
-      state.value = state.value.copyWith(receiptPath: value, clearPhotoPath: value == null);
-
   void dispose() {
     state.dispose();
     loadCommand.dispose();
     saveCommand.dispose();
     deleteCommand.dispose();
     photoCommand.dispose();
-    mileageEC.dispose();
-    totalValueEC.dispose();
-    litersEC.dispose();
-    coldStartLitersEC.dispose();
-    coldStartValueEC.dispose();
   }
 }

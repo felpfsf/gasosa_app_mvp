@@ -15,43 +15,45 @@ class VehicleDetailViewModel {
     this._getVehicleById,
     this._delete,
     this._getRefuels,
-  ) : loadCommand = Command<void>(),
-      deleteCommand = Command<void>();
+  ) : loadCommand = Command<Unit>(),
+      deleteCommand = Command<Unit>();
 
   final GetVehicleByIdUseCase _getVehicleById;
   final DeleteVehicleUseCase _delete;
   final GetRefuelsByVehicleUseCase _getRefuels;
 
-  final Command<void> loadCommand;
-  final Command<void> deleteCommand;
+  final Command<Unit> loadCommand;
+  final Command<Unit> deleteCommand;
 
   final ValueNotifier<VehicleEntity?> vehicle = ValueNotifier(null);
   final ValueNotifier<List<RefuelEntity>> refuels = ValueNotifier([]);
 
   Future<void> init(String vehicleId) async {
     await loadCommand.run(() async {
-      final results = await Future.wait([
+      final (vehicleResult, refuelsResult) = await (
         _getVehicleById(vehicleId),
         _getRefuels(vehicleId),
-      ]);
-
-      final vehicleResult = results[0] as Either<Failure, VehicleEntity?>;
-      final refuelsResult = results[1] as Either<Failure, List<RefuelEntity>>;
+      ).wait;
 
       return vehicleResult.flatMap((v) {
         if (v == null) {
           return const Left(ValidationFailure('Veículo não encontrado'));
         }
-        return refuelsResult.map((r) {
-          final sorted = List<RefuelEntity>.from(r)..sort((a, b) => b.refuelDate.compareTo(a.refuelDate));
-          vehicle.value = v;
-          refuels.value = sorted;
-        });
+        return refuelsResult
+            .map((r) {
+              final sorted = List<RefuelEntity>.from(r)..sort((a, b) => b.refuelDate.compareTo(a.refuelDate));
+              return (vehicle: v, refuels: sorted);
+            })
+            .map((data) {
+              vehicle.value = data.vehicle;
+              refuels.value = data.refuels;
+              return unit;
+            });
       });
     });
   }
 
-  Future<void> deleteVehicle(String vehicleId) => deleteCommand.run(() => _delete(vehicleId));
+  Future<Either<Failure, Unit>?> deleteVehicle(String vehicleId) => deleteCommand.run(() => _delete(vehicleId));
 
   void dispose() {
     loadCommand.dispose();

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/app_strings.dart';
 import 'package:gasosa_app/core/di/injection.dart';
+import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/presentation/ui_state.dart';
 import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
@@ -134,7 +135,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
             );
           }
 
-          if (loadState is UiError) {
+          if (loadState is UiError<Unit>) {
             return Padding(
               padding: AppSpacing.paddingMd,
               child: Center(
@@ -221,6 +222,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
 
   @override
   void dispose() {
+    _viewModel.dispose();
     _scrollController.dispose();
     _animationController.dispose();
     super.dispose();

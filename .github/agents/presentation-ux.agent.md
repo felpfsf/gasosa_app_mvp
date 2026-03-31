@@ -132,44 +132,68 @@ lib/presentation/
 
 ## Gerenciamento de Estado
 
-### Opções Aceitas
+### Padrão do Projeto: `ValueNotifier` + `Command<T>`
 
-Gasosa App pode usar:
-- **Provider** (padrão recomendado para MVP)
-- **Bloc** (se precisar de logs/dev tools)
-- **Riverpod** (se precisar de type-safety avançado)
+O Gasosa App usa `ValueNotifier` para estado observável e `Command<T>` como wrapper de use cases na ViewModel. Não usa Provider, Bloc ou Riverpod.
 
-### Exemplo com Provider
+> **Referência completa:** [`gasosa-viewmodel-pattern.skill.md`](../skills/gasosa-viewmodel-pattern.skill.md)
+
+### Dois tipos de ViewModel
+
+**Tipo 1 — Formulário simples** (`LoginViewModel`, `RegisterViewModel`): VM não guarda campos. Valores são passados no submit.
 
 ```dart
-class RefuelListViewModel extends ChangeNotifier {
-  final LoadRefuelsByVehicleCommand _loadRefuelsCommand;
+// ✅ VM
+Future<Either<Failure, AuthUser>?> loginWithEmailPassword({
+  required String email,
+  required String password,
+}) => loginCommand.run(() => _useCase(email: email, password: password));
 
-  UiState<List<RefuelEntity>> _state = UiState.loading();
-  UiState<List<RefuelEntity>> get state => _state;
+// ✅ Tela — controllers ficam aqui
+final _emailEC = TextEditingController();
+// no submit:
+_viewModel.loginWithEmailPassword(email: _emailEC.text, password: _passwordEC.text);
+```
 
-  RefuelListViewModel(this._loadRefuelsCommand);
+**Tipo 2 — Formulário com estado contínuo** (`ManageVehicleViewModel`, `ManageRefuelViewModel`): VM mantém estado para construir entidade ao salvar. Tela usa `onChanged` → `updateX`.
 
-  Future<void> loadRefuels(String vehicleId) async {
-    _state = UiState.loading();
-    notifyListeners();
+```dart
+// ✅ VM
+final ValueNotifier<ManageVehicleState> state;
+void updateName(String v) => state.value = state.value.copyWith(name: v);
 
-    final result = await _loadRefuelsCommand.execute(vehicleId: vehicleId);
-
-    result.fold(
-      (failure) {
-        _state = UiState.error(failure.message);
-      },
-      (refuels) {
-        _state = refuels.isEmpty 
-          ? UiState.empty() 
-          : UiState.success(refuels);
-      },
-    );
-
-    notifyListeners();
-  }
+// ✅ Tela — popula controllers uma vez após load
+void _populateControllersIfNeeded(ManageVehicleState s) {
+  if (_didPopulate || !s.isEdit || s.initial == null) return;
+  _nameController.text = s.name;
+  _didPopulate = true;
 }
+```
+
+### Observando estado na tela
+
+```dart
+// Um command
+ValueListenableBuilder<UiState<List<VehicleEntity>>>(
+  valueListenable: _viewModel.watchVehicles.state,
+  builder: (_, uiState, _) {
+    if (uiState is UiLoading) return LoadingWidget();
+    if (uiState is UiError<List<VehicleEntity>>) return ErrorWidget(uiState.message);
+    final vehicles = (uiState as UiData<List<VehicleEntity>>).data;
+    if (vehicles.isEmpty) return EmptyWidget();
+    return VehicleList(vehicles: vehicles);
+  },
+)
+
+// Múltiplos listenables
+ListenableBuilder(
+  listenable: Listenable.merge([
+    _viewModel.state,
+    _viewModel.loadCommand.state,
+    _viewModel.saveCommand.state,
+  ]),
+  builder: (_, _) { /* ... */ },
+)
 ```
 
 ---
@@ -427,14 +451,15 @@ Column(
 
 ### Quando você é acionado
 
-1. **Analise a solicitação** → Tela nova? Widget novo? Mudança de estado?
+1. **Analise a solicitação** → Tela nova? Widget novo? ViewModel? Mudança de estado?
 2. **Consulte skills relevantes**:
+   - `gasosa-viewmodel-pattern.skill.md` → Padrões de ViewModel (sempre)
    - `gasosa-architecture-principles.skill.md` → Separação de camadas
 3. **Verifique dependências**:
-   - Precisa de Command novo? → Coordene com @domain-core
+   - Precisa de UseCase novo? → Coordene com @domain-core
    - Precisa de dados persistidos? → Coordene com @persistence-drift
 4. **Implemente**:
-   - Crie screen, widgets, view model
+   - Crie screen, widgets, view model seguindo os tipos de ViewModel corretos
    - Garanta 4 estados (loading/success/error/empty)
    - Implemente acessibilidade mínima
 5. **Garanta testes**:
@@ -445,7 +470,11 @@ Column(
 ## Checklist Final
 
 - [ ] Tela tem 4 estados (loading/success/error/empty)?
-- [ ] UI não contém regras de negócio (Commands estão em ViewModel)?
+- [ ] UI não contém regras de negócio (lógica está na ViewModel/UseCase)?
+- [ ] ViewModel segue o tipo correto (simples vs. contínuo)?
+- [ ] Nenhum `TextEditingController` dentro da ViewModel?
+- [ ] `Command<Unit>` para operações sem dado de retorno (nunca `Command<void>`)?
+- [ ] `dispose()` da ViewModel chamado no `dispose()` da tela?
 - [ ] Widgets são pequenos e compostos?
 - [ ] Acessibilidade mínima implementada?
 - [ ] Performance: const widgets, ListView.builder?

@@ -52,7 +52,10 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_viewModel.loginCommand.state.value is UiLoading) return;
     if (!_formKey.currentState!.validate()) return;
 
-    final result = await _viewModel.loginWithEmailPassword();
+    final result = await _viewModel.loginWithEmailPassword(
+      email: _emailEC.text,
+      password: _passwordEC.text,
+    );
     if (!mounted) return;
     result?.fold(
       (failure) => Messages.showError(context, failure.message),
@@ -96,13 +99,11 @@ class _LoginScreenState extends State<LoginScreen> {
                               controller: _emailEC,
                               keyboardType: TextInputType.emailAddress,
                               validator: UserValidators.email,
-                              onChanged: (value) => _viewModel.setEmail(value),
                             ),
                             GasosaPasswordField(
                               label: AuthStrings.passwordLabel,
                               controller: _passwordEC,
                               validator: UserValidators.password,
-                              onChanged: (value) => _viewModel.setPassword(value),
                             ),
                             GasosaButton(
                               label: AuthStrings.loginButton,

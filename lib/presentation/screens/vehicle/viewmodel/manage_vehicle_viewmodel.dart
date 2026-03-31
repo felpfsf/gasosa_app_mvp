@@ -67,7 +67,7 @@ class ManageVehicleViewModel {
     this._savePhoto,
     this._deletePhoto,
   ) : state = ValueNotifier(const ManageVehicleState()),
-      loadCommand = Command<void>(),
+      loadCommand = Command<Unit>(),
       saveCommand = Command<Unit>(),
       deleteCommand = Command<Unit>(),
       photoCommand = Command<String>();
@@ -81,7 +81,7 @@ class ManageVehicleViewModel {
   final DeletePhotoUseCase _deletePhoto;
 
   final ValueNotifier<ManageVehicleState> state;
-  final Command<void> loadCommand;
+  final Command<Unit> loadCommand;
   final Command<Unit> saveCommand;
   final Command<Unit> deleteCommand;
   final Command<String> photoCommand;
@@ -96,21 +96,27 @@ class ManageVehicleViewModel {
 
     await loadCommand.run(() async {
       final either = await _getVehicleById(vehicleId);
-      return either.flatMap((vehicle) {
+      final Either<Failure, VehicleEntity> result = either.flatMap((vehicle) {
         if (vehicle == null) {
           return const Left(ValidationFailure('Veículo não encontrado'));
         }
-        state.value = state.value.copyWith(
-          isEdit: true,
-          initial: vehicle,
-          name: vehicle.name,
-          plate: vehicle.plate ?? '',
-          tankCapacity: vehicle.tankCapacity?.toString() ?? '',
-          fuelType: vehicle.fuelType,
-          photoPath: vehicle.photoPath ?? '',
-        );
-        return right(null);
+        return Right(vehicle);
       });
+      result.fold(
+        (_) {},
+        (vehicle) {
+          state.value = state.value.copyWith(
+            isEdit: true,
+            initial: vehicle,
+            name: vehicle.name,
+            plate: vehicle.plate ?? '',
+            tankCapacity: vehicle.tankCapacity?.toString() ?? '',
+            fuelType: vehicle.fuelType,
+            photoPath: vehicle.photoPath ?? '',
+          );
+        },
+      );
+      return result.map((_) => unit);
     });
   }
 
@@ -185,9 +191,6 @@ class ManageVehicleViewModel {
   void updateTankCapacity(String value) => state.value = state.value.copyWith(tankCapacity: value);
 
   void updateFuelType(FuelType value) => state.value = state.value.copyWith(fuelType: value);
-
-  void updatePhotoPath(String? value) =>
-      state.value = state.value.copyWith(photoPath: value, clearPhotoPath: value == null);
 
   void dispose() {
     state.dispose();

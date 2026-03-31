@@ -40,7 +40,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _handleRegister() async {
     if (_viewModel.registerCommand.state.value is UiLoading) return;
     if (!_formKey.currentState!.validate()) return;
-    final result = await _viewModel.register();
+    final result = await _viewModel.register(
+      name: _nameEC.text,
+      email: _emailEC.text,
+      password: _passwordEC.text,
+    );
 
     if (!mounted) return;
     result?.fold(
@@ -83,20 +87,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               label: AuthStrings.nameLabel,
                               controller: _nameEC,
                               validator: UserValidators.name,
-                              onChanged: (value) => _viewModel.setName(value),
                             ),
                             GasosaFormField(
                               label: AuthStrings.emailRegisterLabel,
                               controller: _emailEC,
                               keyboardType: TextInputType.emailAddress,
                               validator: UserValidators.email,
-                              onChanged: (value) => _viewModel.setEmail(value),
                             ),
                             GasosaPasswordField(
                               label: AuthStrings.passwordLabel,
                               controller: _passwordEC,
                               validator: UserValidators.password,
-                              onChanged: (value) => _viewModel.setPassword(value),
                             ),
                             GasosaPasswordField(
                               label: AuthStrings.confirmPasswordLabel,

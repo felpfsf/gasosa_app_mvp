@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:gasosa_app/core/app_strings.dart';
 import 'package:gasosa_app/core/di/injection.dart';
 import 'package:gasosa_app/core/helpers/formatters.dart';
+import 'package:gasosa_app/core/helpers/numeric_parser.dart';
 import 'package:gasosa_app/core/presentation/ui_state.dart';
 import 'package:gasosa_app/core/validators/refuel_validators.dart';
 import 'package:gasosa_app/domain/entities/fuel_type.dart';
@@ -32,14 +33,30 @@ class ManageRefuelScreen extends StatefulWidget {
 }
 
 class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
-  late final ManageRefuelViewmodel _viewmodel;
+  late final ManageRefuelViewModel _viewmodel;
   final _formKey = GlobalKey<FormState>();
+  final _mileageEC = TextEditingController();
+  final _totalValueEC = TextEditingController();
+  final _litersEC = TextEditingController();
+  final _coldStartLitersEC = TextEditingController();
+  final _coldStartValueEC = TextEditingController();
+  bool _didPopulate = false;
 
   @override
   void initState() {
     super.initState();
-    _viewmodel = getIt<ManageRefuelViewmodel>();
+    _viewmodel = getIt<ManageRefuelViewModel>();
     _viewmodel.init(widget.refuelId, widget.vehicleId);
+  }
+
+  void _populateControllersIfNeeded(ManageRefuelState s) {
+    if (_didPopulate || !s.isEditing || s.initial == null) return;
+    _mileageEC.text = NumericParser.formatInt(s.mileage);
+    _totalValueEC.text = NumericParser.formatDouble(s.totalValue);
+    _litersEC.text = NumericParser.formatDouble(s.liters);
+    _coldStartLitersEC.text = s.coldStartLiters != null ? NumericParser.formatDouble(s.coldStartLiters!) : '';
+    _coldStartValueEC.text = s.coldStartValue != null ? NumericParser.formatDouble(s.coldStartValue!) : '';
+    _didPopulate = true;
   }
 
   Future<void> _onSave() async {
@@ -84,6 +101,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
         ]),
         builder: (context, _) {
           final state = _viewmodel.state.value;
+          _populateControllersIfNeeded(state);
           final isLoading =
               _viewmodel.loadCommand.state.value is UiLoading ||
               _viewmodel.saveCommand.state.value is UiLoading ||
@@ -105,7 +123,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                     ),
                     GasosaFormField(
                       label: RefuelStrings.mileageLabel,
-                      controller: _viewmodel.mileageEC,
+                      controller: _mileageEC,
                       validator: _viewmodel.mileageValidator,
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -128,7 +146,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                     ],
                     GasosaFormField(
                       label: RefuelStrings.litersLabel,
-                      controller: _viewmodel.litersEC,
+                      controller: _litersEC,
                       validator: RefuelValidators.liters,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [DigitDecimalInputFormatter()],
@@ -136,7 +154,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                     ),
                     GasosaFormField(
                       label: RefuelStrings.totalValueLabel,
-                      controller: _viewmodel.totalValueEC,
+                      controller: _totalValueEC,
                       validator: RefuelValidators.totalValue,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
                       inputFormatters: [MoneyInputFormatterWithoutSymbol()],
@@ -146,19 +164,25 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                       GasosaCheckbox(
                         title: RefuelStrings.coldStartCheckboxLabel,
                         value: _viewmodel.hasColdStart,
-                        onChanged: (value) => setState(() => _viewmodel.hasColdStart = value ?? false),
+                        onChanged: (value) {
+                          setState(() => _viewmodel.hasColdStart = value ?? false);
+                          if (!(value ?? false)) {
+                            _coldStartLitersEC.clear();
+                            _coldStartValueEC.clear();
+                          }
+                        },
                       ),
                       if (_viewmodel.hasColdStart) ...[
                         GasosaFormField(
                           label: RefuelStrings.coldStartLitersLabel,
-                          controller: _viewmodel.coldStartLitersEC,
+                          controller: _coldStartLitersEC,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           inputFormatters: [DigitDecimalInputFormatter()],
                           onChanged: _viewmodel.updateColdStartLiters,
                         ),
                         GasosaFormField(
                           label: RefuelStrings.coldStartValueLabel,
-                          controller: _viewmodel.coldStartValueEC,
+                          controller: _coldStartValueEC,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           inputFormatters: [MoneyInputFormatterWithoutSymbol()],
                           onChanged: _viewmodel.updateColdStartValue,
@@ -243,6 +267,11 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
   @override
   void dispose() {
     _viewmodel.dispose();
+    _mileageEC.dispose();
+    _totalValueEC.dispose();
+    _litersEC.dispose();
+    _coldStartLitersEC.dispose();
+    _coldStartValueEC.dispose();
     super.dispose();
   }
 }

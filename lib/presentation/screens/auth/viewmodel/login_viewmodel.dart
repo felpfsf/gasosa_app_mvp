@@ -20,16 +20,12 @@ class LoginViewModel {
   final Command<AuthUser> googleCommand;
   final Command<AuthUser> loginCommand;
 
-  String email = '';
-  String password = '';
-
-  void setEmail(String v) => email = v;
-  void setPassword(String v) => password = v;
-
   Future<Either<Failure, AuthUser>?> googleSignIn() => googleCommand.run(() => _loginGoogle());
 
-  Future<Either<Failure, AuthUser>?> loginWithEmailPassword() =>
-      loginCommand.run(() => _loginEmailPassword(email: email, password: password));
+  Future<Either<Failure, AuthUser>?> loginWithEmailPassword({
+    required String email,
+    required String password,
+  }) => loginCommand.run(() => _loginEmailPassword(email: email, password: password));
 
   void dispose() {
     googleCommand.dispose();

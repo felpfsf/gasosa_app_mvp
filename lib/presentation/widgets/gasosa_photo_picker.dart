@@ -21,6 +21,7 @@ class _GasosaPhotoPickerState extends State<GasosaPhotoPicker> {
   File? _localImage;
   final _picker = ImagePicker();
   bool _isPicking = false;
+  ImageSource? _pickingSource;
 
   @override
   void initState() {
@@ -41,7 +42,10 @@ class _GasosaPhotoPickerState extends State<GasosaPhotoPicker> {
 
   Future<void> pick(ImageSource source) async {
     if (_isPicking) return;
-    setState(() => _isPicking = true);
+    setState(() {
+      _isPicking = true;
+      _pickingSource = source;
+    });
     try {
       final pickedFile = await _picker.pickImage(source: source, maxWidth: 1600, maxHeight: 1600, imageQuality: 80);
       if (!mounted) return;
@@ -55,7 +59,12 @@ class _GasosaPhotoPickerState extends State<GasosaPhotoPicker> {
       if (!context.mounted) return;
       Messages.showError(context, 'Não foi possível selecionar a imagem.');
     } finally {
-      if (mounted) setState(() => _isPicking = false);
+      if (mounted) {
+        setState(() {
+          _isPicking = false;
+          _pickingSource = null;
+        });
+      }
     }
   }
 
@@ -178,31 +187,34 @@ class _GasosaPhotoPickerState extends State<GasosaPhotoPicker> {
           ],
         );
       }
+      Widget buttonIcon(ImageSource source, IconData icon) {
+        final isLoading = _isPicking && _pickingSource == source;
+        return isLoading
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : Icon(icon);
+      }
+
       return Row(
         children: [
           Expanded(
             child: ElevatedButton.icon(
-              onPressed: () => pick(ImageSource.camera),
-              icon: const Icon(Icons.camera_alt),
+              onPressed: _isPicking ? null : () => pick(ImageSource.camera),
+              icon: buttonIcon(ImageSource.camera, Icons.camera_alt),
               label: const Text('Câmera'),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: ElevatedButton.icon(
-              onPressed: () => pick(ImageSource.gallery),
-              icon: const Icon(Icons.photo_library),
+              onPressed: _isPicking ? null : () => pick(ImageSource.gallery),
+              icon: buttonIcon(ImageSource.gallery, Icons.photo_library),
               label: const Text('Galeria'),
             ),
           ),
-          if (_isPicking) ...[
-            AppSpacing.gap16,
-            const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            ),
-          ],
         ],
       );
     }

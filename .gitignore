@@ -37,6 +37,9 @@ app.*.map.json
 .env
 .env.*
 *.env
+dart_defines.json
+android/app/google-services.json
+ios/Runner/GoogleService-Info.plist
 
 # ───────────────────────────────────────────────────────────
 # FVM (Flutter Version Manager)

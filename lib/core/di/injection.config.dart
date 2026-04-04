@@ -180,6 +180,13 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i183.LoadVehiclesUseCase>(
       () => _i183.LoadVehiclesUseCase(repository: gh<_i35.VehicleRepository>()),
     );
+    gh.factory<_i327.DashboardViewModel>(
+      () => _i327.DashboardViewModel(
+        gh<_i602.AuthService>(),
+        gh<_i183.LoadVehiclesUseCase>(),
+        gh<_i310.LogoutUseCase>(),
+      ),
+    );
     gh.factory<_i464.VehicleDetailViewModel>(
       () => _i464.VehicleDetailViewModel(
         gh<_i1042.GetVehicleByIdUseCase>(),
@@ -216,14 +223,6 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i808.SavePhotoUseCase>(),
         gh<_i596.DeletePhotoUseCase>(),
         gh<_i188.RefuelBusinessRules>(),
-      ),
-    );
-    gh.factory<_i327.DashboardViewModel>(
-      () => _i327.DashboardViewModel(
-        gh<_i602.AuthService>(),
-        gh<_i183.LoadVehiclesUseCase>(),
-        gh<_i62.DeleteVehicleUseCase>(),
-        gh<_i310.LogoutUseCase>(),
       ),
     );
     return this;

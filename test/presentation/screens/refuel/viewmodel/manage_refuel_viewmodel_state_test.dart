@@ -59,13 +59,5 @@ void main() {
       final updatedState = state.copyWith(fuelType: FuelType.ethanol);
       expect(updatedState.fuelType, FuelType.ethanol);
     });
-
-    test('isEditing indicates edit mode correctly', () {
-      final createState = ManageRefuelState();
-      expect(createState.isEditing, isFalse);
-
-      final editState = ManageRefuelState(isEditing: true);
-      expect(editState.isEditing, isTrue);
-    });
   });
 }

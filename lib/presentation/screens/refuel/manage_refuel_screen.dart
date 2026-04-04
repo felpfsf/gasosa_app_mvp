@@ -50,12 +50,14 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
 
   void _onLoadStateChanged() {
     if (_viewmodel.loadCommand.state.value is! UiData) return;
-    final s = _viewmodel.state.value;
-    _mileageEC.text = NumericParser.formatInt(s.mileage);
-    _totalValueEC.text = NumericParser.formatDouble(s.totalValue);
-    _litersEC.text = NumericParser.formatDouble(s.liters);
-    _coldStartLitersEC.text = s.coldStartLiters != null ? NumericParser.formatDouble(s.coldStartLiters!) : '';
-    _coldStartValueEC.text = s.coldStartValue != null ? NumericParser.formatDouble(s.coldStartValue!) : '';
+    if (widget.refuelId != null) {
+      final s = _viewmodel.state.value;
+      _mileageEC.text = NumericParser.formatInt(s.mileage);
+      _totalValueEC.text = NumericParser.formatDouble(s.totalValue);
+      _litersEC.text = NumericParser.formatDouble(s.liters);
+      _coldStartLitersEC.text = s.coldStartLiters != null ? NumericParser.formatDouble(s.coldStartLiters!) : '';
+      _coldStartValueEC.text = s.coldStartValue != null ? NumericParser.formatDouble(s.coldStartValue!) : '';
+    }
     _viewmodel.loadCommand.state.removeListener(_onLoadStateChanged);
   }
 
@@ -133,6 +135,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                     ),
                     GasosaFormField(
                       label: RefuelStrings.mileageLabel,
+                      hint: RefuelStrings.mileageHint,
                       controller: _mileageEC,
                       validator: _viewmodel.mileageValidator,
                       keyboardType: TextInputType.number,
@@ -156,6 +159,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                     ],
                     GasosaFormField(
                       label: RefuelStrings.litersLabel,
+                      hint: RefuelStrings.litersHint,
                       controller: _litersEC,
                       validator: RefuelValidators.liters,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -164,6 +168,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                     ),
                     GasosaFormField(
                       label: RefuelStrings.totalValueLabel,
+                      hint: RefuelStrings.totalValueHint,
                       controller: _totalValueEC,
                       validator: RefuelValidators.totalValue,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -185,6 +190,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                       if (_viewmodel.hasColdStart) ...[
                         GasosaFormField(
                           label: RefuelStrings.coldStartLitersLabel,
+                          hint: RefuelStrings.coldStartLitersHint,
                           controller: _coldStartLitersEC,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           inputFormatters: [DigitDecimalInputFormatter()],
@@ -192,6 +198,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                         ),
                         GasosaFormField(
                           label: RefuelStrings.coldStartValueLabel,
+                          hint: RefuelStrings.coldStartValueHint,
                           controller: _coldStartValueEC,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),
                           inputFormatters: [MoneyInputFormatterWithoutSymbol()],

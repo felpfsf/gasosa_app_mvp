@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gasosa_app/core/app_strings.dart';
@@ -13,6 +11,7 @@ import 'package:gasosa_app/presentation/screens/refuel/viewmodel/manage_refuel_v
 import 'package:gasosa_app/presentation/widgets/gasosa_appbar.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_button.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_checkbox.dart';
+import 'package:gasosa_app/presentation/widgets/gasosa_confirm_dialog.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_date_picker_field.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_dropdown_field.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_form_field.dart';
@@ -40,23 +39,24 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
   final _litersEC = TextEditingController();
   final _coldStartLitersEC = TextEditingController();
   final _coldStartValueEC = TextEditingController();
-  bool _didPopulate = false;
 
   @override
   void initState() {
     super.initState();
     _viewmodel = getIt<ManageRefuelViewModel>();
     _viewmodel.init(widget.refuelId, widget.vehicleId);
+    _viewmodel.loadCommand.state.addListener(_onLoadStateChanged);
   }
 
-  void _populateControllersIfNeeded(ManageRefuelState s) {
-    if (_didPopulate || !s.isEditing || s.initial == null) return;
+  void _onLoadStateChanged() {
+    if (_viewmodel.loadCommand.state.value is! UiData) return;
+    final s = _viewmodel.state.value;
     _mileageEC.text = NumericParser.formatInt(s.mileage);
     _totalValueEC.text = NumericParser.formatDouble(s.totalValue);
     _litersEC.text = NumericParser.formatDouble(s.liters);
     _coldStartLitersEC.text = s.coldStartLiters != null ? NumericParser.formatDouble(s.coldStartLiters!) : '';
     _coldStartValueEC.text = s.coldStartValue != null ? NumericParser.formatDouble(s.coldStartValue!) : '';
-    _didPopulate = true;
+    _viewmodel.loadCommand.state.removeListener(_onLoadStateChanged);
   }
 
   Future<void> _onSave() async {
@@ -73,12 +73,22 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
   }
 
   Future<void> _onDelete() async {
+    final confirmed = await showGasosaConfirmDialog(
+      context,
+      title: RefuelStrings.deleteDialogTitle,
+      content: RefuelStrings.deleteDialogMessage,
+      confirmLabel: RefuelStrings.deleteDialogConfirmLabel,
+      danger: true,
+    );
+    if (!confirmed) return;
+
     final response = await _viewmodel.delete();
+    if (!mounted) return;
     response?.fold(
       (failure) => Messages.showError(context, failure.message),
       (_) {
         Messages.showSuccess(context, RefuelStrings.deleteSuccess);
-        if (mounted) context.pop(true);
+        context.pop(true);
       },
     );
   }
@@ -101,11 +111,11 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
         ]),
         builder: (context, _) {
           final state = _viewmodel.state.value;
-          _populateControllersIfNeeded(state);
           final isLoading =
               _viewmodel.loadCommand.state.value is UiLoading ||
               _viewmodel.saveCommand.state.value is UiLoading ||
-              _viewmodel.deleteCommand.state.value is UiLoading;
+              _viewmodel.deleteCommand.state.value is UiLoading ||
+              _viewmodel.photoCommand.state.value is UiLoading;
 
           return SafeArea(
             child: SingleChildScrollView(
@@ -165,7 +175,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                         title: RefuelStrings.coldStartCheckboxLabel,
                         value: _viewmodel.hasColdStart,
                         onChanged: (value) {
-                          setState(() => _viewmodel.hasColdStart = value ?? false);
+                          setState(() => _viewmodel.setColdStart(value: value ?? false));
                           if (!(value ?? false)) {
                             _coldStartLitersEC.clear();
                             _coldStartValueEC.clear();
@@ -192,12 +202,12 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                     GasosaCheckbox(
                       title: RefuelStrings.receiptCheckboxLabel,
                       value: _viewmodel.hasReceiptPhoto,
-                      onChanged: (value) => setState(() => _viewmodel.hasReceiptPhoto = value ?? false),
+                      onChanged: (value) => setState(() => _viewmodel.toggleReceiptPhoto(value: value ?? false)),
                     ),
                     if (_viewmodel.shouldShowReceiptPhotoInput) ...[
                       GasosaPhotoPicker(
                         label: RefuelStrings.receiptPhotoLabel,
-                        image: state.receiptPath != null ? File(state.receiptPath!) : null,
+                        image: _viewmodel.currentReceiptPhoto,
                         onFileSelected: (file) async {
                           if (file == null) {
                             _viewmodel.onRemovePhoto();
@@ -220,7 +230,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                             onPressed: isLoading ? null : _onSave,
                           ),
                         ),
-                        if (state.isEditing) ...[
+                        if (_viewmodel.isEditing) ...[
                           Expanded(
                             child: GasosaButton(
                               label: RefuelStrings.deleteButton,

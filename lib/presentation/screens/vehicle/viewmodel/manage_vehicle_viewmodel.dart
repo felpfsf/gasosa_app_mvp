@@ -11,6 +11,7 @@ import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/core/helpers/numeric_parser.dart';
 import 'package:gasosa_app/core/helpers/uuid.dart';
 import 'package:gasosa_app/core/presentation/command.dart';
+import 'package:gasosa_app/core/presentation/ui_state.dart';
 import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/domain/entities/vehicle.dart';
 import 'package:gasosa_app/domain/services/auth_service.dart';
@@ -18,41 +19,33 @@ import 'package:injectable/injectable.dart';
 
 class ManageVehicleState {
   const ManageVehicleState({
-    this.initial,
     this.name = '',
     this.plate = '',
     this.tankCapacity = '',
     this.fuelType = FuelType.flex,
     this.photoPath = '',
-    this.isEdit = false,
   });
 
-  final VehicleEntity? initial;
   final String name;
   final String plate;
   final String tankCapacity;
   final FuelType fuelType;
   final String? photoPath;
-  final bool isEdit;
 
   ManageVehicleState copyWith({
-    VehicleEntity? initial,
     String? name,
     String? plate,
     String? tankCapacity,
     FuelType? fuelType,
     String? photoPath,
     bool clearPhotoPath = false,
-    bool? isEdit,
   }) {
     return ManageVehicleState(
-      initial: initial ?? this.initial,
       name: name ?? this.name,
       plate: plate ?? this.plate,
       tankCapacity: tankCapacity ?? this.tankCapacity,
       photoPath: clearPhotoPath ? null : (photoPath ?? this.photoPath),
       fuelType: fuelType ?? this.fuelType,
-      isEdit: isEdit ?? this.isEdit,
     );
   }
 }
@@ -66,7 +59,7 @@ class ManageVehicleViewModel {
     this._deleteVehicle,
     this._savePhoto,
     this._deletePhoto,
-  ) : state = ValueNotifier(const ManageVehicleState()),
+  ) : _state = ValueNotifier(const ManageVehicleState()),
       loadCommand = Command<Unit>(),
       saveCommand = Command<Unit>(),
       deleteCommand = Command<Unit>(),
@@ -80,15 +73,31 @@ class ManageVehicleViewModel {
   final SavePhotoUseCase _savePhoto;
   final DeletePhotoUseCase _deletePhoto;
 
-  final ValueNotifier<ManageVehicleState> state;
+  final ValueNotifier<ManageVehicleState> _state;
+  ValueListenable<ManageVehicleState> get state => _state;
+
   final Command<Unit> loadCommand;
   final Command<Unit> saveCommand;
   final Command<Unit> deleteCommand;
   final Command<String> photoCommand;
 
   String? _stagedToDeletePhotoPath;
+  String? _editingId;
+  DateTime? _editingCreatedAt;
 
-  FuelType get fuelType => state.value.fuelType;
+  bool get isEditing => _editingId != null;
+
+  bool get isLoading =>
+      loadCommand.state.value is UiLoading ||
+      saveCommand.state.value is UiLoading ||
+      deleteCommand.state.value is UiLoading ||
+      photoCommand.state.value is UiLoading;
+
+  File? get currentPhoto {
+    final path = _state.value.photoPath;
+    if (path == null || path.isEmpty) return null;
+    return File(path);
+  }
 
   Future<void> init({String? vehicleId}) async {
     _userId = (await _auth.currentUser())?.id ?? '';
@@ -105,9 +114,9 @@ class ManageVehicleViewModel {
       result.fold(
         (_) {},
         (vehicle) {
-          state.value = state.value.copyWith(
-            isEdit: true,
-            initial: vehicle,
+          _editingId = vehicle.id;
+          _editingCreatedAt = vehicle.createdAt;
+          _state.value = _state.value.copyWith(
             name: vehicle.name,
             plate: vehicle.plate ?? '',
             tankCapacity: vehicle.tankCapacity?.toString() ?? '',
@@ -122,19 +131,19 @@ class ManageVehicleViewModel {
 
   VehicleEntity _buildEntity() {
     final uid = _userId;
-    final s = state.value;
-    final isEdit = s.isEdit && s.initial != null;
+    final s = _state.value;
+    final editing = _editingId != null;
 
     return VehicleEntity(
-      id: isEdit ? s.initial!.id : UuidHelper.generate(),
+      id: editing ? _editingId! : UuidHelper.generate(),
       userId: uid,
       name: s.name.trim(),
       plate: s.plate.trim().isEmpty ? null : s.plate.trim(),
       tankCapacity: _parseCapacity(s.tankCapacity.trim()),
       fuelType: s.fuelType,
       photoPath: s.photoPath,
-      createdAt: isEdit ? s.initial!.createdAt : DateTime.now(),
-      updatedAt: isEdit ? DateTime.now() : null,
+      createdAt: editing ? _editingCreatedAt! : DateTime.now(),
+      updatedAt: editing ? DateTime.now() : null,
     );
   }
 
@@ -151,29 +160,28 @@ class ManageVehicleViewModel {
   }
 
   Future<Either<Failure, Unit>?> delete() async {
-    final s = state.value;
-    if (!s.isEdit || s.initial == null) {
+    if (_editingId == null) {
       return const Left(ValidationFailure('Não é possível deletar um veículo que não foi salvo.'));
     }
-    return deleteCommand.run(() => _deleteVehicle(s.initial!.id));
+    return deleteCommand.run(() => _deleteVehicle(_editingId!));
   }
 
   Future<void> onPickLocalPhoto(File file) async {
     final result = await photoCommand.run(
-      () => _savePhoto(file: file, oldPath: state.value.photoPath),
+      () => _savePhoto(file: file, oldPath: _state.value.photoPath),
     );
     result?.fold(
       (_) {},
       (newPath) {
         _stagedToDeletePhotoPath = null;
-        state.value = state.value.copyWith(photoPath: newPath);
+        _state.value = _state.value.copyWith(photoPath: newPath);
       },
     );
   }
 
   void onRemovePhoto() {
-    _stagedToDeletePhotoPath = state.value.photoPath;
-    state.value = state.value.copyWith(clearPhotoPath: true);
+    _stagedToDeletePhotoPath = _state.value.photoPath;
+    _state.value = _state.value.copyWith(clearPhotoPath: true);
   }
 
   void _cleanupStagedPhoto() {
@@ -184,16 +192,16 @@ class ManageVehicleViewModel {
     }
   }
 
-  void updateName(String value) => state.value = state.value.copyWith(name: value);
+  void updateName(String value) => _state.value = _state.value.copyWith(name: value);
 
-  void updatePlate(String value) => state.value = state.value.copyWith(plate: value);
+  void updatePlate(String value) => _state.value = _state.value.copyWith(plate: value);
 
-  void updateTankCapacity(String value) => state.value = state.value.copyWith(tankCapacity: value);
+  void updateTankCapacity(String value) => _state.value = _state.value.copyWith(tankCapacity: value);
 
-  void updateFuelType(FuelType value) => state.value = state.value.copyWith(fuelType: value);
+  void updateFuelType(FuelType value) => _state.value = _state.value.copyWith(fuelType: value);
 
   void dispose() {
-    state.dispose();
+    _state.dispose();
     loadCommand.dispose();
     saveCommand.dispose();
     deleteCommand.dispose();

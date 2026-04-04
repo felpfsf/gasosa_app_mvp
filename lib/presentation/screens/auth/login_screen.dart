@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/app_strings.dart';
 import 'package:gasosa_app/core/di/injection.dart';
-import 'package:gasosa_app/core/presentation/ui_state.dart';
 import 'package:gasosa_app/core/validators/user_validators.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/screens/auth/viewmodel/login_viewmodel.dart';
@@ -31,12 +30,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void initState() {
-    _viewModel = getIt<LoginViewModel>();
     super.initState();
+    _viewModel = getIt<LoginViewModel>();
   }
 
   Future<void> _handleGoogleSignIn() async {
-    if (_viewModel.googleCommand.state.value is UiLoading) return;
+    if (_viewModel.isLoading) return;
 
     final result = await _viewModel.googleSignIn();
     if (!mounted) return;
@@ -49,7 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLoginWithEmailPassword() async {
-    if (_viewModel.loginCommand.state.value is UiLoading) return;
+    if (_viewModel.isLoading) return;
     if (!_formKey.currentState!.validate()) return;
 
     final result = await _viewModel.loginWithEmailPassword(
@@ -70,8 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return ListenableBuilder(
       listenable: Listenable.merge([_viewModel.googleCommand.state, _viewModel.loginCommand.state]),
       builder: (_, _) {
-        final isLoading =
-            _viewModel.googleCommand.state.value is UiLoading || _viewModel.loginCommand.state.value is UiLoading;
+        final isLoading = _viewModel.isLoading;
         return Scaffold(
           body: SafeArea(
             child: Center(
@@ -163,9 +161,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
-    super.dispose();
     _emailEC.dispose();
     _passwordEC.dispose();
     _viewModel.dispose();
+    super.dispose();
   }
 }

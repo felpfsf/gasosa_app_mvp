@@ -2,6 +2,7 @@ import 'package:gasosa_app/application/auth/register_use_case.dart';
 import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/core/presentation/command.dart';
+import 'package:gasosa_app/core/presentation/ui_state.dart';
 import 'package:gasosa_app/domain/services/auth_service.dart';
 import 'package:injectable/injectable.dart';
 
@@ -12,6 +13,8 @@ class RegisterViewModel {
   final RegisterUseCase _registerUseCase;
 
   final Command<AuthUser> registerCommand;
+
+  bool get isLoading => registerCommand.state.value is UiLoading;
 
   Future<Either<Failure, AuthUser>?> register({
     required String name,

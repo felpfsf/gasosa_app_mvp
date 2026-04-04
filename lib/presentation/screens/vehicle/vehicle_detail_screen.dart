@@ -5,7 +5,6 @@ import 'package:gasosa_app/core/app_strings.dart';
 import 'package:gasosa_app/core/di/injection.dart';
 import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/presentation/ui_state.dart';
-import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/screens/dashboard/widgets/show_delete_vehicle_confirm_dialog.dart';
 import 'package:gasosa_app/presentation/screens/vehicle/viewmodel/vehicle_detail_viewmodel.dart';
@@ -26,12 +25,9 @@ class VehicleDetailScreen extends StatefulWidget {
   State<VehicleDetailScreen> createState() => _VehicleDetailScreenState();
 }
 
-class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerProviderStateMixin {
+class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
   late final VehicleDetailViewModel _viewModel;
   late final ScrollController _scrollController;
-  late final AnimationController _animationController;
-
-  bool _isExtended = true;
 
   @override
   void initState() {
@@ -40,22 +36,6 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
     _viewModel.init(widget.vehicleId);
 
     _scrollController = ScrollController();
-    _scrollController.addListener(_onScroll);
-
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-  }
-
-  void _onScroll() {
-    if (_scrollController.offset > 100 && _isExtended) {
-      setState(() => _isExtended = false);
-      _animationController.forward();
-    } else if (_scrollController.offset <= 100 && !_isExtended) {
-      setState(() => _isExtended = true);
-      _animationController.reverse();
-    }
   }
 
   Future<void> _goToEditVehicle() async {
@@ -70,10 +50,17 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
       context,
       vehicleName: _viewModel.vehicle.value?.name,
     );
-    if (confirmed) {
-      await _viewModel.deleteVehicle(widget.vehicleId);
-      if (mounted) context.pop(true);
-    }
+    if (!confirmed) return;
+
+    final result = await _viewModel.deleteVehicle(widget.vehicleId);
+    if (!mounted) return;
+
+    result?.fold(
+      (failure) => ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(failure.message)),
+      ),
+      (_) => context.pop(true),
+    );
   }
 
   Future<void> _goToRefuelManageCreate() async {
@@ -116,10 +103,10 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
         },
         showBackButton: true,
       ),
-      // floatingActionButton: _buildFloatingActionButton(),
       body: ListenableBuilder(
         listenable: Listenable.merge([
           _viewModel.loadCommand.state,
+          _viewModel.deleteCommand.state,
           _viewModel.vehicle,
           _viewModel.refuels,
         ]),
@@ -148,14 +135,10 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
             );
           }
 
-          final vehicle = _viewModel.vehicle.value!;
-          final plate = (vehicle.plate ?? '').toUpperCase();
-          final cap = vehicle.tankCapacity?.toStringAsFixed(0) ?? 'N/A';
-          final subtitle = [
-            if (plate.isNotEmpty) 'Placa: $plate',
-            'Capacidade do tanque: $cap${vehicle.tankCapacity != null ? ' L' : ''}',
-          ].join(' • ');
-          final fuelType = vehicle.fuelType.displayName;
+          final vehicle = _viewModel.vehicle.value;
+          if (vehicle == null) {
+            return Center(child: LoadingAnimationWidget.waveDots(color: AppColors.primary, size: 48));
+          }
 
           final refuels = _viewModel.refuels.value;
 
@@ -177,8 +160,12 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
                           spacing: AppSpacing.md,
                           children: [
                             Text(vehicle.name, style: AppTypography.titleLg),
-                            Text('Tipo de Combustível: $fuelType', style: AppTypography.textSmRegular),
-                            if (subtitle.isNotEmpty) Text(subtitle, style: AppTypography.textSmRegular),
+                            Text(
+                              'Tipo de Combustível: ${_viewModel.fuelTypeLabel}',
+                              style: AppTypography.textSmRegular,
+                            ),
+                            if (_viewModel.vehicleSubtitle.isNotEmpty)
+                              Text(_viewModel.vehicleSubtitle, style: AppTypography.textSmRegular),
                           ],
                         ),
                       ),
@@ -224,33 +211,85 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> with TickerPr
   void dispose() {
     _viewModel.dispose();
     _scrollController.dispose();
-    _animationController.dispose();
     super.dispose();
-  }
-
-  // ignore: unused_element
-  Widget _buildFloatingActionButton() {
-    return FloatingActionButton.extended(
-      extendedIconLabelSpacing: _isExtended ? 10 : 0,
-      extendedPadding: _isExtended ? null : AppSpacing.paddingMd,
-      onPressed: _goToRefuelManageCreate,
-      label: AnimatedSize(
-        duration: const Duration(milliseconds: 250),
-        child: _isExtended
-            ? Text(
-                'Novo abastecimento',
-                style: AppTypography.textSmBold.copyWith(color: AppColors.text),
-              )
-            : const SizedBox.shrink(key: ValueKey('collapsed')),
-      ),
-      icon: const Icon(Icons.local_gas_station_rounded, color: AppColors.text),
-    );
   }
 }
 
-class _HeaderImage extends StatelessWidget {
+class _HeaderImage extends StatefulWidget {
   const _HeaderImage({this.imageUrl});
   final String? imageUrl;
+
+  @override
+  State<_HeaderImage> createState() => _HeaderImageState();
+}
+
+class _HeaderImageState extends State<_HeaderImage> {
+  bool _fileExists = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkFileExists();
+  }
+
+  @override
+  void didUpdateWidget(_HeaderImage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.imageUrl != widget.imageUrl) {
+      _checkFileExists();
+    }
+  }
+
+  Future<void> _checkFileExists() async {
+    final url = widget.imageUrl;
+    if (url == null || url.isEmpty) {
+      if (mounted) setState(() => _fileExists = false);
+      return;
+    }
+    final exists = await File(url).exists();
+    if (mounted) setState(() => _fileExists = exists);
+  }
+
+  void _previewImage(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: AppColors.background,
+        insetPadding: AppSpacing.paddingHorizontalSm,
+        child: Stack(
+          children: [
+            ClipRRect(
+              borderRadius: AppSpacing.radiusMd,
+              child: InteractiveViewer(
+                minScale: 0.5,
+                maxScale: 3.0,
+                child: Hero(
+                  tag: '${widget.imageUrl}-vehicle',
+                  child: Image.file(
+                    File(widget.imageUrl!),
+                    fit: BoxFit.contain,
+                    gaplessPlayback: true,
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 8,
+              right: 8,
+              child: CircleAvatar(
+                backgroundColor: AppColors.surface,
+                child: IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.close_outlined, color: AppColors.text),
+                  tooltip: 'Fechar',
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -258,62 +297,19 @@ class _HeaderImage extends StatelessWidget {
       topLeft: AppSpacing.radiusMd.topLeft,
       topRight: AppSpacing.radiusMd.topRight,
     );
-    final hasPath = imageUrl != null && imageUrl!.isNotEmpty && File(imageUrl!).existsSync();
-
-    void previewImage() {
-      if (!hasPath) return;
-      showDialog(
-        context: context,
-        builder: (context) => Dialog(
-          backgroundColor: AppColors.background,
-          insetPadding: AppSpacing.paddingHorizontalSm,
-          child: Stack(
-            children: [
-              ClipRRect(
-                borderRadius: AppSpacing.radiusMd,
-                child: InteractiveViewer(
-                  minScale: 0.5,
-                  maxScale: 3.0,
-                  child: Hero(
-                    tag: '$imageUrl-vehicle',
-                    child: Image.file(
-                      File(imageUrl!),
-                      fit: BoxFit.contain,
-                      gaplessPlayback: true,
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 8,
-                right: 8,
-                child: CircleAvatar(
-                  backgroundColor: AppColors.surface,
-                  child: IconButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.close_outlined, color: AppColors.text),
-                    tooltip: 'Fechar',
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
 
     return GestureDetector(
-      onTap: hasPath ? previewImage : null,
+      onTap: _fileExists ? () => _previewImage(context) : null,
       child: Stack(
         children: [
           ClipRRect(
             borderRadius: radius,
             child: AspectRatio(
               aspectRatio: 16 / 9,
-              child: hasPath
+              child: _fileExists
                   ? Hero(
-                      tag: '$imageUrl-vehicle',
-                      child: Image.file(File(imageUrl!), fit: BoxFit.cover),
+                      tag: '${widget.imageUrl}-vehicle',
+                      child: Image.file(File(widget.imageUrl!), fit: BoxFit.cover),
                     )
                   : Container(
                       color: AppColors.surface,
@@ -322,14 +318,14 @@ class _HeaderImage extends StatelessWidget {
                     ),
             ),
           ),
-          if (hasPath)
+          if (_fileExists)
             Positioned(
               top: 8,
               right: 8,
               child: CircleAvatar(
                 backgroundColor: AppColors.surface,
                 child: IconButton(
-                  onPressed: hasPath ? previewImage : null,
+                  onPressed: () => _previewImage(context),
                   icon: const Icon(Icons.zoom_in, color: AppColors.text),
                   tooltip: 'Visualizar imagem',
                 ),

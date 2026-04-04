@@ -65,6 +65,10 @@ abstract final class RefuelStrings {
   static const deleteButton = 'Excluir';
   static const saveSuccess = 'Abastecimento salvo com sucesso!';
   static const deleteSuccess = 'Abastecimento excluído com sucesso!';
+  static const deleteDialogTitle = 'Excluir abastecimento';
+  static const deleteDialogMessage =
+      'Tem certeza que deseja excluir este abastecimento? Esta ação não pode ser desfeita.';
+  static const deleteDialogConfirmLabel = 'Excluir';
 
   // Empty state (refuel list)
   static const emptyStateTitle = 'Nenhum abastecimento';

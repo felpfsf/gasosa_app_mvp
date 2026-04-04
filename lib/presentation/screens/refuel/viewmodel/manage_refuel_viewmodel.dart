@@ -23,9 +23,6 @@ import 'package:injectable/injectable.dart';
 
 class ManageRefuelState {
   ManageRefuelState({
-    this.initial,
-    this.vehicle,
-    this.isEditing = false,
     this.mileage = 0,
     this.totalValue = 0.0,
     this.liters = 0.0,
@@ -39,9 +36,6 @@ class ManageRefuelState {
     DateTime? refuelDate,
   }) : refuelDate = refuelDate ?? DateTime.now();
 
-  final RefuelEntity? initial;
-  final VehicleEntity? vehicle;
-  final bool isEditing;
   final int mileage;
   final double totalValue;
   final double liters;
@@ -55,9 +49,6 @@ class ManageRefuelState {
   final int? previousMileage;
 
   ManageRefuelState copyWith({
-    RefuelEntity? initial,
-    VehicleEntity? vehicle,
-    bool? isEditing,
     int? mileage,
     double? totalValue,
     double? liters,
@@ -73,9 +64,6 @@ class ManageRefuelState {
     bool clearColdStart = false,
   }) {
     return ManageRefuelState(
-      initial: initial ?? this.initial,
-      vehicle: vehicle ?? this.vehicle,
-      isEditing: isEditing ?? this.isEditing,
       mileage: mileage ?? this.mileage,
       totalValue: totalValue ?? this.totalValue,
       liters: liters ?? this.liters,
@@ -102,7 +90,7 @@ class ManageRefuelViewModel {
     this._saveReceiptPhoto,
     this._deleteReceiptPhoto,
     this._businessRules,
-  ) : state = ValueNotifier(ManageRefuelState()),
+  ) : _state = ValueNotifier(ManageRefuelState()),
       loadCommand = Command<Unit>(),
       saveCommand = Command<Unit>(),
       deleteCommand = Command<Unit>(),
@@ -117,34 +105,47 @@ class ManageRefuelViewModel {
   final DeletePhotoUseCase _deleteReceiptPhoto;
   final RefuelBusinessRules _businessRules;
 
-  final ValueNotifier<ManageRefuelState> state;
+  final ValueNotifier<ManageRefuelState> _state;
+  ValueListenable<ManageRefuelState> get state => _state;
+
   final Command<Unit> loadCommand;
   final Command<Unit> saveCommand;
   final Command<Unit> deleteCommand;
   final Command<String> photoCommand;
 
   String? _stagedToDeletePhotoPath;
+  String? _editingId;
+  String? _editingVehicleId;
+  DateTime? _editingCreatedAt;
+  VehicleEntity? _vehicle;
 
-  bool get hasColdStart => state.value.coldStartLiters != null && state.value.coldStartValue != null;
+  bool get isEditing => _editingId != null;
 
-  set hasColdStart(bool value) {
+  bool get hasColdStart => _state.value.coldStartLiters != null && _state.value.coldStartValue != null;
+
+  void setColdStart({required bool value}) {
     if (value && !hasColdStart) {
-      state.value = state.value.copyWith(coldStartLiters: 0.0, coldStartValue: 0.0);
+      _state.value = _state.value.copyWith(coldStartLiters: 0.0, coldStartValue: 0.0);
     } else if (!value && hasColdStart) {
-      state.value = state.value.copyWith(clearColdStart: true);
+      _state.value = _state.value.copyWith(clearColdStart: true);
     }
   }
 
-  bool get hasReceiptPhoto => state.value.wantsReceiptPhoto || state.value.receiptPath != null;
+  bool get hasReceiptPhoto => _state.value.wantsReceiptPhoto || _state.value.receiptPath != null;
 
-  set hasReceiptPhoto(bool value) {
+  File? get currentReceiptPhoto {
+    final path = _state.value.receiptPath;
+    return path != null ? File(path) : null;
+  }
+
+  void toggleReceiptPhoto({required bool value}) {
     if (value) {
-      state.value = state.value.copyWith(wantsReceiptPhoto: true);
+      _state.value = _state.value.copyWith(wantsReceiptPhoto: true);
     } else {
-      if (state.value.receiptPath != null) {
+      if (_state.value.receiptPath != null) {
         onRemovePhoto();
       } else {
-        state.value = state.value.copyWith(wantsReceiptPhoto: false);
+        _state.value = _state.value.copyWith(wantsReceiptPhoto: false);
       }
     }
   }
@@ -170,9 +171,10 @@ class ManageRefuelViewModel {
         final r = refuel!;
         await _loadVehicleData(r.vehicleId);
         await _loadPreviousMileage(r.vehicleId, r.createdAt, r.mileage);
-        state.value = state.value.copyWith(
-          isEditing: true,
-          initial: r,
+        _editingId = r.id;
+        _editingVehicleId = r.vehicleId;
+        _editingCreatedAt = r.createdAt;
+        _state.value = _state.value.copyWith(
           mileage: r.mileage,
           totalValue: r.totalValue,
           liters: r.liters,
@@ -203,17 +205,15 @@ class ManageRefuelViewModel {
   }
 
   bool get vehicleHasColdStartReservoir {
-    final vehicle = state.value.vehicle;
-    if (vehicle == null) return false;
-    return _businessRules.vehicleHasColdStartReservoir(vehicle);
+    if (_vehicle == null) return false;
+    return _businessRules.vehicleHasColdStartReservoir(_vehicle!);
   }
 
   bool get shouldShowColdStart {
-    final vehicle = state.value.vehicle;
-    if (vehicle == null) return false;
+    if (_vehicle == null) return false;
     return _businessRules.shouldShowColdStart(
-      vehicle: vehicle,
-      selectedFuelType: state.value.fuelType,
+      vehicle: _vehicle!,
+      selectedFuelType: _state.value.fuelType,
     );
   }
 
@@ -229,7 +229,7 @@ class ManageRefuelViewModel {
       final currentMileage = NumericParser.parseInt(value);
       return _businessRules.validateMileageAgainstPrevious(
         currentMileage: currentMileage,
-        previousMileage: state.value.previousMileage,
+        previousMileage: _state.value.previousMileage,
       );
     };
   }
@@ -240,9 +240,9 @@ class ManageRefuelViewModel {
       (_) {},
       (vehicle) {
         if (vehicle != null) {
+          _vehicle = vehicle;
           final availableFuelTypes = _businessRules.getAvailableFuelTypes(vehicle);
-          state.value = state.value.copyWith(
-            vehicle: vehicle,
+          _state.value = _state.value.copyWith(
             availableFuelTypes: availableFuelTypes,
             fuelType: availableFuelTypes.first,
           );
@@ -257,18 +257,18 @@ class ManageRefuelViewModel {
       (_) {},
       (previousRefuel) {
         if (previousRefuel != null) {
-          state.value = state.value.copyWith(previousMileage: previousRefuel.mileage);
+          _state.value = _state.value.copyWith(previousMileage: previousRefuel.mileage);
         }
       },
     );
   }
 
   RefuelEntity _buildEntity() {
-    final s = state.value;
-    final isEditing = s.isEditing && s.initial != null;
+    final s = _state.value;
+    final editing = _editingId != null;
     return RefuelEntity(
-      id: isEditing ? s.initial!.id : UuidHelper.generate(),
-      vehicleId: s.initial?.vehicleId ?? s.vehicle?.id ?? '',
+      id: editing ? _editingId! : UuidHelper.generate(),
+      vehicleId: _editingVehicleId ?? _vehicle?.id ?? '',
       mileage: s.mileage,
       totalValue: s.totalValue,
       liters: s.liters,
@@ -277,8 +277,8 @@ class ManageRefuelViewModel {
       receiptPath: s.receiptPath,
       refuelDate: s.refuelDate,
       fuelType: s.fuelType,
-      createdAt: isEditing ? s.initial!.createdAt : DateTime.now(),
-      updatedAt: isEditing ? DateTime.now() : null,
+      createdAt: editing ? _editingCreatedAt! : DateTime.now(),
+      updatedAt: editing ? DateTime.now() : null,
     );
   }
 
@@ -289,31 +289,30 @@ class ManageRefuelViewModel {
   }
 
   Future<Either<Failure, Unit>?> delete() async {
-    final s = state.value;
-    if (!s.isEditing || s.initial == null) {
+    if (_editingId == null) {
       return const Left(
         ValidationFailure('Não é possível excluir um abastecimento que não foi salvo.'),
       );
     }
-    return deleteCommand.run(() => _deleteRefuel(s.initial!.id));
+    return deleteCommand.run(() => _deleteRefuel(_editingId!));
   }
 
   Future<void> onPickLocalPhoto(File file) async {
     final result = await photoCommand.run(
-      () => _saveReceiptPhoto(file: file, oldPath: state.value.receiptPath),
+      () => _saveReceiptPhoto(file: file, oldPath: _state.value.receiptPath),
     );
     result?.fold(
       (_) {},
       (newPath) {
         _stagedToDeletePhotoPath = null;
-        state.value = state.value.copyWith(receiptPath: newPath, wantsReceiptPhoto: true);
+        _state.value = _state.value.copyWith(receiptPath: newPath, wantsReceiptPhoto: true);
       },
     );
   }
 
   void onRemovePhoto() {
-    _stagedToDeletePhotoPath = state.value.receiptPath;
-    state.value = state.value.copyWith(clearPhotoPath: true);
+    _stagedToDeletePhotoPath = _state.value.receiptPath;
+    _state.value = _state.value.copyWith(clearPhotoPath: true);
   }
 
   void _cleanupStagedPhoto() {
@@ -324,25 +323,25 @@ class ManageRefuelViewModel {
     }
   }
 
-  void updateRefuelDate(DateTime date) => state.value = state.value.copyWith(refuelDate: date);
+  void updateRefuelDate(DateTime date) => _state.value = _state.value.copyWith(refuelDate: date);
 
-  void updateMileage(String value) => state.value = state.value.copyWith(mileage: NumericParser.parseInt(value));
+  void updateMileage(String value) => _state.value = _state.value.copyWith(mileage: NumericParser.parseInt(value));
 
   void updateTotalValue(String value) =>
-      state.value = state.value.copyWith(totalValue: NumericParser.parseDouble(value));
+      _state.value = _state.value.copyWith(totalValue: NumericParser.parseDouble(value));
 
-  void updateLiters(String value) => state.value = state.value.copyWith(liters: NumericParser.parseDouble(value));
+  void updateLiters(String value) => _state.value = _state.value.copyWith(liters: NumericParser.parseDouble(value));
 
   void updateColdStartLiters(String value) =>
-      state.value = state.value.copyWith(coldStartLiters: NumericParser.parseDouble(value));
+      _state.value = _state.value.copyWith(coldStartLiters: NumericParser.parseDouble(value));
 
   void updateColdStartValue(String value) =>
-      state.value = state.value.copyWith(coldStartValue: NumericParser.parseDouble(value));
+      _state.value = _state.value.copyWith(coldStartValue: NumericParser.parseDouble(value));
 
-  void updateFuelType(FuelType value) => state.value = state.value.copyWith(fuelType: value);
+  void updateFuelType(FuelType value) => _state.value = _state.value.copyWith(fuelType: value);
 
   void dispose() {
-    state.dispose();
+    _state.dispose();
     loadCommand.dispose();
     saveCommand.dispose();
     deleteCommand.dispose();

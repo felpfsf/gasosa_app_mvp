@@ -42,10 +42,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _goToCreateVehicle() async {
-    final result = await context.push(Routes.manageVehiclePath());
-    if (result == true) {
-      _viewModel.init();
-    }
+    await context.push(Routes.manageVehiclePath());
   }
 
   @override
@@ -128,12 +125,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   final vehicle = vehicles[index];
                   return VehicleCard(
                     vehicle: vehicle,
-                    onTap: () async {
-                      final result = await context.push(Routes.vehicleDetailPath(vehicle.id));
-                      if (result == true) {
-                        _viewModel.init();
-                      }
-                    },
+                    onTap: () => context.push(Routes.vehicleDetailPath(vehicle.id)),
                   );
                 },
               );

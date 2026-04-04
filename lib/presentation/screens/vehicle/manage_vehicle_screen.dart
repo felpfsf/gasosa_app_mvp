@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/app_strings.dart';
 import 'package:gasosa_app/core/di/injection.dart';
@@ -7,6 +5,7 @@ import 'package:gasosa_app/core/helpers/formatters.dart';
 import 'package:gasosa_app/core/presentation/ui_state.dart';
 import 'package:gasosa_app/core/validators/vehicle_validators.dart';
 import 'package:gasosa_app/domain/entities/fuel_type.dart';
+import 'package:gasosa_app/presentation/screens/dashboard/widgets/show_delete_vehicle_confirm_dialog.dart';
 import 'package:gasosa_app/presentation/screens/vehicle/viewmodel/manage_vehicle_viewmodel.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_appbar.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_button.dart';
@@ -33,21 +32,22 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
   final _nameController = TextEditingController();
   final _plateController = TextEditingController();
   final _tankController = TextEditingController();
-  bool _didPopulate = false;
 
   @override
   void initState() {
     super.initState();
     _viewmodel = getIt<ManageVehicleViewModel>();
     _viewmodel.init(vehicleId: widget.vehicleId);
+    _viewmodel.loadCommand.state.addListener(_onLoadStateChanged);
   }
 
-  void _populateControllersIfNeeded(ManageVehicleState s) {
-    if (_didPopulate || !s.isEdit || s.initial == null) return;
+  void _onLoadStateChanged() {
+    if (_viewmodel.loadCommand.state.value is! UiData) return;
+    final s = _viewmodel.state.value;
     _nameController.text = s.name;
     _plateController.text = s.plate;
     _tankController.text = s.tankCapacity;
-    _didPopulate = true;
+    _viewmodel.loadCommand.state.removeListener(_onLoadStateChanged);
   }
 
   Future<void> _onSave() async {
@@ -63,13 +63,19 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
   }
 
   Future<void> _onDelete() async {
-    // GasosaConfirmDialog
+    final confirmed = await showDeleteVehicleConfirmDialog(
+      context,
+      vehicleName: _viewmodel.state.value.name,
+    );
+    if (!confirmed) return;
+
     final res = await _viewmodel.delete();
+    if (!mounted) return;
     res?.fold(
       (f) => Messages.showError(context, f.message),
       (_) {
         Messages.showSuccess(context, VehicleStrings.deleteSuccess);
-        if (mounted) context.pop(true);
+        context.pop(true);
       },
     );
   }
@@ -94,13 +100,8 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
         ]),
         builder: (_, _) {
           final s = _viewmodel.state.value;
-          _populateControllersIfNeeded(s);
-          final isLoading =
-              _viewmodel.loadCommand.state.value is UiLoading ||
-              _viewmodel.saveCommand.state.value is UiLoading ||
-              _viewmodel.deleteCommand.state.value is UiLoading ||
-              _viewmodel.photoCommand.state.value is UiLoading;
-          final currentImage = (s.photoPath != null && s.photoPath!.isNotEmpty) ? File(s.photoPath!) : null;
+          final isLoading = _viewmodel.isLoading;
+          final currentImage = _viewmodel.currentPhoto;
 
           return Stack(
             children: [
@@ -173,7 +174,7 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
                                 onPressed: isLoading ? null : _onSave,
                               ),
                             ),
-                            if (s.isEdit) ...[
+                            if (_viewmodel.isEditing) ...[
                               Expanded(
                                 child: GasosaButton(
                                   label: VehicleStrings.deleteButton,

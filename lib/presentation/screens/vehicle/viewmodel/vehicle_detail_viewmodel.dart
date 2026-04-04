@@ -5,6 +5,7 @@ import 'package:gasosa_app/application/vehicles/get_vehicle_by_id_use_case.dart'
 import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/core/presentation/command.dart';
+import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/domain/entities/refuel.dart';
 import 'package:gasosa_app/domain/entities/vehicle.dart';
 import 'package:injectable/injectable.dart';
@@ -25,8 +26,11 @@ class VehicleDetailViewModel {
   final Command<Unit> loadCommand;
   final Command<Unit> deleteCommand;
 
-  final ValueNotifier<VehicleEntity?> vehicle = ValueNotifier(null);
-  final ValueNotifier<List<RefuelEntity>> refuels = ValueNotifier([]);
+  final ValueNotifier<VehicleEntity?> _vehicle = ValueNotifier(null);
+  final ValueNotifier<List<RefuelEntity>> _refuels = ValueNotifier([]);
+
+  ValueListenable<VehicleEntity?> get vehicle => _vehicle;
+  ValueListenable<List<RefuelEntity>> get refuels => _refuels;
 
   Future<void> init(String vehicleId) async {
     await loadCommand.run(() async {
@@ -45,8 +49,8 @@ class VehicleDetailViewModel {
               return (vehicle: v, refuels: sorted);
             })
             .map((data) {
-              vehicle.value = data.vehicle;
-              refuels.value = data.refuels;
+              _vehicle.value = data.vehicle;
+              _refuels.value = data.refuels;
               return unit;
             });
       });
@@ -55,10 +59,23 @@ class VehicleDetailViewModel {
 
   Future<Either<Failure, Unit>?> deleteVehicle(String vehicleId) => deleteCommand.run(() => _delete(vehicleId));
 
+  String get vehicleName => _vehicle.value?.name ?? '';
+  String get vehiclePhotoPath => _vehicle.value?.photoPath ?? '';
+  String get fuelTypeLabel => _vehicle.value?.fuelType.displayName ?? '';
+
+  String get vehicleSubtitle {
+    final v = _vehicle.value;
+    if (v == null) return '';
+    final plate = (v.plate ?? '').toUpperCase();
+    final cap = v.tankCapacity?.toStringAsFixed(0) ?? 'N/A';
+    final capLabel = 'Capacidade do tanque: $cap${v.tankCapacity != null ? ' L' : ''}';
+    return [if (plate.isNotEmpty) 'Placa: $plate', capLabel].join(' • ');
+  }
+
   void dispose() {
     loadCommand.dispose();
     deleteCommand.dispose();
-    vehicle.dispose();
-    refuels.dispose();
+    _vehicle.dispose();
+    _refuels.dispose();
   }
 }

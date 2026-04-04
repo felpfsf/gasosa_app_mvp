@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/app_strings.dart';
 import 'package:gasosa_app/core/di/injection.dart';
-import 'package:gasosa_app/core/presentation/ui_state.dart';
 import 'package:gasosa_app/core/validators/user_validators.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/screens/auth/viewmodel/register_viewmodel.dart';
@@ -38,7 +37,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Future<void> _handleRegister() async {
-    if (_viewModel.registerCommand.state.value is UiLoading) return;
+    if (_viewModel.isLoading) return;
     if (!_formKey.currentState!.validate()) return;
     final result = await _viewModel.register(
       name: _nameEC.text,
@@ -60,7 +59,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return ListenableBuilder(
       listenable: _viewModel.registerCommand.state,
       builder: (_, _) {
-        final isLoading = _viewModel.registerCommand.state.value is UiLoading;
+        final isLoading = _viewModel.isLoading;
         return Scaffold(
           appBar: GasosaAppbar(
             title: 'Registrar',
@@ -125,11 +124,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   void dispose() {
-    super.dispose();
     _nameEC.dispose();
     _emailEC.dispose();
     _passwordEC.dispose();
     _confirmPasswordEC.dispose();
     _viewModel.dispose();
+    super.dispose();
   }
 }

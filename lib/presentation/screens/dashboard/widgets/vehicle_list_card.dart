@@ -21,15 +21,17 @@ class VehicleCard extends StatelessWidget {
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
-  @override
-  Widget build(BuildContext context) {
+  String get _subtitle {
     final plate = (vehicle.plate ?? '').trim();
     final capacity = vehicle.tankCapacity;
-    final subtitle = [
+    return [
       if (plate.isNotEmpty) plate.toUpperCase(),
       if (capacity != null) '${capacity.toStringAsFixed(0)} L',
     ].join(' • ');
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Dismissible(
       key: Key('vehicle_${vehicle.id}'),
       direction: DismissDirection.endToStart,
@@ -46,10 +48,7 @@ class VehicleCard extends StatelessWidget {
           size: 24,
         ),
       ),
-      confirmDismiss: (direction) async {
-        onDelete?.call();
-        return true;
-      },
+      confirmDismiss: (direction) async => true,
       onDismissed: (direction) {
         onDelete?.call();
       },
@@ -71,9 +70,9 @@ class VehicleCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  if (subtitle.isNotEmpty)
+                  if (_subtitle.isNotEmpty)
                     Text(
-                      subtitle,
+                      _subtitle,
                       style: AppTypography.textSmRegular.copyWith(color: AppColors.warning),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -119,39 +118,63 @@ class VehicleCard extends StatelessWidget {
   }
 }
 
-class _VehicleThumbnail extends StatelessWidget {
+class _VehicleThumbnail extends StatefulWidget {
   const _VehicleThumbnail(this.photoUrl);
 
   final String? photoUrl;
 
   @override
+  State<_VehicleThumbnail> createState() => _VehicleThumbnailState();
+}
+
+class _VehicleThumbnailState extends State<_VehicleThumbnail> {
+  bool _fileExists = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkFile(widget.photoUrl);
+  }
+
+  @override
+  void didUpdateWidget(_VehicleThumbnail oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.photoUrl != widget.photoUrl) {
+      _checkFile(widget.photoUrl);
+    }
+  }
+
+  Future<void> _checkFile(String? path) async {
+    final exists = path != null && path.isNotEmpty && await File(path).exists();
+    if (mounted) setState(() => _fileExists = exists);
+  }
+
+  @override
   Widget build(BuildContext context) {
     const double size = 48.0;
     final radius = BorderRadius.circular(24);
-    Widget child;
-    if (photoUrl != null && photoUrl!.isNotEmpty && File(photoUrl!).existsSync()) {
-      child = ClipRRect(
+
+    if (_fileExists) {
+      return ClipRRect(
         borderRadius: radius,
         child: Image.file(
-          File(photoUrl!),
+          File(widget.photoUrl!),
           width: size,
           height: size,
           fit: BoxFit.cover,
         ),
       );
-    } else {
-      child = Container(
-        width: size,
-        height: size,
-        decoration: BoxDecoration(
-          color: AppColors.surface,
-          borderRadius: radius,
-          border: Border.all(color: AppColors.border),
-        ),
-        child: const Icon(Icons.directions_car_filled_outlined, color: AppColors.primary),
-      );
     }
 
-    return child;
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: radius,
+        border: Border.all(color: AppColors.border),
+      ),
+      child: const Icon(Icons.directions_car_filled_outlined, color: AppColors.primary),
+    );
   }
 }

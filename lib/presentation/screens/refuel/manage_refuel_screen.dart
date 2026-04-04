@@ -175,8 +175,8 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                         title: RefuelStrings.coldStartCheckboxLabel,
                         value: _viewmodel.hasColdStart,
                         onChanged: (value) {
-                          setState(() => _viewmodel.setColdStart(value: value ?? false));
-                          if (!(value ?? false)) {
+                          setState(() => _viewmodel.setColdStart(value: value));
+                          if (!value) {
                             _coldStartLitersEC.clear();
                             _coldStartValueEC.clear();
                           }
@@ -202,7 +202,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
                     GasosaCheckbox(
                       title: RefuelStrings.receiptCheckboxLabel,
                       value: _viewmodel.hasReceiptPhoto,
-                      onChanged: (value) => setState(() => _viewmodel.toggleReceiptPhoto(value: value ?? false)),
+                      onChanged: (value) => setState(() => _viewmodel.toggleReceiptPhoto(value: value)),
                     ),
                     if (_viewmodel.shouldShowReceiptPhotoInput) ...[
                       GasosaPhotoPicker(

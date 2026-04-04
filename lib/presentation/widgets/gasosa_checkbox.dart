@@ -14,7 +14,7 @@ class GasosaCheckbox extends StatelessWidget {
 
   final String title;
   final bool value;
-  final Function(bool?)? onChanged;
+  final ValueChanged<bool>? onChanged;
   final Widget? subtitle;
 
   @override
@@ -26,7 +26,7 @@ class GasosaCheckbox extends StatelessWidget {
         title: Text(title, style: AppTypography.textSmBold),
         subtitle: subtitle,
         value: value,
-        onChanged: onChanged,
+        onChanged: onChanged != null ? (v) => onChanged!(v ?? false) : null,
         activeColor: AppColors.primary,
         checkColor: AppColors.text,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppSpacing.md)),

@@ -28,6 +28,12 @@ abstract final class VehicleStrings {
   static const tankCapacityLabel = 'Capacidade do Tanque (L) — opcional';
   static const fuelTypeLabel = 'Tipo de Combustível';
   static const photoLabel = 'Foto do Veículo - opcional';
+
+  // Hints
+  static const nameHint = 'Ex: Gol 1.0, Civic EX…';
+  static const plateHint = 'Ex: ABC1D23';
+  static const tankCapacityHint = 'Ex: 50';
+
   static const saveButton = 'Salvar';
   static const deleteButton = 'Excluir';
   static const saveSuccess = 'Veículo salvo com sucesso!';
@@ -61,6 +67,14 @@ abstract final class RefuelStrings {
   static const coldStartValueLabel = 'Valor total (partida a frio)';
   static const receiptCheckboxLabel = 'Comprovante de Abastecimento?';
   static const receiptPhotoLabel = 'Comprovante de Abastecimento';
+
+  // Hints
+  static const mileageHint = 'Ex: 45000';
+  static const litersHint = 'Ex: 40,00';
+  static const totalValueHint = 'Ex: 280,00';
+  static const coldStartLitersHint = 'Ex: 5,00';
+  static const coldStartValueHint = 'Ex: 35,00';
+
   static const saveButton = 'Salvar';
   static const deleteButton = 'Excluir';
   static const saveSuccess = 'Abastecimento salvo com sucesso!';

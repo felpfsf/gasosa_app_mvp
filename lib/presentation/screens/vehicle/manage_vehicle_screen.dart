@@ -116,12 +116,14 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
                       children: [
                         GasosaFormField(
                           label: VehicleStrings.nameLabel,
+                          hint: VehicleStrings.nameHint,
                           controller: _nameController,
                           onChanged: _viewmodel.updateName,
                           validator: VehicleValidators.name,
                         ),
                         GasosaFormField(
                           label: VehicleStrings.plateLabel,
+                          hint: VehicleStrings.plateHint,
                           controller: _plateController,
                           onChanged: _viewmodel.updatePlate,
                           validator: (value) {
@@ -133,6 +135,7 @@ class _ManageVehicleScreenState extends State<ManageVehicleScreen> {
                         ),
                         GasosaFormField(
                           label: VehicleStrings.tankCapacityLabel,
+                          hint: VehicleStrings.tankCapacityHint,
                           controller: _tankController,
                           onChanged: _viewmodel.updateTankCapacity,
                           keyboardType: const TextInputType.numberWithOptions(decimal: true),

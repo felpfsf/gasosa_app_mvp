@@ -51,7 +51,7 @@ void main() {
       final cmd = Command<int>();
       final result = await cmd.run(() async => right(7));
       expect(result?.isRight, isTrue);
-      expect((result as Right).value, 7);
+      expect((result! as Right).value, 7);
       cmd.dispose();
     });
   });
@@ -72,9 +72,9 @@ void main() {
 
     test('retorna Left quando action falha', () async {
       final cmd = Command<int>();
-      final failure = DatabaseFailure('db error', null, null);
+      const failure = DatabaseFailure('db error', null, null);
 
-      final result = await cmd.run(() async => Left(failure));
+      final result = await cmd.run(() async => const Left(failure));
 
       expect(result?.isLeft, isTrue);
       cmd.dispose();

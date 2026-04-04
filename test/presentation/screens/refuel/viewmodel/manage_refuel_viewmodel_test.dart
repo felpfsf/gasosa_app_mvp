@@ -22,10 +22,7 @@ void main() {
   late MockDeletePhotoUseCase mockDeletePhoto;
   late ManageRefuelViewModel viewModel;
 
-  final vehicle = VehicleFactory.createValid(
-    id: 'v-1',
-    fuelType: FuelType.gasoline,
-  );
+  final vehicle = VehicleFactory.createValid(id: 'v-1');
 
   setUp(() {
     mockGetVehicle = MockGetVehicleByIdUseCase();

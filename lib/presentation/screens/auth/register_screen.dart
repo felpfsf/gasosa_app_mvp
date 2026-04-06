@@ -4,12 +4,12 @@ import 'package:gasosa_app/core/di/injection.dart';
 import 'package:gasosa_app/core/validators/user_validators.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/screens/auth/viewmodel/register_viewmodel.dart';
-import 'package:gasosa_app/presentation/widgets/gasosa_appbar.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_button.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_form_field.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_password_field.dart';
 import 'package:gasosa_app/presentation/widgets/logo_hero.dart';
 import 'package:gasosa_app/presentation/widgets/messages.dart';
+import 'package:gasosa_app/theme/app_colors.dart';
 import 'package:gasosa_app/theme/app_spacing.dart';
 import 'package:gasosa_app/theme/app_typography.dart';
 import 'package:go_router/go_router.dart';
@@ -61,63 +61,101 @@ class _RegisterScreenState extends State<RegisterScreen> {
       builder: (_, _) {
         final isLoading = _viewModel.isLoading;
         return Scaffold(
-          appBar: GasosaAppbar(
-            title: 'Registrar',
-            showBackButton: true,
-            onBackPressed: () => context.go(Routes.login),
-          ),
           body: SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: AppSpacing.paddingMd,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    spacing: AppSpacing.lg,
-                    children: [
-                      const LogoHero(size: 200),
-                      Text(AuthStrings.registerTitle, style: AppTypography.titleLg),
-                      Form(
-                        key: _formKey,
-                        child: Column(
-                          spacing: AppSpacing.md,
-                          children: [
-                            GasosaFormField(
-                              label: AuthStrings.nameLabel,
-                              hint: AuthStrings.nameHint,
-                              controller: _nameEC,
-                              validator: UserValidators.name,
-                            ),
-                            GasosaFormField(
-                              label: AuthStrings.emailRegisterLabel,
-                              hint: AuthStrings.emailHint,
-                              controller: _emailEC,
-                              keyboardType: TextInputType.emailAddress,
-                              validator: UserValidators.email,
-                            ),
-                            GasosaPasswordField(
-                              label: AuthStrings.passwordLabel,
-                              hint: AuthStrings.passwordHint,
-                              controller: _passwordEC,
-                              validator: UserValidators.password,
-                            ),
-                            GasosaPasswordField(
-                              label: AuthStrings.confirmPasswordLabel,
-                              hint: AuthStrings.confirmPasswordHint,
-                              controller: _confirmPasswordEC,
-                              validator: UserValidators.confirmPassword(_passwordEC),
-                            ),
-                            AppSpacing.gap8,
-                            GasosaButton(
-                              label: AuthStrings.registerButton,
-                              onPressed: isLoading ? null : () => _handleRegister(),
-                            ),
-                          ],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.sm),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          onPressed: () => context.go(Routes.login),
+                          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                          padding: EdgeInsets.zero,
+                          visualDensity: VisualDensity.compact,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          AppSpacing.gap16,
+                          const LogoHero(size: 120),
+                          AppSpacing.gap8,
+                          Text(
+                            AuthStrings.registerTitle,
+                            style: AppTypography.titleSm,
+                            textAlign: TextAlign.center,
+                          ),
+                          AppSpacing.gap24,
+                          Container(
+                            padding: AppSpacing.paddingMd,
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: AppSpacing.radiusLg,
+                              border: Border.all(color: AppColors.border),
+                            ),
+                            child: Form(
+                              key: _formKey,
+                              child: Column(
+                                spacing: AppSpacing.md,
+                                children: [
+                                  GasosaFormField(
+                                    label: AuthStrings.nameLabel,
+                                    hint: AuthStrings.nameHint,
+                                    controller: _nameEC,
+                                    validator: UserValidators.name,
+                                  ),
+                                  GasosaFormField(
+                                    label: AuthStrings.emailRegisterLabel,
+                                    hint: AuthStrings.emailHint,
+                                    controller: _emailEC,
+                                    keyboardType: TextInputType.emailAddress,
+                                    validator: UserValidators.email,
+                                  ),
+                                  GasosaPasswordField(
+                                    label: AuthStrings.passwordLabel,
+                                    hint: AuthStrings.passwordHint,
+                                    controller: _passwordEC,
+                                    validator: UserValidators.password,
+                                  ),
+                                  GasosaPasswordField(
+                                    label: AuthStrings.confirmPasswordLabel,
+                                    hint: AuthStrings.confirmPasswordHint,
+                                    controller: _confirmPasswordEC,
+                                    validator: UserValidators.confirmPassword(_passwordEC),
+                                  ),
+                                  AppSpacing.gap4,
+                                  GasosaButton(
+                                    label: AuthStrings.registerButton,
+                                    onPressed: isLoading ? null : _handleRegister,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          AppSpacing.gap16,
+                        ],
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                    child: GestureDetector(
+                      onTap: () => context.go(Routes.login),
+                      child: Text(
+                        AuthStrings.loginLink,
+                        style: AppTypography.textMdBold.copyWith(color: AppColors.primary),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),

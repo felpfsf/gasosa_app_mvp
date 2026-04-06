@@ -4,6 +4,7 @@ abstract final class AuthStrings {
   static const loginButton = 'Entrar';
   static const registerButton = 'Cadastrar';
   static const registerLink = 'Não tem uma conta? Cadastre-se';
+  static const loginLink = 'Já tem uma conta? Entrar';
   static const emailLabel = 'Email';
   static const emailRegisterLabel = 'E-mail';
   static const passwordLabel = 'Senha';

@@ -72,68 +72,86 @@ class _LoginScreenState extends State<LoginScreen> {
         final isLoading = _viewModel.isLoading;
         return Scaffold(
           body: SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: AppSpacing.paddingMd,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    spacing: AppSpacing.lg,
-                    children: [
-                      const LogoHero(size: 200),
-                      Text(AuthStrings.loginTitle, style: AppTypography.titleLg),
-                      AuthGoogleButton(
-                        onPressed: isLoading ? null : () => _handleGoogleSignIn(),
-                        isLoading: isLoading,
-                      ),
-                      _buildDivider(),
-                      Form(
-                        key: _formKey,
-                        child: Column(
-                          spacing: AppSpacing.lg,
-                          children: [
-                            GasosaFormField(
-                              label: AuthStrings.emailLabel,
-                              hint: AuthStrings.emailHint,
-                              controller: _emailEC,
-                              keyboardType: TextInputType.emailAddress,
-                              validator: UserValidators.email,
-                            ),
-                            GasosaPasswordField(
-                              label: AuthStrings.passwordLabel,
-                              hint: AuthStrings.passwordHint,
-                              controller: _passwordEC,
-                              validator: UserValidators.password,
-                            ),
-                            GasosaButton(
-                              label: AuthStrings.loginButton,
-                              isDisabled: isLoading,
-                              onPressed: isLoading ? null : () => _handleLoginWithEmailPassword(),
-                            ),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: TextButton(
-                                onPressed: () => context.push(Routes.forgotPassword),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              child: Column(
+                children: [
+                  const Spacer(),
+                  const LogoHero(size: 120),
+                  AppSpacing.gap8,
+                  Text(
+                    AuthStrings.loginTitle,
+                    style: AppTypography.titleSm,
+                    textAlign: TextAlign.center,
+                  ),
+                  AppSpacing.gap24,
+                  AuthGoogleButton(
+                    onPressed: isLoading ? null : _handleGoogleSignIn,
+                    isLoading: isLoading,
+                  ),
+                  AppSpacing.gap16,
+                  _buildDivider(),
+                  AppSpacing.gap16,
+                  Container(
+                    padding: AppSpacing.paddingMd,
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: AppSpacing.radiusLg,
+                      border: Border.all(color: AppColors.border),
+                    ),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        spacing: AppSpacing.md,
+                        children: [
+                          GasosaFormField(
+                            label: AuthStrings.emailLabel,
+                            hint: AuthStrings.emailHint,
+                            controller: _emailEC,
+                            keyboardType: TextInputType.emailAddress,
+                            validator: UserValidators.email,
+                          ),
+                          GasosaPasswordField(
+                            label: AuthStrings.passwordLabel,
+                            hint: AuthStrings.passwordHint,
+                            controller: _passwordEC,
+                            validator: UserValidators.password,
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              GestureDetector(
+                                onTap: () => context.push(Routes.forgotPassword),
                                 child: Text(
                                   AuthStrings.forgotPasswordLink,
-                                  style: AppTypography.textMdRegular.copyWith(
+                                  style: AppTypography.textSmRegular.copyWith(
                                     color: AppColors.primary,
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
+                          GasosaButton(
+                            label: AuthStrings.loginButton,
+                            isDisabled: isLoading,
+                            onPressed: isLoading ? null : _handleLoginWithEmailPassword,
+                          ),
+                        ],
                       ),
-                      _linkRow(
-                        AuthStrings.registerLink,
-                        () {
-                          context.go(Routes.register);
-                        },
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                  const Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                    child: GestureDetector(
+                      onTap: () => context.go(Routes.register),
+                      child: Text(
+                        AuthStrings.registerLink,
+                        style: AppTypography.textMdBold.copyWith(color: AppColors.primary),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -142,33 +160,20 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _linkRow(String text, VoidCallback? onPressed) {
-    return GestureDetector(
-      onTap: onPressed,
-      child: Text(
-        text,
-        style: AppTypography.textMdBold.copyWith(color: AppColors.primary),
-      ),
-    );
-  }
-
   Widget _buildDivider() {
-    return const Row(
+    return Row(
       children: [
-        Expanded(
-          child: Divider(
-            thickness: 1,
-          ),
-        ),
+        const Expanded(child: Divider(thickness: 1)),
         Padding(
           padding: AppSpacing.paddingHorizontalSm,
-          child: Text('ou'),
-        ),
-        Expanded(
-          child: Divider(
-            thickness: 1,
+          child: Text(
+            'ou',
+            style: AppTypography.textSmRegular.copyWith(
+              color: AppColors.text.withValues(alpha: 0.5),
+            ),
           ),
         ),
+        const Expanded(child: Divider(thickness: 1)),
       ],
     );
   }

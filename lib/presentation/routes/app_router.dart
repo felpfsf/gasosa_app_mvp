@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/app_strings.dart';
 import 'package:gasosa_app/core/navigation/observability_navigator_observer.dart';
@@ -129,6 +130,7 @@ GoRouter buildAppRouter(
       ),
       GoRoute(
         path: Routes.devRefuelPreview,
+        redirect: (_, _) => kDebugMode ? null : Routes.dashboard,
         builder: (_, _) => const RefuelListPreviewScreen(),
       ),
     ],

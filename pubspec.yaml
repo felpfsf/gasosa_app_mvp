@@ -1,5 +1,5 @@
 name: gasosa_app
-description: "A new Flutter project."
+description: "Gasosa — controle de abastecimentos e consumo do seu veículo."
 publish_to: 'none'
 
 version: 1.0.0+1

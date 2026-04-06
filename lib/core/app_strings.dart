@@ -166,3 +166,37 @@ abstract final class RefuelValidatorStrings {
   static const fuelTypeRequired = 'Selecione o tipo de combustível';
   static const dateRequired = 'Data do abastecimento é obrigatória';
 }
+
+// ---------------------------------------------------------------------------
+// Auth error messages
+// ---------------------------------------------------------------------------
+
+abstract final class AuthErrorStrings {
+  // Firebase Auth errors
+  static const invalidCredentials = 'Email ou senha inválidos';
+  static const emailAlreadyInUse = 'Email já está em uso';
+  static const networkFailed = 'Falha na conexão com a internet';
+  static const accountLinkedToDifferentProvider =
+      'Este e-mail já está vinculado a outro método de login. '
+      'Entre pelo método original e depois vincule o Google nas Configurações.';
+  static const userDisabled = 'Usuário desativado';
+  static const unexpectedAuth = 'Erro inesperado de autenticação';
+
+  // Google Sign-In errors
+  static const googleSignInConfig =
+      'Erro de configuração do Google Sign-In. '
+      'Verifique as credenciais SHA no Firebase Console.';
+  static String googleSignInFailedWithDetail(String detail) => 'Falha no Google Sign-In: $detail';
+  static const googleSignInCanceled = 'Login cancelado pelo usuário';
+  static const googleSignInInterrupted = 'Login interrompido. Tente novamente.';
+  static const googleSignInUiUnavailable = 'UI de login indisponível.';
+  static const googleSignInFailed = 'Falha no Google Sign-In';
+
+  // Auth service errors
+  static const googleCredentialsMissing = 'Erro ao obter credenciais do Google';
+  static const nullUser = 'Falha de autenticação, usuário nulo';
+  static const logoutFailed = 'Falha ao sair';
+  static const passwordResetFailed = 'Erro ao enviar e-mail de redefinição';
+  static const googleCredentialsMissingLink = 'Sem credenciais do Google';
+  static const googleLinkFailed = 'Falha ao vincular com o Google';
+}

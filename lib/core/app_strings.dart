@@ -15,6 +15,20 @@ abstract final class AuthStrings {
   static const emailHint = 'Ex: joao@email.com';
   static const passwordHint = 'Mínimo 6 caracteres';
   static const confirmPasswordHint = 'Repita a senha';
+
+  // Forgot password
+  static const forgotPasswordLink = 'Esqueci minha senha';
+}
+
+abstract final class ForgotPasswordStrings {
+  static const appBarTitle = 'Redefinir senha';
+  static const instructions = 'Digite o e-mail da sua conta. Enviaremos um link para redefinir sua senha.';
+  static const emailLabel = 'E-mail';
+  static const emailHint = 'Ex: joao@email.com';
+  static const sendButton = 'Enviar link';
+  static const successTitle = 'E-mail enviado!';
+  static const successMessage = 'Verifique sua caixa de entrada (e o spam) e siga as instruções.';
+  static const backToLoginButton = 'Voltar ao login';
 }
 
 abstract final class DashboardStrings {

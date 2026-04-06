@@ -8,6 +8,7 @@ class Command<T> {
 
   final ValueNotifier<UiState<T>> state;
   bool _running = false;
+  bool _disposed = false;
 
   /// Runs [action] if no other call is in progress.
   /// Returns null when skipped due to a concurrent execution.
@@ -16,14 +17,16 @@ class Command<T> {
   ) async {
     if (_running) return null;
     _running = true;
-    state.value = const UiLoading();
+    if (!_disposed) state.value = const UiLoading();
 
     try {
       final result = await action();
-      result.fold(
-        (l) => state.value = UiError(l),
-        (r) => state.value = UiData(r),
-      );
+      if (!_disposed) {
+        result.fold(
+          (l) => state.value = UiError(l),
+          (r) => state.value = UiData(r),
+        );
+      }
       return result;
     } finally {
       _running = false;
@@ -33,5 +36,8 @@ class Command<T> {
   /// Resets state to [UiInitial], e.g. to dismiss an error.
   void reset() => state.value = const UiInitial();
 
-  void dispose() => state.dispose();
+  void dispose() {
+    _disposed = true;
+    state.dispose();
+  }
 }

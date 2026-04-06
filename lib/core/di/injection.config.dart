@@ -16,6 +16,8 @@ import 'package:gasosa_app/application/auth/login_with_google_use_case.dart'
     as _i239;
 import 'package:gasosa_app/application/auth/logout_use_case.dart' as _i310;
 import 'package:gasosa_app/application/auth/register_use_case.dart' as _i345;
+import 'package:gasosa_app/application/auth/send_password_reset_use_case.dart'
+    as _i225;
 import 'package:gasosa_app/application/photos/delete_photo_use_case.dart'
     as _i596;
 import 'package:gasosa_app/application/photos/save_photo_use_case.dart'
@@ -164,6 +166,9 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i345.RegisterUseCase>(
       () => _i345.RegisterUseCase(auth: gh<_i602.AuthService>()),
     );
+    gh.factory<_i225.SendPasswordResetUseCase>(
+      () => _i225.SendPasswordResetUseCase(auth: gh<_i602.AuthService>()),
+    );
     gh.factory<_i469.CreateOrUpdateVehicleUseCase>(
       () => _i469.CreateOrUpdateVehicleUseCase(
         repository: gh<_i35.VehicleRepository>(),
@@ -211,6 +216,7 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i788.LoginViewModel(
         gh<_i239.LoginWithGoogleUseCase>(),
         gh<_i769.LoginEmailPasswordUseCase>(),
+        gh<_i225.SendPasswordResetUseCase>(),
       ),
     );
     gh.factory<_i1034.ManageRefuelViewModel>(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/app_strings.dart';
 import 'package:gasosa_app/presentation/routes/auth_refresh_notifier.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
+import 'package:gasosa_app/presentation/screens/auth/forgot_password_screen.dart';
 import 'package:gasosa_app/presentation/screens/auth/login_screen.dart';
 import 'package:gasosa_app/presentation/screens/auth/register_screen.dart';
 import 'package:gasosa_app/presentation/screens/dashboard/dashboard_screen.dart';
@@ -25,6 +26,7 @@ GoRouter buildAppRouter(AuthRefreshNotifier notifier, FirebaseAuth auth) {
       Routes.splash,
       Routes.login,
       Routes.register,
+      Routes.forgotPassword,
     };
 
     if (loc == Routes.splash) {
@@ -78,6 +80,10 @@ GoRouter buildAppRouter(AuthRefreshNotifier notifier, FirebaseAuth auth) {
         builder: (_, _) => const RegisterScreen(),
       ),
       GoRoute(
+        path: Routes.forgotPassword,
+        builder: (_, _) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
         path: Routes.dashboard,
         builder: (_, _) => const DashboardScreen(),
       ),
@@ -117,7 +123,7 @@ GoRouter buildAppRouter(AuthRefreshNotifier notifier, FirebaseAuth auth) {
       ),
       GoRoute(
         path: Routes.devRefuelPreview,
-        builder: (_, __) => const RefuelListPreviewScreen(),
+        builder: (_, _) => const RefuelListPreviewScreen(),
       ),
     ],
   );

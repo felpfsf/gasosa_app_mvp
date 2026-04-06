@@ -110,6 +110,18 @@ class _LoginScreenState extends State<LoginScreen> {
                               isDisabled: isLoading,
                               onPressed: isLoading ? null : () => _handleLoginWithEmailPassword(),
                             ),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
+                                onPressed: () => context.push(Routes.forgotPassword),
+                                child: Text(
+                                  AuthStrings.forgotPasswordLink,
+                                  style: AppTypography.textMdRegular.copyWith(
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),

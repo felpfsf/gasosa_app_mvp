@@ -27,8 +27,17 @@ class DashboardViewModel {
   final ValueNotifier<AuthUser?> _currentUser = ValueNotifier(null);
   ValueListenable<AuthUser?> get currentUser => _currentUser;
 
+  StreamSubscription<AuthUser?>? _userChangesSubscription;
+
   Future<void> init() async {
     _currentUser.value = await _auth.currentUser();
+
+    // Reage a atualizações de perfil (ex: displayName após registro)
+    _userChangesSubscription?.cancel();
+    _userChangesSubscription = _auth.userChanges().listen((user) {
+      if (user != null) _currentUser.value = user;
+    });
+
     final uid = _currentUser.value?.id;
     if (uid == null || uid.isEmpty) {
       watchVehicles.state.value = const UiError(ValidationFailure('Usuário não autenticado'));
@@ -53,6 +62,7 @@ class DashboardViewModel {
   void retry() => init();
 
   void dispose() {
+    _userChangesSubscription?.cancel();
     watchVehicles.dispose();
     _currentUser.dispose();
   }

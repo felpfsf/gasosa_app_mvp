@@ -21,7 +21,7 @@ class GasosaFormField extends StatelessWidget {
     this.validator,
     this.inputFormatters,
     this.onChanged,
-    this.captitalText = TextCapitalization.sentences,
+    this.captitalText = TextCapitalization.none,
   }) : assert(
          controller == null || initialValue == null,
          'Cannot provide both controller and initialValue',

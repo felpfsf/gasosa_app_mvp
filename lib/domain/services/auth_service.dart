@@ -15,9 +15,11 @@ class AuthUser {
 
 abstract interface class AuthService {
   Future<AuthUser?> currentUser();
+  Stream<AuthUser?> userChanges();
   Future<Either<Failure, AuthUser>> register(String name, String email, String password);
   Future<Either<Failure, AuthUser>> loginWithEmail(String email, String password);
   Future<Either<Failure, AuthUser>> loginWithGoogle();
   Future<Either<Failure, Either<Failure, void>>> linkGoogleAfterPasswordLogin();
   Future<Either<Failure, void>> logout();
+  Future<Either<Failure, void>> sendPasswordReset(String email);
 }

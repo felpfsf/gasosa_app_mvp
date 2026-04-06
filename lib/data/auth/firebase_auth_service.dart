@@ -21,7 +21,6 @@ class FirebaseAuthService implements AuthService {
     try {
       final credential = await _auth.signInWithEmailAndPassword(email: email, password: password);
       final user = credential.user!;
-
       return right(AuthUser(user.uid, user.displayName ?? '', user.email ?? email));
     } on fb.FirebaseAuthException catch (e, s) {
       return left(_mapFirebaseAuthError(e, s));
@@ -66,10 +65,15 @@ class FirebaseAuthService implements AuthService {
 
   @override
   Future<AuthUser?> currentUser() async {
-    final fbUser = await _auth.authStateChanges().first;
+    final fbUser = _auth.currentUser;
     if (fbUser == null) return null;
     return AuthUser(fbUser.uid, fbUser.displayName ?? '', fbUser.email ?? '');
   }
+
+  @override
+  Stream<AuthUser?> userChanges() => _auth.userChanges().map(
+    (fbUser) => fbUser == null ? null : AuthUser(fbUser.uid, fbUser.displayName ?? '', fbUser.email ?? ''),
+  );
 
   @override
   Future<Either<Failure, void>> logout() async {
@@ -86,11 +90,27 @@ class FirebaseAuthService implements AuthService {
     try {
       final credential = await _auth.createUserWithEmailAndPassword(email: email, password: password);
       final user = credential.user!;
-      return right(AuthUser(user.uid, name, user.email ?? email));
+      await user.updateDisplayName(name);
+      await user.reload();
+      final refreshedUser = _auth.currentUser!;
+
+      return right(AuthUser(refreshedUser.uid, refreshedUser.displayName ?? name, refreshedUser.email ?? email));
     } on fb.FirebaseAuthException catch (e, s) {
       return left(_mapFirebaseAuthError(e, s));
     } catch (e, s) {
       return left(UnexpectedFailure('Erro inesperado de autenticação', e, s));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> sendPasswordReset(String email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      return right(null);
+    } on fb.FirebaseAuthException catch (e, s) {
+      return left(_mapFirebaseAuthError(e, s));
+    } catch (e, s) {
+      return left(UnexpectedFailure('Erro ao enviar e-mail de redefinição', e, s));
     }
   }
 

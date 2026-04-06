@@ -263,7 +263,7 @@ class _ManageRefuelScreenState extends State<ManageRefuelScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: AppSpacing.sm,
       children: [
-        Text('Tipo de Combustível', style: AppTypography.textSmBold),
+        Text(RefuelStrings.fuelTypeLabel, style: AppTypography.textSmBold),
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.md),

@@ -5,12 +5,14 @@ import 'package:gasosa_app/core/app_strings.dart';
 import 'package:gasosa_app/core/di/injection.dart';
 import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/presentation/ui_state.dart';
+import 'package:gasosa_app/domain/entities/vehicle.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/screens/dashboard/widgets/show_delete_vehicle_confirm_dialog.dart';
 import 'package:gasosa_app/presentation/screens/vehicle/viewmodel/vehicle_detail_viewmodel.dart';
 import 'package:gasosa_app/presentation/screens/vehicle/widgets/refuel_list.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_appbar.dart';
-import 'package:gasosa_app/presentation/widgets/gasosa_card.dart';
+import 'package:gasosa_app/presentation/widgets/gasosa_error_state_widget.dart';
+import 'package:gasosa_app/presentation/widgets/messages.dart';
 import 'package:gasosa_app/theme/app_colors.dart';
 import 'package:gasosa_app/theme/app_spacing.dart';
 import 'package:gasosa_app/theme/app_typography.dart';
@@ -56,9 +58,7 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
     if (!mounted) return;
 
     result?.fold(
-      (failure) => ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(failure.message)),
-      ),
+      (failure) => Messages.showError(context, failure.message),
       (_) => context.pop(true),
     );
   }
@@ -123,15 +123,8 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
           }
 
           if (loadState is UiError<Unit>) {
-            return Padding(
-              padding: AppSpacing.paddingMd,
-              child: Center(
-                child: Text(
-                  loadState.message,
-                  style: AppTypography.textMdBold.copyWith(color: AppColors.error),
-                  textAlign: TextAlign.center,
-                ),
-              ),
+            return GasosaErrorStateWidget(
+              errorMessage: loadState.message,
             );
           }
 
@@ -142,62 +135,43 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
 
           final refuels = _viewModel.refuels.value;
 
-          return Column(
-            children: [
-              /// Header
-              Padding(
-                padding: AppSpacing.paddingMd,
-                child: GasosaCard(
-                  padding: EdgeInsets.zero,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _HeaderImage(imageUrl: vehicle.photoPath),
-                      Padding(
-                        padding: AppSpacing.paddingMd,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: AppSpacing.md,
-                          children: [
-                            Text(vehicle.name, style: AppTypography.titleLg),
-                            Text(
-                              'Tipo de Combustível: ${_viewModel.fuelTypeLabel}',
-                              style: AppTypography.textSmRegular,
-                            ),
-                            if (_viewModel.vehicleSubtitle.isNotEmpty)
-                              Text(_viewModel.vehicleSubtitle, style: AppTypography.textSmRegular),
-                          ],
+          final imageHeight = MediaQuery.of(context).size.width * (9.0 / 16.0);
+          final expandedHeight = imageHeight + 132.0;
+
+          return CustomScrollView(
+            controller: _scrollController,
+            slivers: [
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _VehicleHeaderDelegate(
+                  vehicle: vehicle,
+                  fuelTypeLabel: _viewModel.fuelTypeLabel,
+                  subtitle: _viewModel.vehicleSubtitle,
+                  expandedHeight: expandedHeight,
+                ),
+              ),
+              SliverPadding(
+                padding: AppSpacing.paddingHorizontalMd,
+                sliver: SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(VehicleStrings.refuelsSectionTitle, style: AppTypography.titleMd),
                         ),
-                      ),
-                    ],
+                        _AddRefuelButton(onTap: _goToRefuelManageCreate),
+                      ],
+                    ),
                   ),
                 ),
               ),
-
-              /// Fim Header
-              ///
-              Padding(
-                padding: AppSpacing.paddingHorizontalMd,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Align(
-                        alignment: AlignmentGeometry.centerLeft,
-                        child: Text('Abastecimentos', style: AppTypography.titleMd),
-                      ),
-                    ),
-                    _AddRefuelButton(
-                      onTap: _goToRefuelManageCreate,
-                    ),
-                  ],
-                ),
-              ),
-              AppSpacing.gap8,
-              Expanded(
+              SliverToBoxAdapter(
                 child: RefuelsList(
                   refuels: refuels,
                   controller: _scrollController,
                   onRefuelTap: _goToRefuelManageEdit,
+                  physics: const NeverScrollableScrollPhysics(),
                 ),
               ),
             ],
@@ -212,6 +186,142 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
     _viewModel.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Collapsible header delegate
+// ---------------------------------------------------------------------------
+
+class _VehicleHeaderDelegate extends SliverPersistentHeaderDelegate {
+  const _VehicleHeaderDelegate({
+    required this.vehicle,
+    required this.fuelTypeLabel,
+    required this.subtitle,
+    required this.expandedHeight,
+  });
+
+  final VehicleEntity vehicle;
+  final String fuelTypeLabel;
+  final String subtitle;
+  final double expandedHeight;
+
+  static const double _collapsedHeight = 72.0;
+
+  @override
+  double get minExtent => _collapsedHeight;
+
+  @override
+  double get maxExtent => expandedHeight;
+
+  @override
+  bool shouldRebuild(covariant _VehicleHeaderDelegate old) =>
+      vehicle != old.vehicle ||
+      fuelTypeLabel != old.fuelTypeLabel ||
+      subtitle != old.subtitle ||
+      expandedHeight != old.expandedHeight;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    final t = (shrinkOffset / (maxExtent - minExtent)).clamp(0.0, 1.0);
+    final expandedOpacity = (1.0 - t * 2.0).clamp(0.0, 1.0);
+    final collapsedOpacity = ((t - 0.5) * 2.0).clamp(0.0, 1.0);
+
+    return Material(
+      color: AppColors.background,
+      elevation: collapsedOpacity * 2,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          // ── Estado expandido ──────────────────────────────────────────
+          Opacity(
+            opacity: expandedOpacity,
+            child: OverflowBox(
+              alignment: Alignment.topLeft,
+              minHeight: maxExtent,
+              maxHeight: maxExtent,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _HeaderImage(imageUrl: vehicle.photoPath),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.md,
+                      AppSpacing.md,
+                      AppSpacing.md,
+                      AppSpacing.sm,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: AppSpacing.xs,
+                      children: [
+                        Text(vehicle.name, style: AppTypography.titleLg),
+                        Text(
+                          'Tipo de Combustível: $fuelTypeLabel',
+                          style: AppTypography.textSmRegular,
+                        ),
+                        if (subtitle.isNotEmpty) Text(subtitle, style: AppTypography.textSmRegular),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          // ── Estado colapsado ──────────────────────────────────────────
+          Opacity(
+            opacity: collapsedOpacity,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+              child: Row(
+                spacing: AppSpacing.md,
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: const BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: AppSpacing.radiusSm,
+                    ),
+                    alignment: Alignment.center,
+                    child: const Icon(
+                      Icons.directions_car_outlined,
+                      size: 24,
+                      color: AppColors.primary,
+                    ),
+                  ),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          vehicle.name,
+                          style: AppTypography.textMdBold,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (subtitle.isNotEmpty)
+                          Text(
+                            subtitle,
+                            style: AppTypography.textSmRegular.copyWith(
+                              color: AppColors.text.withValues(alpha: .65),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

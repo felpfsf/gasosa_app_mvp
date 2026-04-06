@@ -5,6 +5,9 @@ abstract final class Routes {
   static const register = '/register';
   static const dashboard = '/dashboard';
 
+  // Dev-only preview routes
+  static const devRefuelPreview = '/dev/refuel-preview';
+
   // Vehicle — parent + child segments
   static const vehicle = '/vehicle';
   static const manageVehicle = 'manage';

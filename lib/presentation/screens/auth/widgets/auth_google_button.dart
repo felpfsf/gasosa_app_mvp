@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/theme/app_colors.dart';
+import 'package:gasosa_app/theme/app_spacing.dart';
 
 class AuthGoogleButton extends StatelessWidget {
   const AuthGoogleButton({
@@ -31,7 +32,7 @@ class AuthGoogleButton extends StatelessWidget {
         backgroundColor: AppColors.text,
         foregroundColor: AppColors.background,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: AppSpacing.radiusMd,
           side: const BorderSide(color: Colors.grey),
         ),
       ),

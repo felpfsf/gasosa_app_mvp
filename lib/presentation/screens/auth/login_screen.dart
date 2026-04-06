@@ -94,12 +94,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           children: [
                             GasosaFormField(
                               label: AuthStrings.emailLabel,
+                              hint: AuthStrings.emailHint,
                               controller: _emailEC,
                               keyboardType: TextInputType.emailAddress,
                               validator: UserValidators.email,
                             ),
                             GasosaPasswordField(
                               label: AuthStrings.passwordLabel,
+                              hint: AuthStrings.passwordHint,
                               controller: _passwordEC,
                               validator: UserValidators.password,
                             ),

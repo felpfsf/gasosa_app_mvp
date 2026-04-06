@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/app_strings.dart';
 import 'package:gasosa_app/core/di/injection.dart';
@@ -9,6 +10,7 @@ import 'package:gasosa_app/presentation/screens/dashboard/viewmodel/dashboard_vi
 import 'package:gasosa_app/presentation/screens/dashboard/widgets/vehicle_list_card.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_appbar.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_avatar.dart';
+import 'package:gasosa_app/presentation/widgets/gasosa_confirm_dialog.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_empty_state_widget.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_error_state_widget.dart';
 import 'package:gasosa_app/theme/app_colors.dart';
@@ -35,6 +37,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Future<void> _logout() async {
+    final confirmed = await showGasosaConfirmDialog(
+      context,
+      title: DashboardStrings.logoutDialogTitle,
+      content: DashboardStrings.logoutDialogContent,
+      confirmLabel: DashboardStrings.logoutDialogConfirmLabel,
+      danger: true,
+    );
+    if (!confirmed) return;
     await _viewModel.logout();
     if (mounted) {
       context.go(Routes.login);
@@ -58,12 +68,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
       builder: (context, user, _) {
         return Scaffold(
           appBar: GasosaAppbar(
-            title: 'Bem vindo ${user?.name}',
-            leading: GestureDetector(
-              onTap: () => {},
-              child: GasosaAvatar(photoUrl: user?.photoUrl, size: 32),
-            ),
+            title: DashboardStrings.greeting(user?.name),
+            leading: GasosaAvatar(photoUrl: user?.photoUrl, size: 32),
             actions: [
+              if (kDebugMode)
+                IconButton(
+                  onPressed: () => context.push(Routes.devRefuelPreview),
+                  icon: const Icon(Icons.bug_report_outlined),
+                  tooltip: '[DEV] Scroll Preview',
+                ),
               IconButton(
                 onPressed: () async => _logout(),
                 icon: const Icon(Icons.logout),

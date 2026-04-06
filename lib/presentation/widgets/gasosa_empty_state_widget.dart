@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gasosa_app/presentation/widgets/gasosa_button.dart';
 import 'package:gasosa_app/theme/app_colors.dart';
 import 'package:gasosa_app/theme/app_spacing.dart';
 import 'package:gasosa_app/theme/app_typography.dart';
@@ -40,9 +41,9 @@ class GasosaEmptyStateWidget extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               if (onPressed != null)
-                ElevatedButton(
+                GasosaButton(
+                  label: actionLabel!,
                   onPressed: onPressed,
-                  child: Text(actionLabel!),
                 ),
             ],
           ),

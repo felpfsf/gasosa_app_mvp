@@ -6,6 +6,7 @@ import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/screens/auth/login_screen.dart';
 import 'package:gasosa_app/presentation/screens/auth/register_screen.dart';
 import 'package:gasosa_app/presentation/screens/dashboard/dashboard_screen.dart';
+import 'package:gasosa_app/presentation/screens/dev/refuel_list_preview_screen.dart';
 import 'package:gasosa_app/presentation/screens/refuel/manage_refuel_screen.dart';
 import 'package:gasosa_app/presentation/screens/splash/splash_screen.dart';
 import 'package:gasosa_app/presentation/screens/vehicle/manage_vehicle_screen.dart';
@@ -113,6 +114,10 @@ GoRouter buildAppRouter(AuthRefreshNotifier notifier, FirebaseAuth auth) {
             },
           ),
         ],
+      ),
+      GoRoute(
+        path: Routes.devRefuelPreview,
+        builder: (_, __) => const RefuelListPreviewScreen(),
       ),
     ],
   );

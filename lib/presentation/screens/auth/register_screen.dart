@@ -64,7 +64,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           appBar: GasosaAppbar(
             title: 'Registrar',
             showBackButton: true,
-            onBackPressed: () => context.go(Routes.dashboard),
+            onBackPressed: () => context.go(Routes.login),
           ),
           body: SafeArea(
             child: Center(
@@ -75,8 +75,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     spacing: AppSpacing.lg,
                     children: [
-                      const LogoHero(size: 120),
-                      Text(AuthStrings.registerTitle, style: AppTypography.textLgBold),
+                      const LogoHero(size: 200),
+                      Text(AuthStrings.registerTitle, style: AppTypography.titleLg),
                       Form(
                         key: _formKey,
                         child: Column(
@@ -84,22 +84,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           children: [
                             GasosaFormField(
                               label: AuthStrings.nameLabel,
+                              hint: AuthStrings.nameHint,
                               controller: _nameEC,
                               validator: UserValidators.name,
                             ),
                             GasosaFormField(
                               label: AuthStrings.emailRegisterLabel,
+                              hint: AuthStrings.emailHint,
                               controller: _emailEC,
                               keyboardType: TextInputType.emailAddress,
                               validator: UserValidators.email,
                             ),
                             GasosaPasswordField(
                               label: AuthStrings.passwordLabel,
+                              hint: AuthStrings.passwordHint,
                               controller: _passwordEC,
                               validator: UserValidators.password,
                             ),
                             GasosaPasswordField(
                               label: AuthStrings.confirmPasswordLabel,
+                              hint: AuthStrings.confirmPasswordHint,
                               controller: _confirmPasswordEC,
                               validator: UserValidators.confirmPassword(_passwordEC),
                             ),

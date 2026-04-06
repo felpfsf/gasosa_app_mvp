@@ -9,6 +9,12 @@ abstract final class AuthStrings {
   static const passwordLabel = 'Senha';
   static const confirmPasswordLabel = 'Confirmar Senha';
   static const nameLabel = 'Nome';
+
+  // Hints
+  static const nameHint = 'Ex: João Silva';
+  static const emailHint = 'Ex: joao@email.com';
+  static const passwordHint = 'Mínimo 6 caracteres';
+  static const confirmPasswordHint = 'Repita a senha';
 }
 
 abstract final class DashboardStrings {
@@ -17,6 +23,13 @@ abstract final class DashboardStrings {
   static const emptyStateTitle = 'Nenhum veículo cadastrado';
   static const emptyStateMessage = 'Cadastre seu primeiro veículo para começar a usar o app.';
   static const emptyStateAction = 'Cadastrar veículo';
+
+  // Logout dialog
+  static const logoutDialogTitle = 'Sair da conta';
+  static const logoutDialogContent = 'Tem certeza que deseja sair?';
+  static const logoutDialogConfirmLabel = 'Sair';
+
+  static String greeting(String? name) => 'Olá, ${name ?? ''}!';
 }
 
 abstract final class VehicleStrings {
@@ -40,6 +53,7 @@ abstract final class VehicleStrings {
   static const deleteSuccess = 'Veículo excluído!';
   static const editTooltip = 'Editar';
   static const deleteTooltip = 'Excluir';
+  static const refuelsSectionTitle = 'Abastecimentos';
 
   // Delete confirm dialog
   static const deleteDialogTitle = 'Excluir veículo';

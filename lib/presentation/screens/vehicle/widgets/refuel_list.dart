@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/app_strings.dart';
 import 'package:gasosa_app/core/extensions/date_time_extensions.dart';
+import 'package:gasosa_app/core/helpers/numeric_parser.dart';
 import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/domain/entities/refuel.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_card.dart';
@@ -15,10 +16,12 @@ class RefuelsList extends StatelessWidget {
     required this.refuels,
     required this.controller,
     this.onRefuelTap,
+    this.physics,
   });
   final List<RefuelEntity> refuels;
   final ScrollController controller;
   final Future<void> Function(String refuelId)? onRefuelTap;
+  final ScrollPhysics? physics;
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +37,7 @@ class RefuelsList extends StatelessWidget {
 
     return ListView.separated(
       controller: controller,
+      physics: physics,
       padding: EdgeInsets.only(
         left: AppSpacing.md,
         right: AppSpacing.md,
@@ -111,14 +115,17 @@ class _RefuelItem extends StatelessWidget {
             spacing: AppSpacing.sm,
             children: [
               Text('KM: ${refuel.mileage.toStringAsFixed(0)}', style: AppTypography.textSmRegular),
-              Text('Litros: ${refuel.liters.toStringAsFixed(2)} L', style: AppTypography.textSmRegular),
+              Text('Litros: ${NumericParser.formatDouble(refuel.liters)} L', style: AppTypography.textSmRegular),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Total: R\$ ${refuel.totalValue.toStringAsFixed(2)}', style: AppTypography.textSmRegular),
-              Text('Valor/Litro: R\$ ${pricePerLiter.toStringAsFixed(3)}', style: AppTypography.textSmRegular),
+              Text('Total: R\$ ${NumericParser.formatDouble(refuel.totalValue)}', style: AppTypography.textSmRegular),
+              Text(
+                'Valor/Litro: R\$ ${NumericParser.formatDouble(pricePerLiter, decimalPlaces: 3)}',
+                style: AppTypography.textSmRegular,
+              ),
             ],
           ),
 

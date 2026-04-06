@@ -7,11 +7,13 @@ class GasosaPasswordField extends StatefulWidget {
     super.key,
     required this.label,
     required this.controller,
+    this.hint,
     this.validator,
     this.onChanged,
   });
 
   final String label;
+  final String? hint;
   final TextEditingController controller;
   final String? Function(String?)? validator;
   final Function(String)? onChanged;
@@ -27,6 +29,7 @@ class _GasosaPasswordFieldState extends State<GasosaPasswordField> {
   Widget build(BuildContext context) {
     return GasosaFormField(
       label: widget.label,
+      hint: widget.hint,
       controller: widget.controller,
       obscureText: _obscureText,
       onChanged: (value) => widget.onChanged?.call(value),

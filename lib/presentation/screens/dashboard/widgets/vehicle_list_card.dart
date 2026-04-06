@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/domain/entities/vehicle.dart';
+import 'package:gasosa_app/presentation/screens/dashboard/widgets/show_delete_vehicle_confirm_dialog.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_card.dart';
 import 'package:gasosa_app/theme/app_colors.dart';
 import 'package:gasosa_app/theme/app_spacing.dart';
@@ -34,7 +35,7 @@ class VehicleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dismissible(
       key: Key('vehicle_${vehicle.id}'),
-      direction: DismissDirection.endToStart,
+      direction: onDelete != null ? DismissDirection.endToStart : DismissDirection.none,
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: AppSpacing.lg),
@@ -48,7 +49,10 @@ class VehicleCard extends StatelessWidget {
           size: 24,
         ),
       ),
-      confirmDismiss: (direction) async => true,
+      confirmDismiss: (direction) => showDeleteVehicleConfirmDialog(
+        context,
+        vehicleName: vehicle.name,
+      ),
       onDismissed: (direction) {
         onDelete?.call();
       },
@@ -73,7 +77,7 @@ class VehicleCard extends StatelessWidget {
                   if (_subtitle.isNotEmpty)
                     Text(
                       _subtitle,
-                      style: AppTypography.textSmRegular.copyWith(color: AppColors.warning),
+                      style: AppTypography.textSmRegular.copyWith(color: AppColors.text.withValues(alpha: .6)),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),

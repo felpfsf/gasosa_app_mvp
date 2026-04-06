@@ -9,12 +9,11 @@ import 'package:gasosa_app/core/services/observability/observability_service.dar
 /// - Firebase Crashlytics para crashes e erros não-fatais
 /// - Firebase Analytics para eventos e funil
 class FirebaseObservabilityService implements ObservabilityService {
-
   FirebaseObservabilityService({
     FirebaseCrashlytics? crashlytics,
     FirebaseAnalytics? analytics,
   }) : _crashlytics = crashlytics ?? FirebaseCrashlytics.instance,
-      _analytics = analytics ?? FirebaseAnalytics.instance;
+       _analytics = analytics ?? FirebaseAnalytics.instance;
 
   final FirebaseCrashlytics _crashlytics;
   final FirebaseAnalytics _analytics;
@@ -28,20 +27,17 @@ class FirebaseObservabilityService implements ObservabilityService {
     // Sanitizar contexto (remover PII)
     final sanitized = _sanitizeContext(context);
 
-    // Adicionar tipo de falha
-    _crashlytics.setCustomKey('failure_type', failure.runtimeType.toString());
-    _crashlytics.setCustomKey('failure_message', failure.message);
+    // Adicionar tipo de falha (via setCustomKey para passar pelo filtro de PII)
+    setCustomKey('failure_type', failure.runtimeType.toString());
 
-    // Adicionar contexto adicional
-    sanitized.forEach((key, value) {
-      _crashlytics.setCustomKey(key, value.toString());
-    });
+    // Adicionar contexto adicional (via setCustomKey para garantir sanitização)
+    sanitized.forEach((key, value) => setCustomKey(key, value.toString()));
 
-    // Enviar como non-fatal
+    // Enviar como non-fatal sem incluir failure.message nas custom keys
     await _crashlytics.recordError(
       failure,
       stackTrace ?? StackTrace.current,
-      reason: failure.message,
+      reason: failure.runtimeType.toString(),
     );
   }
 
@@ -65,9 +61,11 @@ class FirebaseObservabilityService implements ObservabilityService {
     Map<String, dynamic>? data,
   }) {
     final sanitized = _sanitizeContext(data);
-    final breadcrumb = '$message ${sanitized.isNotEmpty ? sanitized.toString() : ''}';
+    final suffix = sanitized.isNotEmpty ? ' ${sanitized.entries.map((e) => '${e.key}=${e.value}').join(', ')}' : '';
 
-    _crashlytics.log(breadcrumb);
+    // Truncar para evitar poluição no log do Crashlytics (limite ~1024 chars)
+    final breadcrumb = '$message$suffix';
+    _crashlytics.log(breadcrumb.length > 512 ? breadcrumb.substring(0, 512) : breadcrumb);
   }
 
   @override

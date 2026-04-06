@@ -43,6 +43,10 @@ import 'package:gasosa_app/application/vehicles/get_vehicle_by_id_use_case.dart'
 import 'package:gasosa_app/application/vehicles/load_vehicles_use_case.dart'
     as _i183;
 import 'package:gasosa_app/core/di/register_module.dart' as _i53;
+import 'package:gasosa_app/core/navigation/observability_navigator_observer.dart'
+    as _i560;
+import 'package:gasosa_app/core/services/observability/observability_service.dart'
+    as _i645;
 import 'package:gasosa_app/data/auth/firebase_auth_service.dart' as _i821;
 import 'package:gasosa_app/data/local/dao/refuel_dao.dart' as _i621;
 import 'package:gasosa_app/data/local/dao/user_dao.dart' as _i876;
@@ -84,6 +88,9 @@ extension GetItInjectableX on _i174.GetIt {
   }) async {
     final gh = _i526.GetItHelper(this, environment, environmentFilter);
     final registerModule = _$RegisterModule();
+    gh.lazySingleton<_i645.ObservabilityService>(
+      () => registerModule.observabilityService,
+    );
     gh.lazySingleton<_i706.Uuid>(() => registerModule.uuid);
     gh.lazySingleton<_i59.FirebaseAuth>(() => registerModule.firebaseAuth);
     await gh.lazySingletonAsync<_i116.GoogleSignIn>(
@@ -106,11 +113,13 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i876.UserDao>(
       () => registerModule.userDao(gh<_i409.AppDatabase>()),
     );
-    gh.lazySingleton<_i583.GoRouter>(
-      () => registerModule.router(gh<_i59.FirebaseAuth>()),
-    );
     gh.lazySingleton<_i857.RefuelRepository>(
       () => _i146.RefuelRepositoryImpl(gh<_i621.RefuelDao>()),
+    );
+    gh.lazySingleton<_i560.ObservabilityNavigatorObserver>(
+      () => registerModule.observabilityNavigatorObserver(
+        gh<_i645.ObservabilityService>(),
+      ),
     );
     gh.lazySingleton<_i35.VehicleRepository>(
       () => _i106.VehicleRepositoryImpl(gh<_i353.VehicleDao>()),
@@ -126,6 +135,36 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.factory<_i808.SavePhotoUseCase>(
       () => _i808.SavePhotoUseCase(gh<_i312.LocalPhotoStorage>()),
+    );
+    gh.factory<_i769.LoginEmailPasswordUseCase>(
+      () => _i769.LoginEmailPasswordUseCase(
+        auth: gh<_i602.AuthService>(),
+        observability: gh<_i645.ObservabilityService>(),
+      ),
+    );
+    gh.factory<_i239.LoginWithGoogleUseCase>(
+      () => _i239.LoginWithGoogleUseCase(
+        auth: gh<_i602.AuthService>(),
+        observability: gh<_i645.ObservabilityService>(),
+      ),
+    );
+    gh.factory<_i310.LogoutUseCase>(
+      () => _i310.LogoutUseCase(
+        auth: gh<_i602.AuthService>(),
+        observability: gh<_i645.ObservabilityService>(),
+      ),
+    );
+    gh.factory<_i345.RegisterUseCase>(
+      () => _i345.RegisterUseCase(
+        auth: gh<_i602.AuthService>(),
+        observability: gh<_i645.ObservabilityService>(),
+      ),
+    );
+    gh.lazySingleton<_i583.GoRouter>(
+      () => registerModule.router(
+        gh<_i59.FirebaseAuth>(),
+        gh<_i560.ObservabilityNavigatorObserver>(),
+      ),
     );
     gh.factory<_i1031.CreateOrUpdateRefuelUseCase>(
       () => _i1031.CreateOrUpdateRefuelUseCase(
@@ -153,18 +192,6 @@ extension GetItInjectableX on _i174.GetIt {
       () => _i1064.LoadRefuelsByVehicleUseCase(
         repository: gh<_i857.RefuelRepository>(),
       ),
-    );
-    gh.factory<_i769.LoginEmailPasswordUseCase>(
-      () => _i769.LoginEmailPasswordUseCase(auth: gh<_i602.AuthService>()),
-    );
-    gh.factory<_i239.LoginWithGoogleUseCase>(
-      () => _i239.LoginWithGoogleUseCase(auth: gh<_i602.AuthService>()),
-    );
-    gh.factory<_i310.LogoutUseCase>(
-      () => _i310.LogoutUseCase(auth: gh<_i602.AuthService>()),
-    );
-    gh.factory<_i345.RegisterUseCase>(
-      () => _i345.RegisterUseCase(auth: gh<_i602.AuthService>()),
     );
     gh.factory<_i225.SendPasswordResetUseCase>(
       () => _i225.SendPasswordResetUseCase(auth: gh<_i602.AuthService>()),

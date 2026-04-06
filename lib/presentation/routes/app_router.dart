@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/app_strings.dart';
+import 'package:gasosa_app/core/navigation/observability_navigator_observer.dart';
 import 'package:gasosa_app/presentation/routes/auth_refresh_notifier.dart';
 import 'package:gasosa_app/presentation/routes/route_paths.dart';
 import 'package:gasosa_app/presentation/screens/auth/forgot_password_screen.dart';
@@ -17,7 +18,11 @@ import 'package:gasosa_app/theme/app_spacing.dart';
 import 'package:gasosa_app/theme/app_typography.dart';
 import 'package:go_router/go_router.dart';
 
-GoRouter buildAppRouter(AuthRefreshNotifier notifier, FirebaseAuth auth) {
+GoRouter buildAppRouter(
+  AuthRefreshNotifier notifier,
+  FirebaseAuth auth,
+  ObservabilityNavigatorObserver observabilityObserver,
+) {
   String? authGuard(BuildContext context, GoRouterState state) {
     final isAuthenticated = auth.currentUser != null;
     final loc = state.matchedLocation;
@@ -48,6 +53,7 @@ GoRouter buildAppRouter(AuthRefreshNotifier notifier, FirebaseAuth auth) {
     initialLocation: Routes.splash,
     refreshListenable: notifier,
     redirect: authGuard,
+    observers: [observabilityObserver],
     errorBuilder: (context, state) => Scaffold(
       body: Center(
         child: Column(

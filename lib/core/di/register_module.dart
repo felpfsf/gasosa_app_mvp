@@ -1,4 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:gasosa_app/core/navigation/observability_navigator_observer.dart';
+import 'package:gasosa_app/core/services/observability/firebase_observability_service.dart';
+import 'package:gasosa_app/core/services/observability/observability_service.dart';
 import 'package:gasosa_app/data/local/dao/refuel_dao.dart';
 import 'package:gasosa_app/data/local/dao/user_dao.dart';
 import 'package:gasosa_app/data/local/dao/vehicle_dao.dart';
@@ -13,6 +16,17 @@ import 'package:uuid/uuid.dart';
 @module
 abstract class RegisterModule {
   // -------------------------
+  // Observability
+  // -------------------------
+  @lazySingleton
+  ObservabilityService get observabilityService => FirebaseObservabilityService();
+
+  @lazySingleton
+  ObservabilityNavigatorObserver observabilityNavigatorObserver(
+    ObservabilityService observability,
+  ) => ObservabilityNavigatorObserver(observability);
+
+  // -------------------------
   // Core utils
   // -------------------------
   @lazySingleton
@@ -22,7 +36,10 @@ abstract class RegisterModule {
   // Router
   // -------------------------
   @lazySingleton
-  GoRouter router(fb.FirebaseAuth auth) => buildAppRouter(AuthRefreshNotifier(auth), auth);
+  GoRouter router(
+    fb.FirebaseAuth auth,
+    ObservabilityNavigatorObserver observabilityObserver,
+  ) => buildAppRouter(AuthRefreshNotifier(auth), auth, observabilityObserver);
 
   // -------------------------
   // Firebase / Auth

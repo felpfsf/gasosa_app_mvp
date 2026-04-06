@@ -9,11 +9,31 @@ import '../../helpers/test_helpers.dart';
 
 void main() {
   late MockAuthService mockAuthService;
+  late MockObservabilityService mockObservability;
   late LogoutUseCase useCase;
+
+  setUpAll(() {
+    registerFallbackValue(const UnexpectedFailure('', null, null));
+  });
 
   setUp(() {
     mockAuthService = MockAuthService();
-    useCase = LogoutUseCase(auth: mockAuthService);
+    mockObservability = MockObservabilityService();
+    useCase = LogoutUseCase(
+      auth: mockAuthService,
+      observability: mockObservability,
+    );
+
+    when(() => mockObservability.logBreadcrumb(any(), data: any(named: 'data'))).thenReturn(null);
+    when(() => mockObservability.logEvent(any(), parameters: any(named: 'parameters'))).thenAnswer((_) async {});
+    when(
+      () => mockObservability.logError(
+        any(),
+        stackTrace: any(named: 'stackTrace'),
+        context: any(named: 'context'),
+      ),
+    ).thenAnswer((_) async {});
+    when(() => mockObservability.clearContext()).thenReturn(null);
   });
 
   group('LogoutUseCase -', () {

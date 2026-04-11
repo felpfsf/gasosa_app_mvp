@@ -44,6 +44,15 @@ abstract final class DashboardStrings {
   static const logoutDialogContent = 'Tem certeza que deseja sair?';
   static const logoutDialogConfirmLabel = 'Sair';
 
+  // Delete account dialog
+  static const deleteAccountMenuLabel = 'Excluir conta';
+  static const deleteAccountDialogTitle = 'Excluir conta';
+  static const deleteAccountDialogContent =
+      'Esta ação é permanente e não pode ser desfeita.\n\n'
+      'Todos os seus veículos e abastecimentos serão excluídos do dispositivo e sua conta será removida.';
+  static const deleteAccountDialogConfirmLabel = 'Excluir conta';
+  static const deleteAccountSuccess = 'Conta excluída com sucesso.';
+
   static String greeting(String? name) => 'Olá, ${name ?? ''}!';
 }
 
@@ -202,4 +211,7 @@ abstract final class AuthErrorStrings {
   static const passwordResetFailed = 'Erro ao enviar e-mail de redefinição';
   static const googleCredentialsMissingLink = 'Sem credenciais do Google';
   static const googleLinkFailed = 'Falha ao vincular com o Google';
+  static const deleteAccountFailed = 'Erro ao excluir conta. Tente novamente.';
+  static const deleteAccountRequiresReauth =
+      'Por segurança, saia e entre novamente antes de excluir a conta.';
 }

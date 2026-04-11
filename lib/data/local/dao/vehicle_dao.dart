@@ -25,6 +25,8 @@ class VehicleDao extends DatabaseAccessor<AppDatabase> with _$VehicleDaoMixin {
 
   Future<int> deleteById(String id) => (delete(vehicles)..where((v) => v.id.equals(id))).go();
 
+  Future<int> deleteAllByUserId(String userId) => (delete(vehicles)..where((v) => v.userId.equals(userId))).go();
+
   Future<bool> existsPlateForUser(String userId, String plate, {String? exceptId}) async {
     final query = select(vehicles)..where((v) => v.userId.equals(userId) & v.plate.equals(plate));
     final rows = await query.get();

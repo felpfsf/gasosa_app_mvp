@@ -22,4 +22,5 @@ abstract interface class AuthService {
   Future<Either<Failure, Either<Failure, void>>> linkGoogleAfterPasswordLogin();
   Future<Either<Failure, void>> logout();
   Future<Either<Failure, void>> sendPasswordReset(String email);
+  Future<Either<Failure, void>> deleteAccount();
 }

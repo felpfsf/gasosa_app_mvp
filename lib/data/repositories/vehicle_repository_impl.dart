@@ -33,6 +33,16 @@ class VehicleRepositoryImpl implements VehicleRepository {
   }
 
   @override
+  Future<Either<Failure, Unit>> deleteAllByUserId(String userId) async {
+    try {
+      await _dao.deleteAllByUserId(userId);
+      return right(unit);
+    } catch (e, st) {
+      return left(DatabaseFailure('Erro ao deletar dados do usuário', e, st));
+    }
+  }
+
+  @override
   Future<Either<Failure, List<VehicleEntity>>> getAllByUserId(String userId) async {
     try {
       final rows = await _dao.getAllByUserId(userId);

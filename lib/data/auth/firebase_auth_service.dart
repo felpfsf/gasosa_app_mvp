@@ -116,8 +116,25 @@ class FirebaseAuthService implements AuthService {
   }
 
   @override
-  Future<Either<Failure, Either<Failure, void>>> linkGoogleAfterPasswordLogin() async {
+  Future<Either<Failure, void>> deleteAccount() async {
     try {
+      final user = _auth.currentUser;
+      if (user == null) return right(null);
+      await _google.signOut();
+      await user.delete();
+      return right(null);
+    } on fb.FirebaseAuthException catch (e, s) {
+      if (e.code == 'requires-recent-login') {
+        return left(UnexpectedFailure(AuthErrorStrings.deleteAccountRequiresReauth, e, s));
+      }
+      return left(_mapFirebaseAuthError(e, s));
+    } catch (e, s) {
+      return left(UnexpectedFailure(AuthErrorStrings.deleteAccountFailed, e, s));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Either<Failure, void>>> linkGoogleAfterPasswordLogin() async {    try {
       final account = await _google.authenticate(
         scopeHint: ['email', 'profile', 'openid'],
       );

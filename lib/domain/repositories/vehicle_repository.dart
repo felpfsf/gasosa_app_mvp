@@ -8,4 +8,5 @@ abstract interface class VehicleRepository {
   Future<Either<Failure, List<VehicleEntity>>> getAllByUserId(String userId);
   Stream<Either<Failure, List<VehicleEntity>>> watchAllByUserId(String userId);
   Future<Either<Failure, Unit>> deleteVehicle(String id);
+  Future<Either<Failure, Unit>> deleteAllByUserId(String userId);
 }

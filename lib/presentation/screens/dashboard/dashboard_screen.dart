@@ -13,6 +13,7 @@ import 'package:gasosa_app/presentation/widgets/gasosa_avatar.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_confirm_dialog.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_empty_state_widget.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_error_state_widget.dart';
+import 'package:gasosa_app/presentation/widgets/messages.dart';
 import 'package:gasosa_app/theme/app_colors.dart';
 import 'package:gasosa_app/theme/app_spacing.dart';
 import 'package:gasosa_app/theme/app_typography.dart';
@@ -51,6 +52,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
+  Future<void> _deleteAccount() async {
+    final confirmed = await showGasosaConfirmDialog(
+      context,
+      title: DashboardStrings.deleteAccountDialogTitle,
+      content: DashboardStrings.deleteAccountDialogContent,
+      confirmLabel: DashboardStrings.deleteAccountDialogConfirmLabel,
+      danger: true,
+    );
+    if (!confirmed) return;
+
+    final result = await _viewModel.deleteAccount();
+    if (!mounted) return;
+
+    result.fold(
+      (failure) => Messages.showError(context, failure.message),
+      (_) {
+        Messages.showSuccess(context, DashboardStrings.deleteAccountSuccess);
+        context.go(Routes.login);
+      },
+    );
+  }
+
   Future<void> _goToCreateVehicle() async {
     await context.push(Routes.manageVehiclePath());
   }
@@ -81,6 +104,28 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 onPressed: () async => _logout(),
                 icon: const Icon(Icons.logout),
                 tooltip: DashboardStrings.logoutTooltip,
+              ),
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert),
+                tooltip: 'Mais opções',
+                onSelected: (value) {
+                  if (value == 'delete_account') _deleteAccount();
+                },
+                itemBuilder: (_) => [
+                  PopupMenuItem(
+                    value: 'delete_account',
+                    child: Row(
+                      spacing: 8,
+                      children: [
+                        const Icon(Icons.delete_forever_outlined, color: AppColors.error),
+                        Text(
+                          DashboardStrings.deleteAccountMenuLabel,
+                          style: AppTypography.textSmRegular.copyWith(color: AppColors.error),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

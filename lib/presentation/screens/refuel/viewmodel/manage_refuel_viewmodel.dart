@@ -170,7 +170,6 @@ class ManageRefuelViewModel {
         }
         final r = refuel!;
         await _loadVehicleData(r.vehicleId);
-        await _loadPreviousMileage(r.vehicleId, r.createdAt, r.mileage);
         _editingId = r.id;
         _editingVehicleId = r.vehicleId;
         _editingCreatedAt = r.createdAt;

@@ -1,3 +1,4 @@
+import 'package:gasosa_app/core/app_strings.dart';
 import 'package:gasosa_app/domain/entities/fuel_type.dart';
 import 'package:gasosa_app/domain/entities/vehicle.dart';
 import 'package:injectable/injectable.dart';
@@ -72,7 +73,7 @@ class RefuelBusinessRules {
     }
 
     if (currentMileage < previousMileage) {
-      return 'KM não pode ser menor que o abastecimento anterior ($previousMileage km)';
+      return RefuelValidatorStrings.mileageBelowPrevious(previousMileage);
     }
 
     return null;

@@ -166,6 +166,8 @@ abstract final class RefuelValidatorStrings {
   static const coldStartValueTooLow = 'Valor partida frio deve ser maior que 0';
   static const fuelTypeRequired = 'Selecione o tipo de combustível';
   static const dateRequired = 'Data do abastecimento é obrigatória';
+  static String mileageBelowPrevious(int previousMileage) =>
+      'KM não pode ser menor que o abastecimento anterior ($previousMileage km)';
 }
 
 // ---------------------------------------------------------------------------

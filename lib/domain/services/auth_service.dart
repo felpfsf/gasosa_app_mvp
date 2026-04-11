@@ -23,4 +23,5 @@ abstract interface class AuthService {
   Future<Either<Failure, void>> logout();
   Future<Either<Failure, void>> sendPasswordReset(String email);
   Future<Either<Failure, void>> deleteAccount();
+  Future<Either<Failure, void>> updateDisplayName(String name);
 }

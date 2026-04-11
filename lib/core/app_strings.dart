@@ -56,6 +56,16 @@ abstract final class DashboardStrings {
   static String greeting(String? name) => 'Olá, ${name ?? ''}!';
 }
 
+abstract final class ProfileStrings {
+  static const editNameMenuLabel = 'Editar nome';
+  static const editNameDialogTitle = 'Editar nome';
+  static const editNameHint = 'Seu nome';
+  static const editNameSaveLabel = 'Salvar';
+  static const editNameSuccess = 'Nome atualizado com sucesso.';
+  static const errorNameEmpty = 'O nome não pode ser vazio.';
+  static const errorNameTooLong = 'O nome deve ter no máximo 50 caracteres.';
+}
+
 abstract final class VehicleStrings {
   static const appBarTitleCreate = 'Adicionar Veículo';
   static const appBarTitleEdit = 'Editar Veículo';

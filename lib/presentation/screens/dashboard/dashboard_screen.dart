@@ -11,6 +11,7 @@ import 'package:gasosa_app/presentation/screens/dashboard/widgets/vehicle_list_c
 import 'package:gasosa_app/presentation/widgets/gasosa_appbar.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_avatar.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_confirm_dialog.dart';
+import 'package:gasosa_app/presentation/widgets/gasosa_edit_name_dialog.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_empty_state_widget.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_error_state_widget.dart';
 import 'package:gasosa_app/presentation/widgets/messages.dart';
@@ -74,6 +75,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Future<void> _editName(String currentName) async {
+    final newName = await showGasosaEditNameDialog(context, currentName: currentName);
+    if (newName == null || !mounted) return;
+
+    final result = await _viewModel.updateDisplayName(newName);
+    if (!mounted) return;
+
+    result.fold(
+      (failure) => Messages.showError(context, failure.message),
+      (_) => Messages.showSuccess(context, ProfileStrings.editNameSuccess),
+    );
+  }
+
   Future<void> _goToCreateVehicle() async {
     await context.push(Routes.manageVehiclePath());
   }
@@ -109,9 +123,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 icon: const Icon(Icons.more_vert),
                 tooltip: 'Mais opções',
                 onSelected: (value) {
+                  if (value == 'edit_name') _editName(_viewModel.currentUser.value?.name ?? '');
                   if (value == 'delete_account') _deleteAccount();
                 },
                 itemBuilder: (_) => [
+                  PopupMenuItem(
+                    value: 'edit_name',
+                    child: Row(
+                      spacing: 8,
+                      children: [
+                        const Icon(Icons.edit_outlined),
+                        Text(
+                          ProfileStrings.editNameMenuLabel,
+                          style: AppTypography.textSmRegular,
+                        ),
+                      ],
+                    ),
+                  ),
                   PopupMenuItem(
                     value: 'delete_account',
                     child: Row(

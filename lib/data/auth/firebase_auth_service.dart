@@ -134,6 +134,23 @@ class FirebaseAuthService implements AuthService {
   }
 
   @override
+  Future<Either<Failure, void>> updateDisplayName(String name) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        return left(const UnexpectedFailure(AuthErrorStrings.nullUser, null, null));
+      }
+      await user.updateDisplayName(name.trim());
+      await user.reload();
+      return right(null);
+    } on fb.FirebaseAuthException catch (e, s) {
+      return left(_mapFirebaseAuthError(e, s));
+    } catch (e, s) {
+      return left(UnexpectedFailure(AuthErrorStrings.unexpectedAuth, e, s));
+    }
+  }
+
+  @override
   Future<Either<Failure, Either<Failure, void>>> linkGoogleAfterPasswordLogin() async {    try {
       final account = await _google.authenticate(
         scopeHint: ['email', 'profile', 'openid'],

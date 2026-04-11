@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:gasosa_app/application/auth/delete_account_use_case.dart';
 import 'package:gasosa_app/application/auth/logout_use_case.dart';
+import 'package:gasosa_app/application/auth/update_display_name_use_case.dart';
 import 'package:gasosa_app/application/vehicles/load_vehicles_use_case.dart';
 import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
@@ -19,12 +20,14 @@ class DashboardViewModel {
     this._loadVehicles,
     this._logout,
     this._deleteAccount,
+    this._updateDisplayName,
   ) : watchVehicles = StreamCommand<List<VehicleEntity>>();
 
   final AuthService _auth;
   final LoadVehiclesUseCase _loadVehicles;
   final LogoutUseCase _logout;
   final DeleteAccountUseCase _deleteAccount;
+  final UpdateDisplayNameUseCase _updateDisplayName;
 
   final StreamCommand<List<VehicleEntity>> watchVehicles;
   final ValueNotifier<AuthUser?> _currentUser = ValueNotifier(null);
@@ -63,6 +66,8 @@ class DashboardViewModel {
   Future<Either<Failure, void>> logout() => _logout();
 
   Future<Either<Failure, void>> deleteAccount() => _deleteAccount();
+
+  Future<Either<Failure, void>> updateDisplayName(String name) => _updateDisplayName(name);
 
   void retry() => init();
 

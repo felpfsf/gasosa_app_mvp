@@ -57,12 +57,23 @@ dev_dependencies:
   drift_dev: ^2.28.1
   injectable_generator: ^2.7.0
 
+  # Ícone do app
+  flutter_launcher_icons: ^0.14.3
+
   # Testes
   mocktail: ^1.0.4
   mockito: ^5.5.0
   faker: ^2.1.0
   matcher: ^0.12.17
   
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/prod.png"
+  min_sdk_android: 21
+  web:
+    generate: false
+
 flutter:
   uses-material-design: true
 

@@ -72,11 +72,14 @@ class _LoginScreenState extends State<LoginScreen> {
         final isLoading = _viewModel.isLoading;
         return Scaffold(
           body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.lg,
+              ),
               child: Column(
                 children: [
-                  const Spacer(),
+                  const SizedBox(height: AppSpacing.xl),
                   const LogoHero(size: 120),
                   AppSpacing.gap8,
                   Text(
@@ -140,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                  const Spacer(),
+                  const SizedBox(height: AppSpacing.xl),
                   Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.md),
                     child: GestureDetector(

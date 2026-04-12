@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/presentation/widgets/messages.dart';
 import 'package:gasosa_app/theme/app_colors.dart';
@@ -21,7 +22,6 @@ class _GasosaPhotoPickerState extends State<GasosaPhotoPicker> {
   File? _localImage;
   final _picker = ImagePicker();
   bool _isPicking = false;
-  ImageSource? _pickingSource;
 
   @override
   void initState() {
@@ -32,26 +32,24 @@ class _GasosaPhotoPickerState extends State<GasosaPhotoPicker> {
   @override
   void didUpdateWidget(covariant GasosaPhotoPicker oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // Sincroniza _localImage com o widget.image sempre que o widget for atualizado
     if (widget.image?.path != oldWidget.image?.path) {
-      setState(() {
-        _localImage = widget.image;
-      });
+      setState(() => _localImage = widget.image);
     }
   }
 
-  Future<void> pick(ImageSource source) async {
+  Future<void> _pick(ImageSource source) async {
     if (_isPicking) return;
-    setState(() {
-      _isPicking = true;
-      _pickingSource = source;
-    });
+    setState(() => _isPicking = true);
     try {
-      final pickedFile = await _picker.pickImage(source: source, maxWidth: 1600, maxHeight: 1600, imageQuality: 80);
+      final pickedFile = await _picker.pickImage(
+        source: source,
+        maxWidth: 1600,
+        maxHeight: 1600,
+        imageQuality: 80,
+      );
       if (!mounted) return;
       if (pickedFile != null) {
         final file = File(pickedFile.path);
-        // Atualiza _localImage imediatamente para preview otimista
         setState(() => _localImage = file);
         widget.onFileSelected(file);
       }
@@ -59,12 +57,29 @@ class _GasosaPhotoPickerState extends State<GasosaPhotoPicker> {
       if (!context.mounted) return;
       Messages.showError(context, 'Não foi possível selecionar a imagem.');
     } finally {
-      if (mounted) {
-        setState(() {
-          _isPicking = false;
-          _pickingSource = null;
-        });
+      if (mounted) setState(() => _isPicking = false);
+    }
+  }
+
+  Future<void> _pickFromFiles() async {
+    if (_isPicking) return;
+    setState(() => _isPicking = true);
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['jpg', 'jpeg', 'png', 'gif', 'webp', 'heic', 'heif'],
+      );
+      if (!mounted) return;
+      if (result != null && result.files.single.path != null) {
+        final file = File(result.files.single.path!);
+        setState(() => _localImage = file);
+        widget.onFileSelected(file);
       }
+    } catch (e) {
+      if (!context.mounted) return;
+      Messages.showError(context, 'Não foi possível selecionar o arquivo.');
+    } finally {
+      if (mounted) setState(() => _isPicking = false);
     }
   }
 
@@ -73,9 +88,7 @@ class _GasosaPhotoPickerState extends State<GasosaPhotoPicker> {
     widget.onFileSelected(null);
   }
 
-  void _preview() {
-    final image = _localImage ?? widget.image;
-    if (image == null || !image.existsSync()) return;
+  void _preview(File image) {
     showDialog(
       context: context,
       barrierColor: AppColors.background.withValues(alpha: 0.9),
@@ -87,11 +100,7 @@ class _GasosaPhotoPickerState extends State<GasosaPhotoPicker> {
             InteractiveViewer(
               child: Hero(
                 tag: image.path,
-                child: Image.file(
-                  image,
-                  fit: BoxFit.contain,
-                  gaplessPlayback: true,
-                ),
+                child: Image.file(image, fit: BoxFit.contain, gaplessPlayback: true),
               ),
             ),
             Positioned(
@@ -112,120 +121,143 @@ class _GasosaPhotoPickerState extends State<GasosaPhotoPicker> {
     );
   }
 
+  void _showOptions(BuildContext context, {required bool hasImage}) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColors.text.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 8),
+            ListTile(
+              leading: const Icon(Icons.camera_alt_outlined),
+              title: const Text('Câmera'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _pick(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Galeria'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _pick(ImageSource.gallery);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.folder_open_outlined),
+              title: const Text('Arquivos'),
+              onTap: () {
+                Navigator.of(context).pop();
+                _pickFromFiles();
+              },
+            ),
+            if (hasImage) ...[
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.delete_outline_rounded, color: Colors.red),
+                title: const Text('Remover foto', style: TextStyle(color: Colors.red)),
+                onTap: () {
+                  Navigator.of(context).pop();
+                  _remove();
+                },
+              ),
+            ],
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final image = _localImage ?? widget.image;
-
-    Widget buildPreview() {
-      final hasImage = image != null && image.existsSync();
-      return GestureDetector(
-        onTap: hasImage ? _preview : null,
-        child: Stack(
-          children: [
-            ClipRRect(
-              borderRadius: AppSpacing.radiusMd,
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: hasImage
-                    ? Hero(
-                        tag: image.path,
-                        child: Image.file(
-                          image,
-                          width: double.infinity,
-                          fit: BoxFit.cover,
-                          gaplessPlayback: true,
-                        ),
-                      )
-                    : Container(
-                        color: AppColors.surface,
-                        alignment: Alignment.center,
-                        child: const Icon(
-                          Icons.directions_car_filled_outlined,
-                          color: AppColors.primary,
-                          size: 64,
-                        ),
-                      ),
-              ),
-            ),
-            if (hasImage)
-              Positioned(
-                top: 8,
-                right: 8,
-                child: CircleAvatar(
-                  child: IconButton(
-                    tooltip: 'Remover foto',
-                    onPressed: _remove,
-                    icon: const Icon(Icons.delete_outline_rounded, color: AppColors.text),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      );
-    }
-
-    Widget buildButtons() {
-      if (image != null && image.existsSync()) {
-        return Row(
-          children: [
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: _preview,
-                icon: const Icon(Icons.remove_red_eye),
-                label: const Text('Visualizar'),
-              ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: ElevatedButton.icon(
-                onPressed: _remove,
-                icon: const Icon(Icons.delete),
-                label: const Text('Remover'),
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-              ),
-            ),
-          ],
-        );
-      }
-      Widget buttonIcon(ImageSource source, IconData icon) {
-        final isLoading = _isPicking && _pickingSource == source;
-        return isLoading
-            ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2),
-              )
-            : Icon(icon);
-      }
-
-      return Row(
-        children: [
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: _isPicking ? null : () => pick(ImageSource.camera),
-              icon: buttonIcon(ImageSource.camera, Icons.camera_alt),
-              label: const Text('Câmera'),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: ElevatedButton.icon(
-              onPressed: _isPicking ? null : () => pick(ImageSource.gallery),
-              icon: buttonIcon(ImageSource.gallery, Icons.photo_library),
-              label: const Text('Galeria'),
-            ),
-          ),
-        ],
-      );
-    }
+    final hasImage = image != null && image.existsSync();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: AppSpacing.md,
+      spacing: AppSpacing.sm,
       children: [
         Text(widget.label, style: const TextStyle(fontWeight: FontWeight.bold)),
-        buildPreview(),
-        buildButtons(),
+        GestureDetector(
+          onTap: () => hasImage ? _preview(image) : _showOptions(context, hasImage: hasImage),
+          child: ClipRRect(
+            borderRadius: AppSpacing.radiusMd,
+            child: AspectRatio(
+              aspectRatio: 16 / 9,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  if (hasImage)
+                    Hero(
+                      tag: image.path,
+                      child: Image.file(
+                        image,
+                        fit: BoxFit.cover,
+                        gaplessPlayback: true,
+                      ),
+                    )
+                  else
+                    Container(
+                      color: AppColors.surface,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        spacing: AppSpacing.sm,
+                        children: [
+                          Icon(
+                            Icons.add_a_photo_outlined,
+                            color: AppColors.primary.withValues(alpha: 0.7),
+                            size: 40,
+                          ),
+                          Text(
+                            'Toque para adicionar foto',
+                            style: TextStyle(
+                              color: AppColors.text.withValues(alpha: 0.5),
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  if (_isPicking)
+                    Container(
+                      color: Colors.black45,
+                      child: const Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+                  if (hasImage)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: GestureDetector(
+                        onTap: () => _showOptions(context, hasImage: hasImage),
+                        child: const CircleAvatar(
+                          radius: 18,
+                          backgroundColor: Colors.black54,
+                          child: Icon(Icons.edit_outlined, size: 18, color: Colors.white),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ],
     );
   }

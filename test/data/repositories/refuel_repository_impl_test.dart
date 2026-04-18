@@ -4,14 +4,17 @@ import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/data/local/dao/refuel_dao.dart';
 import 'package:gasosa_app/data/local/db/app_database.dart';
 import 'package:gasosa_app/data/mappers/refuel_mapper.dart';
+import 'package:gasosa_app/data/remote/refuel_remote_datasource.dart';
 import 'package:gasosa_app/data/repositories/refuel_repository_impl.dart';
 import 'package:gasosa_app/domain/entities/refuel.dart';
 import 'package:mocktail/mocktail.dart';
 
 import '../../helpers/factories/refuel_factory.dart';
+import '../../helpers/mock_services.dart';
 import '../../helpers/test_helpers.dart';
 
-class MockRefuelDao extends Mock implements RefuelDao {}
+class _MockRefuelDao extends Mock implements RefuelDao {}
+class _MockRefuelRemote extends Mock implements RefuelRemoteDatasource {}
 
 RefuelRow _createRefuelRow(RefuelEntity entity) {
   return RefuelRow(
@@ -31,17 +34,28 @@ RefuelRow _createRefuelRow(RefuelEntity entity) {
 }
 
 void main() {
-  late MockRefuelDao mockDao;
+  late _MockRefuelDao mockDao;
+  late _MockRefuelRemote mockRemote;
+  late MockAuthService mockAuth;
+  late MockObservabilityService mockObservability;
   late RefuelRepositoryImpl repository;
 
   setUp(() {
-    mockDao = MockRefuelDao();
-    repository = RefuelRepositoryImpl(mockDao);
+    mockDao = _MockRefuelDao();
+    mockRemote = _MockRefuelRemote();
+    mockAuth = MockAuthService();
+    mockObservability = MockObservabilityService();
+    repository = RefuelRepositoryImpl(mockDao, mockRemote, mockAuth, mockObservability);
+
+    when(() => mockAuth.currentUser()).thenAnswer((_) async => null);
+    when(() => mockObservability.logError(any(), stackTrace: any(named: 'stackTrace'), context: any(named: 'context')))
+        .thenAnswer((_) async {});
   });
 
   setUpAll(() {
     registerFallbackValue(RefuelFactory.create());
     registerFallbackValue(RefuelMapper.toCompanion(RefuelFactory.create()));
+    registerFallbackValue(const UnexpectedFailure('', null, null));
   });
 
   group('RefuelRepositoryImpl -', () {
@@ -88,23 +102,25 @@ void main() {
     });
 
     group('deleteRefuel', () {
-      test('deve chamar dao.deleteById com id correto', () async {
+      test('deve chamar dao.softDeleteById com id correto', () async {
         // Arrange
         const refuelId = 'refuel-123';
-        when(() => mockDao.deleteById(any())).thenAnswer((_) async => 1);
+        when(() => mockDao.getById(any())).thenAnswer((_) async => null);
+        when(() => mockDao.softDeleteById(any())).thenAnswer((_) async => 1);
 
         // Act
         final result = await repository.deleteRefuel(refuelId);
 
         // Assert
         expect(result, isRight());
-        verify(() => mockDao.deleteById(refuelId)).called(1);
+        verify(() => mockDao.softDeleteById(refuelId)).called(1);
       });
 
       test('deve retornar Right(unit) quando deletar com sucesso', () async {
         // Arrange
         const refuelId = 'refuel-456';
-        when(() => mockDao.deleteById(any())).thenAnswer((_) async => 1);
+        when(() => mockDao.getById(any())).thenAnswer((_) async => null);
+        when(() => mockDao.softDeleteById(any())).thenAnswer((_) async => 1);
 
         // Act
         final result = await repository.deleteRefuel(refuelId);
@@ -117,7 +133,8 @@ void main() {
       test('deve retornar Left(DatabaseFailure) quando dao lançar exceção', () async {
         // Arrange
         const refuelId = 'refuel-error';
-        when(() => mockDao.deleteById(any())).thenThrow(Exception('Delete failed'));
+        when(() => mockDao.getById(any())).thenAnswer((_) async => null);
+        when(() => mockDao.softDeleteById(any())).thenThrow(Exception('Delete failed'));
 
         // Act
         final result = await repository.deleteRefuel(refuelId);

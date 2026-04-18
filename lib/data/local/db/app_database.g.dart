@@ -526,6 +526,17 @@ class $VehiclesTable extends Vehicles
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -537,6 +548,7 @@ class $VehiclesTable extends Vehicles
     photoPath,
     createdAt,
     updatedAt,
+    deletedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -610,6 +622,12 @@ class $VehiclesTable extends Vehicles
         updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
       );
     }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
     return context;
   }
 
@@ -655,6 +673,10 @@ class $VehiclesTable extends Vehicles
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       ),
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
     );
   }
 
@@ -674,6 +696,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
   final String? photoPath;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final DateTime? deletedAt;
   const VehicleRow({
     required this.id,
     required this.userId,
@@ -684,6 +707,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
     this.photoPath,
     required this.createdAt,
     this.updatedAt,
+    this.deletedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -704,6 +728,9 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
     map['created_at'] = Variable<DateTime>(createdAt);
     if (!nullToAbsent || updatedAt != null) {
       map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
     }
     return map;
   }
@@ -727,6 +754,9 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
       updatedAt: updatedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
     );
   }
 
@@ -745,6 +775,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
       photoPath: serializer.fromJson<String?>(json['photoPath']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
     );
   }
   @override
@@ -760,6 +791,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
       'photoPath': serializer.toJson<String?>(photoPath),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
     };
   }
 
@@ -773,6 +805,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
     Value<String?> photoPath = const Value.absent(),
     DateTime? createdAt,
     Value<DateTime?> updatedAt = const Value.absent(),
+    Value<DateTime?> deletedAt = const Value.absent(),
   }) => VehicleRow(
     id: id ?? this.id,
     userId: userId ?? this.userId,
@@ -783,6 +816,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
     photoPath: photoPath.present ? photoPath.value : this.photoPath,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
   );
   VehicleRow copyWithCompanion(VehiclesCompanion data) {
     return VehicleRow(
@@ -797,6 +831,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
       photoPath: data.photoPath.present ? data.photoPath.value : this.photoPath,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
     );
   }
 
@@ -811,7 +846,8 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
           ..write('fuelType: $fuelType, ')
           ..write('photoPath: $photoPath, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
           ..write(')'))
         .toString();
   }
@@ -827,6 +863,7 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
     photoPath,
     createdAt,
     updatedAt,
+    deletedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -840,7 +877,8 @@ class VehicleRow extends DataClass implements Insertable<VehicleRow> {
           other.fuelType == this.fuelType &&
           other.photoPath == this.photoPath &&
           other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
 }
 
 class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
@@ -853,6 +891,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
   final Value<String?> photoPath;
   final Value<DateTime> createdAt;
   final Value<DateTime?> updatedAt;
+  final Value<DateTime?> deletedAt;
   final Value<int> rowid;
   const VehiclesCompanion({
     this.id = const Value.absent(),
@@ -864,6 +903,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
     this.photoPath = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   VehiclesCompanion.insert({
@@ -876,6 +916,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
     this.photoPath = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        userId = Value(userId),
@@ -890,6 +931,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
     Expression<String>? photoPath,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -902,6 +944,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
       if (photoPath != null) 'photo_path': photoPath,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -916,6 +959,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
     Value<String?>? photoPath,
     Value<DateTime>? createdAt,
     Value<DateTime?>? updatedAt,
+    Value<DateTime?>? deletedAt,
     Value<int>? rowid,
   }) {
     return VehiclesCompanion(
@@ -928,6 +972,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
       photoPath: photoPath ?? this.photoPath,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -962,6 +1007,9 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -980,6 +1028,7 @@ class VehiclesCompanion extends UpdateCompanion<VehicleRow> {
           ..write('photoPath: $photoPath, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1127,6 +1176,17 @@ class $RefuelsTable extends Refuels with TableInfo<$RefuelsTable, RefuelRow> {
     type: DriftSqlType.dateTime,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -1141,6 +1201,7 @@ class $RefuelsTable extends Refuels with TableInfo<$RefuelsTable, RefuelRow> {
     receiptPath,
     createdAt,
     updatedAt,
+    deletedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1246,6 +1307,12 @@ class $RefuelsTable extends Refuels with TableInfo<$RefuelsTable, RefuelRow> {
         updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
       );
     }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
     return context;
   }
 
@@ -1303,6 +1370,10 @@ class $RefuelsTable extends Refuels with TableInfo<$RefuelsTable, RefuelRow> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       ),
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
     );
   }
 
@@ -1325,6 +1396,7 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
   final String? receiptPath;
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final DateTime? deletedAt;
   const RefuelRow({
     required this.id,
     required this.vehicleId,
@@ -1338,6 +1410,7 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
     this.receiptPath,
     required this.createdAt,
     this.updatedAt,
+    this.deletedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1361,6 +1434,9 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
     map['created_at'] = Variable<DateTime>(createdAt);
     if (!nullToAbsent || updatedAt != null) {
       map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
     }
     return map;
   }
@@ -1387,6 +1463,9 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
       updatedAt: updatedAt == null && nullToAbsent
           ? const Value.absent()
           : Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
     );
   }
 
@@ -1408,6 +1487,7 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
       receiptPath: serializer.fromJson<String?>(json['receiptPath']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
     );
   }
   @override
@@ -1426,6 +1506,7 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
       'receiptPath': serializer.toJson<String?>(receiptPath),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime?>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
     };
   }
 
@@ -1442,6 +1523,7 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
     Value<String?> receiptPath = const Value.absent(),
     DateTime? createdAt,
     Value<DateTime?> updatedAt = const Value.absent(),
+    Value<DateTime?> deletedAt = const Value.absent(),
   }) => RefuelRow(
     id: id ?? this.id,
     vehicleId: vehicleId ?? this.vehicleId,
@@ -1459,6 +1541,7 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
     receiptPath: receiptPath.present ? receiptPath.value : this.receiptPath,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
   );
   RefuelRow copyWithCompanion(RefuelsCompanion data) {
     return RefuelRow(
@@ -1484,6 +1567,7 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
           : this.receiptPath,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
     );
   }
 
@@ -1501,7 +1585,8 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
           ..write('coldStartValue: $coldStartValue, ')
           ..write('receiptPath: $receiptPath, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt')
           ..write(')'))
         .toString();
   }
@@ -1520,6 +1605,7 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
     receiptPath,
     createdAt,
     updatedAt,
+    deletedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -1536,7 +1622,8 @@ class RefuelRow extends DataClass implements Insertable<RefuelRow> {
           other.coldStartValue == this.coldStartValue &&
           other.receiptPath == this.receiptPath &&
           other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt);
 }
 
 class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
@@ -1552,6 +1639,7 @@ class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
   final Value<String?> receiptPath;
   final Value<DateTime> createdAt;
   final Value<DateTime?> updatedAt;
+  final Value<DateTime?> deletedAt;
   final Value<int> rowid;
   const RefuelsCompanion({
     this.id = const Value.absent(),
@@ -1566,6 +1654,7 @@ class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
     this.receiptPath = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   RefuelsCompanion.insert({
@@ -1581,6 +1670,7 @@ class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
     this.receiptPath = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        vehicleId = Value(vehicleId),
@@ -1602,6 +1692,7 @@ class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
     Expression<String>? receiptPath,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -1617,6 +1708,7 @@ class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
       if (receiptPath != null) 'receipt_path': receiptPath,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -1634,6 +1726,7 @@ class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
     Value<String?>? receiptPath,
     Value<DateTime>? createdAt,
     Value<DateTime?>? updatedAt,
+    Value<DateTime?>? deletedAt,
     Value<int>? rowid,
   }) {
     return RefuelsCompanion(
@@ -1649,6 +1742,7 @@ class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
       receiptPath: receiptPath ?? this.receiptPath,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -1692,6 +1786,9 @@ class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -1713,6 +1810,7 @@ class RefuelsCompanion extends UpdateCompanion<RefuelRow> {
           ..write('receiptPath: $receiptPath, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -2069,6 +2167,7 @@ typedef $$VehiclesTableCreateCompanionBuilder =
       Value<String?> photoPath,
       Value<DateTime> createdAt,
       Value<DateTime?> updatedAt,
+      Value<DateTime?> deletedAt,
       Value<int> rowid,
     });
 typedef $$VehiclesTableUpdateCompanionBuilder =
@@ -2082,6 +2181,7 @@ typedef $$VehiclesTableUpdateCompanionBuilder =
       Value<String?> photoPath,
       Value<DateTime> createdAt,
       Value<DateTime?> updatedAt,
+      Value<DateTime?> deletedAt,
       Value<int> rowid,
     });
 
@@ -2173,6 +2273,11 @@ class $$VehiclesTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2274,6 +2379,11 @@ class $$VehiclesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$UsersTableOrderingComposer get userId {
     final $$UsersTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -2332,6 +2442,9 @@ class $$VehiclesTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
 
   $$UsersTableAnnotationComposer get userId {
     final $$UsersTableAnnotationComposer composer = $composerBuilder(
@@ -2419,6 +2532,7 @@ class $$VehiclesTableTableManager
                 Value<String?> photoPath = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => VehiclesCompanion(
                 id: id,
@@ -2430,6 +2544,7 @@ class $$VehiclesTableTableManager
                 photoPath: photoPath,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                deletedAt: deletedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2443,6 +2558,7 @@ class $$VehiclesTableTableManager
                 Value<String?> photoPath = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => VehiclesCompanion.insert(
                 id: id,
@@ -2454,6 +2570,7 @@ class $$VehiclesTableTableManager
                 photoPath: photoPath,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                deletedAt: deletedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -2553,6 +2670,7 @@ typedef $$RefuelsTableCreateCompanionBuilder =
       Value<String?> receiptPath,
       Value<DateTime> createdAt,
       Value<DateTime?> updatedAt,
+      Value<DateTime?> deletedAt,
       Value<int> rowid,
     });
 typedef $$RefuelsTableUpdateCompanionBuilder =
@@ -2569,6 +2687,7 @@ typedef $$RefuelsTableUpdateCompanionBuilder =
       Value<String?> receiptPath,
       Value<DateTime> createdAt,
       Value<DateTime?> updatedAt,
+      Value<DateTime?> deletedAt,
       Value<int> rowid,
     });
 
@@ -2655,6 +2774,11 @@ class $$RefuelsTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2746,6 +2870,11 @@ class $$RefuelsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$VehiclesTableOrderingComposer get vehicleId {
     final $$VehiclesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -2822,6 +2951,9 @@ class $$RefuelsTableAnnotationComposer
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
   $$VehiclesTableAnnotationComposer get vehicleId {
     final $$VehiclesTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -2886,6 +3018,7 @@ class $$RefuelsTableTableManager
                 Value<String?> receiptPath = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RefuelsCompanion(
                 id: id,
@@ -2900,6 +3033,7 @@ class $$RefuelsTableTableManager
                 receiptPath: receiptPath,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                deletedAt: deletedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -2916,6 +3050,7 @@ class $$RefuelsTableTableManager
                 Value<String?> receiptPath = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime?> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => RefuelsCompanion.insert(
                 id: id,
@@ -2930,6 +3065,7 @@ class $$RefuelsTableTableManager
                 receiptPath: receiptPath,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                deletedAt: deletedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

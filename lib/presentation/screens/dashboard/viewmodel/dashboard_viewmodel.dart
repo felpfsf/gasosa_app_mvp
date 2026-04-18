@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:developer' as dev;
 
 import 'package:flutter/foundation.dart';
 import 'package:gasosa_app/application/auth/delete_account_use_case.dart';
 import 'package:gasosa_app/application/auth/logout_use_case.dart';
 import 'package:gasosa_app/application/auth/update_display_name_use_case.dart';
+import 'package:gasosa_app/application/sync/sync_use_case.dart';
 import 'package:gasosa_app/application/vehicles/load_vehicles_use_case.dart';
 import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
@@ -21,6 +23,7 @@ class DashboardViewModel {
     this._logout,
     this._deleteAccount,
     this._updateDisplayName,
+    this._sync,
   ) : watchVehicles = StreamCommand<List<VehicleEntity>>();
 
   final AuthService _auth;
@@ -28,6 +31,7 @@ class DashboardViewModel {
   final LogoutUseCase _logout;
   final DeleteAccountUseCase _deleteAccount;
   final UpdateDisplayNameUseCase _updateDisplayName;
+  final SyncUseCase _sync;
 
   final StreamCommand<List<VehicleEntity>> watchVehicles;
   final ValueNotifier<AuthUser?> _currentUser = ValueNotifier(null);
@@ -50,6 +54,21 @@ class DashboardViewModel {
       return;
     }
 
+    // Sync cloud ↔ local antes de carregar veículos
+    dev.log('[Dashboard] triggering sync for user=$uid', name: 'sync');
+    unawaited(
+      _sync()
+          .then((result) {
+            result.fold(
+              (f) => dev.log('[Dashboard] sync failed: $f', name: 'sync'),
+              (r) => dev.log('[Dashboard] sync ok: total=${r.total}', name: 'sync'),
+            );
+          })
+          .catchError((Object e, StackTrace st) {
+            dev.log('[Dashboard] sync error: $e', name: 'sync', error: e, stackTrace: st);
+          }),
+    );
+
     watchVehicles.watch(
       () => _loadVehicles(uid).transform(
         StreamTransformer.fromHandlers(
@@ -61,6 +80,19 @@ class DashboardViewModel {
       ),
       keepLastData: true,
     );
+  }
+
+  Future<void> refresh() async {
+    dev.log('[Dashboard] pull-to-refresh: syncing...', name: 'sync');
+    try {
+      final result = await _sync();
+      result.fold(
+        (f) => dev.log('[Dashboard] refresh sync failed: $f', name: 'sync'),
+        (r) => dev.log('[Dashboard] refresh sync ok: total=${r.total}', name: 'sync'),
+      );
+    } catch (e, st) {
+      dev.log('[Dashboard] refresh sync error: $e', name: 'sync', error: e, stackTrace: st);
+    }
   }
 
   Future<Either<Failure, void>> logout() => _logout();

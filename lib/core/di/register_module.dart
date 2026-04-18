@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:gasosa_app/core/navigation/observability_navigator_observer.dart';
 import 'package:gasosa_app/core/services/observability/firebase_observability_service.dart';
@@ -46,6 +47,9 @@ abstract class RegisterModule {
   // -------------------------
   @lazySingleton
   fb.FirebaseAuth get firebaseAuth => fb.FirebaseAuth.instance;
+
+  @lazySingleton
+  FirebaseFirestore get firestore => FirebaseFirestore.instance;
 
   @preResolve
   @lazySingleton

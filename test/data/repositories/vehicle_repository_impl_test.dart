@@ -4,15 +4,19 @@ import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/data/local/dao/vehicle_dao.dart';
 import 'package:gasosa_app/data/local/db/app_database.dart';
 import 'package:gasosa_app/data/mappers/vehicle_mapper.dart';
+import 'package:gasosa_app/data/remote/vehicle_remote_datasource.dart';
 import 'package:gasosa_app/data/repositories/vehicle_repository_impl.dart';
 import 'package:gasosa_app/domain/entities/vehicle.dart';
 import 'package:matcher/matcher.dart' as matcher;
 import 'package:mocktail/mocktail.dart';
 
 import '../../helpers/factories/vehicle_factory.dart';
+import '../../helpers/mock_services.dart';
 import '../../helpers/test_helpers.dart';
 
-class MockVehicleDao extends Mock implements VehicleDao {}
+class _MockVehicleDao extends Mock implements VehicleDao {}
+
+class _MockVehicleRemote extends Mock implements VehicleRemoteDatasource {}
 
 // Helper para criar VehicleRow a partir de VehicleEntity (simula dados do DAO)
 VehicleRow _createVehicleRow(VehicleEntity entity) {
@@ -30,17 +34,34 @@ VehicleRow _createVehicleRow(VehicleEntity entity) {
 }
 
 void main() {
-  late MockVehicleDao mockDao;
+  late _MockVehicleDao mockDao;
+  late _MockVehicleRemote mockRemote;
+  late MockAuthService mockAuth;
+  late MockObservabilityService mockObservability;
   late VehicleRepositoryImpl repository;
 
   setUp(() {
-    mockDao = MockVehicleDao();
-    repository = VehicleRepositoryImpl(mockDao);
+    mockDao = _MockVehicleDao();
+    mockRemote = _MockVehicleRemote();
+    mockAuth = MockAuthService();
+    mockObservability = MockObservabilityService();
+    repository = VehicleRepositoryImpl(mockDao, mockRemote, mockAuth, mockObservability);
+
+    // Default: no logged user (skip push)
+    when(() => mockAuth.currentUser()).thenAnswer((_) async => null);
+    when(
+      () => mockObservability.logError(
+        any(),
+        stackTrace: any(named: 'stackTrace'),
+        context: any(named: 'context'),
+      ),
+    ).thenAnswer((_) async {});
   });
 
   setUpAll(() {
     registerFallbackValue(VehicleFactory.create());
     registerFallbackValue(VehicleMapper.toCompanion(VehicleFactory.create()));
+    registerFallbackValue(const UnexpectedFailure('', null, null));
   });
 
   group('VehicleRepositoryImpl -', () {
@@ -101,23 +122,27 @@ void main() {
     });
 
     group('deleteVehicle', () {
-      test('deve chamar dao.deleteById com id correto', () async {
+      test('deve chamar dao.softDeleteById com id correto', () async {
         // Arrange
         const vehicleId = 'vehicle-123';
-        when(() => mockDao.deleteById(any())).thenAnswer((_) async => 1);
+        when(
+          () => mockDao.getById(any()),
+        ).thenAnswer((_) async => _createVehicleRow(VehicleFactory.create(id: vehicleId)));
+        when(() => mockDao.softDeleteById(any())).thenAnswer((_) async => 1);
 
         // Act
         final result = await repository.deleteVehicle(vehicleId);
 
         // Assert
         expect(result, isRight());
-        verify(() => mockDao.deleteById(vehicleId)).called(1);
+        verify(() => mockDao.softDeleteById(vehicleId)).called(1);
       });
 
       test('deve retornar Right(unit) quando deletar com sucesso', () async {
         // Arrange
         const vehicleId = 'vehicle-456';
-        when(() => mockDao.deleteById(any())).thenAnswer((_) async => 1);
+        when(() => mockDao.getById(any())).thenAnswer((_) async => null);
+        when(() => mockDao.softDeleteById(any())).thenAnswer((_) async => 1);
 
         // Act
         final result = await repository.deleteVehicle(vehicleId);
@@ -130,7 +155,8 @@ void main() {
       test('deve retornar Left(DatabaseFailure) quando dao lançar exceção', () async {
         // Arrange
         const vehicleId = 'vehicle-error';
-        when(() => mockDao.deleteById(any())).thenThrow(Exception('Delete failed'));
+        when(() => mockDao.getById(any())).thenAnswer((_) async => null);
+        when(() => mockDao.softDeleteById(any())).thenThrow(Exception('Delete failed'));
 
         // Act
         final result = await repository.deleteVehicle(vehicleId);

@@ -504,6 +504,101 @@ class Validators {
 | 010 | Flavorizr | ✅ Aceito |
 | 011 | Mappers explícitos | ✅ Aceito |
 | 012 | Validators em Core | ✅ Aceito |
+| 013 | Estratégia de sincronização multi-dispositivo | 🔵 Proposto |
+
+---
+
+## ADR-013: Estratégia de sincronização multi-dispositivo
+
+**Data:** 2026-04  
+**Status:** 🔵 Proposto
+
+### Contexto
+
+O app é atualmente **offline-first puro**: todos os dados (veículos, abastecimentos, fotos) residem exclusivamente no SQLite local via Drift. O Firebase Auth já garante identidade do usuário em qualquer dispositivo, mas os dados não o seguem.
+
+Para que um usuário acesse seus dados em um segundo dispositivo (tablet, smartphone novo, troca de aparelho), é necessário sincronizar os dados estruturados e os arquivos de mídia com uma fonte remota.
+
+**Restrições identificadas na arquitetura atual:**
+
+- `photoPath` e `receiptPath` são caminhos absolutos do filesystem local — inválidos em outros dispositivos
+- Deletes são físicos (`DELETE FROM`) — incompatível com sync distribuído (o peer remoto não sabe que o registro foi apagado)
+- `VehicleRepository` e `RefuelRepository` só conhecem o DAO local — sem abstração de fonte remota
+- IDs já são UUIDs gerados localmente — **ponto positivo**, sem risco de colisão
+- `updatedAt` existe nas três tabelas — base para resolução de conflito
+
+### Decisão
+
+Adotar a estratégia **Push/Pull com Firestore + last-write-wins**, implementada em três fases incrementais:
+
+#### Fase 1 — Fundação de sync (dados estruturados)
+
+1. **Soft delete**: Adicionar coluna `deletedAt DATETIME NULL` em `Vehicles` e `Refuels`; todos os hard deletes são convertidos para `UPDATE SET deletedAt = NOW()`; todas as queries de leitura adicionam `WHERE deletedAt IS NULL`
+2. **Remote datasources**: Criar adaptadores Firestore para `Vehicle` e `Refuel` na camada `data/remote/`
+3. **Repository dual-source**: `VehicleRepositoryImpl` e `RefuelRepositoryImpl` passam a orquestrar local + remote sem que os use cases saibam
+4. **SyncUseCase**: Ao login → pull Firestore → merge local usando last-write-wins por `updatedAt`; ao escrever/deletar → push assíncrono em background
+
+#### Fase 2 — Sincronização de mídia
+
+1. Adicionar colunas `cloudPhotoUrl` e `cloudReceiptUrl` nas tabelas
+2. Upload para **Firebase Storage** ao salvar foto/comprovante; armazenar a URL junto com o path local
+3. Na leitura: exibir arquivo local se existir, senão baixar pela URL remota (cache local após download)
+
+#### Fase 3 — Sync em tempo real (opcional, pós-MVP)
+
+1. Substituir pull-on-login por `Firestore.snapshots()` stream
+2. Mutações remotas refletem automaticamente no Drift local
+
+#### Resolução de conflitos
+
+Política: **last-write-wins por `updatedAt`**. Se dois dispositivos editam o mesmo registro offline, prevalece o timestamp mais recente. Não há notificação ao usuário. Adequado porque:
+- Usuário único (sem colaboração em tempo real)
+- Dados de abastecimento raramente são editados após criação
+- Complexidade de merge por campo não justifica o custo no MVP
+
+#### Mudanças que o domínio **não** sofre
+
+As interfaces `VehicleRepository` e `RefuelRepository` **permanecem sem alteração**. Toda a orquestração de sync fica na camada `data`. Os use cases e a UI são agnósticos à existência de sincronização.
+
+### Alternativas consideradas
+
+| Alternativa | Por que descartada |
+|---|---|
+| **Firestore como fonte primária (cloud-first)** | App deixa de funcionar offline — viola requisito fundamental |
+| **Supabase + PostgreSQL remoto** | Requer backend HTTP próprio; Firebase já está no projeto |
+| **CRDT / Event sourcing** | Garante merge perfeito sem conflito, mas complexidade muito alta para app de usuário único sem colaboração |
+| **Backup/restore manual (exportar JSON)** | UX ruim; não é sync automático |
+| **Firestore offline cache automático** | Menos controle sobre quando/como sync ocorre; comportamento difícil de debugar |
+
+### Consequências
+
+✅ **Positivas:**
+
+- Domain e Application imutáveis — risco de regressão mínimo
+- Fases independentes: Fase 1 já entrega valor sem resolver fotos
+- IDs UUID já preparados — sem migração de IDs
+- `updatedAt` já existe — base de conflito pronta
+- Funciona offline-first preservado durante toda a migração
+
+❌ **Negativas:**
+
+- Schema migration (Drift) necessária para `deletedAt`, `cloudPhotoUrl`, `cloudReceiptUrl` — requer atenção em produção
+- Hard deletes físicos existentes precisam ser auditados e convertidos (vehicles, refuels, user cleanup)
+- Firebase Storage introduz custo financeiro proporcional a armazenamento + banda de fotos
+- Primeira sync de um dispositivo com muitos dados pode ser lenta (migração push-all)
+- `last-write-wins` pode perder uma edição em cenários de edição simultânea offline — aceitável para o perfil de uso atual
+
+### Dependências a adicionar (Fase 1)
+
+```yaml
+cloud_firestore: ^5.x.x
+```
+
+### Dependências a adicionar (Fase 2)
+
+```yaml
+firebase_storage: ^12.x.x
+```
 
 ---
 
@@ -517,4 +612,4 @@ class Validators {
 
 ---
 
-**Última atualização:** Janeiro 2026
+**Última atualização:** Abril 2026

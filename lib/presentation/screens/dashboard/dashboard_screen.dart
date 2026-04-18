@@ -203,17 +203,21 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 );
               }
 
-              return ListView.separated(
-                padding: AppSpacing.paddingMd,
-                itemCount: vehicles.length,
-                separatorBuilder: (_, _) => AppSpacing.gap16,
-                itemBuilder: (_, index) {
-                  final vehicle = vehicles[index];
-                  return VehicleCard(
-                    vehicle: vehicle,
-                    onTap: () => context.push(Routes.vehicleDetailPath(vehicle.id)),
-                  );
-                },
+              return RefreshIndicator(
+                onRefresh: _viewModel.refresh,
+                child: ListView.separated(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: AppSpacing.paddingMd,
+                  itemCount: vehicles.length,
+                  separatorBuilder: (_, _) => AppSpacing.gap16,
+                  itemBuilder: (_, index) {
+                    final vehicle = vehicles[index];
+                    return VehicleCard(
+                      vehicle: vehicle,
+                      onTap: () => context.push(Routes.vehicleDetailPath(vehicle.id)),
+                    );
+                  },
+                ),
               );
             },
           ),

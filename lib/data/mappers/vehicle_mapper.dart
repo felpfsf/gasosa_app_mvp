@@ -16,6 +16,22 @@ class VehicleMapper {
     updatedAt: Value(e.updatedAt),
   );
 
+  static VehiclesCompanion toCompanionWithDeletedAt(
+    VehicleEntity e,
+    DateTime? deletedAt,
+  ) => VehiclesCompanion(
+    id: Value(e.id),
+    userId: Value(e.userId),
+    name: Value(e.name),
+    plate: Value(e.plate),
+    tankCapacity: Value(e.tankCapacity),
+    fuelType: Value(e.fuelType.name),
+    photoPath: Value(e.photoPath),
+    createdAt: Value(e.createdAt),
+    updatedAt: Value(e.updatedAt),
+    deletedAt: Value(deletedAt),
+  );
+
   static FuelType _stringToFuelType(String? value) {
     if (value == null) return FuelType.flex;
 

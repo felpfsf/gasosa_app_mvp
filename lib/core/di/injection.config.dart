@@ -9,6 +9,7 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
+import 'package:cloud_firestore/cloud_firestore.dart' as _i974;
 import 'package:firebase_auth/firebase_auth.dart' as _i59;
 import 'package:gasosa_app/application/auth/delete_account_use_case.dart'
     as _i738;
@@ -38,6 +39,7 @@ import 'package:gasosa_app/application/refuel/get_refuels_by_vehicle_use_case.da
     as _i182;
 import 'package:gasosa_app/application/refuel/load_refuels_by_vehicle_use_case.dart'
     as _i1064;
+import 'package:gasosa_app/application/sync/sync_use_case.dart' as _i651;
 import 'package:gasosa_app/application/vehicles/create_or_update_vehicle_use_case.dart'
     as _i469;
 import 'package:gasosa_app/application/vehicles/delete_vehicle_use_case.dart'
@@ -57,6 +59,12 @@ import 'package:gasosa_app/data/local/dao/user_dao.dart' as _i876;
 import 'package:gasosa_app/data/local/dao/vehicle_dao.dart' as _i353;
 import 'package:gasosa_app/data/local/db/app_database.dart' as _i409;
 import 'package:gasosa_app/data/local/local_photo_storage_impl.dart' as _i198;
+import 'package:gasosa_app/data/remote/firestore_refuel_datasource.dart'
+    as _i292;
+import 'package:gasosa_app/data/remote/firestore_vehicle_datasource.dart'
+    as _i889;
+import 'package:gasosa_app/data/remote/refuel_remote_datasource.dart' as _i357;
+import 'package:gasosa_app/data/remote/vehicle_remote_datasource.dart' as _i992;
 import 'package:gasosa_app/data/repositories/refuel_repository_impl.dart'
     as _i146;
 import 'package:gasosa_app/data/repositories/vehicle_repository_impl.dart'
@@ -97,6 +105,7 @@ extension GetItInjectableX on _i174.GetIt {
     );
     gh.lazySingleton<_i706.Uuid>(() => registerModule.uuid);
     gh.lazySingleton<_i59.FirebaseAuth>(() => registerModule.firebaseAuth);
+    gh.lazySingleton<_i974.FirebaseFirestore>(() => registerModule.firestore);
     await gh.lazySingletonAsync<_i116.GoogleSignIn>(
       () => registerModule.googleSignIn,
       preResolve: true,
@@ -117,22 +126,22 @@ extension GetItInjectableX on _i174.GetIt {
     gh.lazySingleton<_i876.UserDao>(
       () => registerModule.userDao(gh<_i409.AppDatabase>()),
     );
-    gh.lazySingleton<_i857.RefuelRepository>(
-      () => _i146.RefuelRepositoryImpl(gh<_i621.RefuelDao>()),
-    );
     gh.lazySingleton<_i560.ObservabilityNavigatorObserver>(
       () => registerModule.observabilityNavigatorObserver(
         gh<_i645.ObservabilityService>(),
       ),
-    );
-    gh.lazySingleton<_i35.VehicleRepository>(
-      () => _i106.VehicleRepositoryImpl(gh<_i353.VehicleDao>()),
     );
     gh.lazySingleton<_i602.AuthService>(
       () => _i821.FirebaseAuthService(
         auth: gh<_i59.FirebaseAuth>(),
         google: gh<_i116.GoogleSignIn>(),
       ),
+    );
+    gh.lazySingleton<_i992.VehicleRemoteDatasource>(
+      () => _i889.FirestoreVehicleDatasource(gh<_i974.FirebaseFirestore>()),
+    );
+    gh.lazySingleton<_i357.RefuelRemoteDatasource>(
+      () => _i292.FirestoreRefuelDatasource(gh<_i974.FirebaseFirestore>()),
     );
     gh.factory<_i596.DeletePhotoUseCase>(
       () => _i596.DeletePhotoUseCase(gh<_i312.LocalPhotoStorage>()),
@@ -174,6 +183,22 @@ extension GetItInjectableX on _i174.GetIt {
       () => registerModule.router(
         gh<_i59.FirebaseAuth>(),
         gh<_i560.ObservabilityNavigatorObserver>(),
+      ),
+    );
+    gh.lazySingleton<_i35.VehicleRepository>(
+      () => _i106.VehicleRepositoryImpl(
+        gh<_i353.VehicleDao>(),
+        gh<_i992.VehicleRemoteDatasource>(),
+        gh<_i602.AuthService>(),
+        gh<_i645.ObservabilityService>(),
+      ),
+    );
+    gh.lazySingleton<_i857.RefuelRepository>(
+      () => _i146.RefuelRepositoryImpl(
+        gh<_i621.RefuelDao>(),
+        gh<_i357.RefuelRemoteDatasource>(),
+        gh<_i602.AuthService>(),
+        gh<_i645.ObservabilityService>(),
       ),
     );
     gh.factory<_i738.DeleteAccountUseCase>(
@@ -229,11 +254,14 @@ extension GetItInjectableX on _i174.GetIt {
     gh.factory<_i183.LoadVehiclesUseCase>(
       () => _i183.LoadVehiclesUseCase(repository: gh<_i35.VehicleRepository>()),
     );
-    gh.factory<_i464.VehicleDetailViewModel>(
-      () => _i464.VehicleDetailViewModel(
-        gh<_i1042.GetVehicleByIdUseCase>(),
-        gh<_i62.DeleteVehicleUseCase>(),
-        gh<_i182.GetRefuelsByVehicleUseCase>(),
+    gh.lazySingleton<_i651.SyncUseCase>(
+      () => _i651.SyncUseCase(
+        vehicleDao: gh<_i353.VehicleDao>(),
+        refuelDao: gh<_i621.RefuelDao>(),
+        vehicleRemote: gh<_i992.VehicleRemoteDatasource>(),
+        refuelRemote: gh<_i357.RefuelRemoteDatasource>(),
+        auth: gh<_i602.AuthService>(),
+        observability: gh<_i645.ObservabilityService>(),
       ),
     );
     gh.factory<_i979.RegisterViewModel>(
@@ -256,6 +284,14 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i225.SendPasswordResetUseCase>(),
       ),
     );
+    gh.factory<_i464.VehicleDetailViewModel>(
+      () => _i464.VehicleDetailViewModel(
+        gh<_i1042.GetVehicleByIdUseCase>(),
+        gh<_i62.DeleteVehicleUseCase>(),
+        gh<_i182.GetRefuelsByVehicleUseCase>(),
+        gh<_i651.SyncUseCase>(),
+      ),
+    );
     gh.factory<_i1034.ManageRefuelViewModel>(
       () => _i1034.ManageRefuelViewModel(
         gh<_i1042.GetVehicleByIdUseCase>(),
@@ -275,6 +311,7 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i310.LogoutUseCase>(),
         gh<_i738.DeleteAccountUseCase>(),
         gh<_i969.UpdateDisplayNameUseCase>(),
+        gh<_i651.SyncUseCase>(),
       ),
     );
     return this;

@@ -26,6 +26,25 @@ class RefuelMapper {
     updatedAt: Value(e.updatedAt),
   );
 
+  static RefuelsCompanion toCompanionWithDeletedAt(
+    RefuelEntity e,
+    DateTime? deletedAt,
+  ) => RefuelsCompanion(
+    id: Value(e.id),
+    vehicleId: Value(e.vehicleId),
+    refuelDate: Value(e.refuelDate),
+    fuelType: Value(e.fuelType.name),
+    totalValue: Value(e.totalValue),
+    mileage: Value(e.mileage),
+    liters: Value(e.liters),
+    coldStartLiters: Value(e.coldStartLiters),
+    coldStartValue: Value(e.coldStartValue),
+    receiptPath: Value(e.receiptPath),
+    createdAt: Value(e.createdAt),
+    updatedAt: Value(e.updatedAt),
+    deletedAt: Value(deletedAt),
+  );
+
   static RefuelEntity toDomain(RefuelRow row) => RefuelEntity(
     id: row.id,
     vehicleId: row.vehicleId,

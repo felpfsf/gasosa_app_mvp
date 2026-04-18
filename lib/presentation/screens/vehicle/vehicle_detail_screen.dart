@@ -138,43 +138,48 @@ class _VehicleDetailScreenState extends State<VehicleDetailScreen> {
           final imageHeight = MediaQuery.of(context).size.width * (9.0 / 16.0);
           final expandedHeight = imageHeight + 132.0;
 
-          return CustomScrollView(
-            controller: _scrollController,
-            slivers: [
-              SliverPersistentHeader(
-                pinned: true,
-                delegate: _VehicleHeaderDelegate(
-                  vehicle: vehicle,
-                  fuelTypeLabel: _viewModel.fuelTypeLabel,
-                  subtitle: _viewModel.vehicleSubtitle,
-                  expandedHeight: expandedHeight,
+          return RefreshIndicator(
+            onRefresh: () => _viewModel.refresh(widget.vehicleId),
+            edgeOffset: expandedHeight,
+            child: CustomScrollView(
+              controller: _scrollController,
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: _VehicleHeaderDelegate(
+                    vehicle: vehicle,
+                    fuelTypeLabel: _viewModel.fuelTypeLabel,
+                    subtitle: _viewModel.vehicleSubtitle,
+                    expandedHeight: expandedHeight,
+                  ),
                 ),
-              ),
-              SliverPadding(
-                padding: AppSpacing.paddingHorizontalMd,
-                sliver: SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(VehicleStrings.refuelsSectionTitle, style: AppTypography.titleMd),
-                        ),
-                        _AddRefuelButton(onTap: _goToRefuelManageCreate),
-                      ],
+                SliverPadding(
+                  padding: AppSpacing.paddingHorizontalMd,
+                  sliver: SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(VehicleStrings.refuelsSectionTitle, style: AppTypography.titleMd),
+                          ),
+                          _AddRefuelButton(onTap: _goToRefuelManageCreate),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              SliverToBoxAdapter(
-                child: RefuelsList(
-                  refuels: refuels,
-                  controller: _scrollController,
-                  onRefuelTap: _goToRefuelManageEdit,
-                  physics: const NeverScrollableScrollPhysics(),
+                SliverToBoxAdapter(
+                  child: RefuelsList(
+                    refuels: refuels,
+                    controller: _scrollController,
+                    onRefuelTap: _goToRefuelManageEdit,
+                    physics: const NeverScrollableScrollPhysics(),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         },
       ),

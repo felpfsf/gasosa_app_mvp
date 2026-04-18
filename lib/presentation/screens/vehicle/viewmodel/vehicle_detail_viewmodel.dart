@@ -1,5 +1,8 @@
+import 'dart:developer' as dev;
+
 import 'package:flutter/foundation.dart';
 import 'package:gasosa_app/application/refuel/get_refuels_by_vehicle_use_case.dart';
+import 'package:gasosa_app/application/sync/sync_use_case.dart';
 import 'package:gasosa_app/application/vehicles/delete_vehicle_use_case.dart';
 import 'package:gasosa_app/application/vehicles/get_vehicle_by_id_use_case.dart';
 import 'package:gasosa_app/core/either/either.dart';
@@ -16,12 +19,14 @@ class VehicleDetailViewModel {
     this._getVehicleById,
     this._delete,
     this._getRefuels,
+    this._sync,
   ) : loadCommand = Command<Unit>(),
       deleteCommand = Command<Unit>();
 
   final GetVehicleByIdUseCase _getVehicleById;
   final DeleteVehicleUseCase _delete;
   final GetRefuelsByVehicleUseCase _getRefuels;
+  final SyncUseCase _sync;
 
   final Command<Unit> loadCommand;
   final Command<Unit> deleteCommand;
@@ -58,6 +63,20 @@ class VehicleDetailViewModel {
   }
 
   Future<Either<Failure, Unit>?> deleteVehicle(String vehicleId) => deleteCommand.run(() => _delete(vehicleId));
+
+  Future<void> refresh(String vehicleId) async {
+    dev.log('[VehicleDetail] pull-to-refresh: syncing...', name: 'sync');
+    try {
+      final result = await _sync();
+      result.fold(
+        (f) => dev.log('[VehicleDetail] refresh sync failed: $f', name: 'sync'),
+        (r) => dev.log('[VehicleDetail] refresh sync ok: total=${r.total}', name: 'sync'),
+      );
+    } catch (e, st) {
+      dev.log('[VehicleDetail] refresh sync error: $e', name: 'sync', error: e, stackTrace: st);
+    }
+    await init(vehicleId);
+  }
 
   String get vehicleName => _vehicle.value?.name ?? '';
   String get vehiclePhotoPath => _vehicle.value?.photoPath ?? '';

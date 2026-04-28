@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'dart:developer' as dev;
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:gasosa_app/application/auth/delete_account_use_case.dart';
-import 'package:gasosa_app/application/auth/logout_use_case.dart';
-import 'package:gasosa_app/application/auth/update_display_name_use_case.dart';
 import 'package:gasosa_app/application/sync/sync_use_case.dart';
 import 'package:gasosa_app/application/vehicles/load_vehicles_use_case.dart';
 import 'package:gasosa_app/core/either/either.dart';
@@ -12,6 +10,7 @@ import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/core/presentation/stream_command.dart';
 import 'package:gasosa_app/core/presentation/ui_state.dart';
 import 'package:gasosa_app/domain/entities/vehicle.dart';
+import 'package:gasosa_app/domain/repositories/user_repository.dart';
 import 'package:gasosa_app/domain/services/auth_service.dart';
 import 'package:injectable/injectable.dart';
 
@@ -20,24 +19,25 @@ class DashboardViewModel {
   DashboardViewModel(
     this._auth,
     this._loadVehicles,
-    this._logout,
-    this._deleteAccount,
-    this._updateDisplayName,
     this._sync,
+    this._userRepository,
   ) : watchVehicles = StreamCommand<List<VehicleEntity>>();
 
   final AuthService _auth;
   final LoadVehiclesUseCase _loadVehicles;
-  final LogoutUseCase _logout;
-  final DeleteAccountUseCase _deleteAccount;
-  final UpdateDisplayNameUseCase _updateDisplayName;
   final SyncUseCase _sync;
+  final UserRepository _userRepository;
 
   final StreamCommand<List<VehicleEntity>> watchVehicles;
   final ValueNotifier<AuthUser?> _currentUser = ValueNotifier(null);
   ValueListenable<AuthUser?> get currentUser => _currentUser;
 
+  /// Foto local do usuário (prioridade sobre photoUrl do AuthUser).
+  final ValueNotifier<File?> _localAvatar = ValueNotifier(null);
+  ValueListenable<File?> get localAvatar => _localAvatar;
+
   StreamSubscription<AuthUser?>? _userChangesSubscription;
+  StreamSubscription<Either<Failure, AuthUser?>>? _watchUserSubscription;
 
   Future<void> init() async {
     _currentUser.value = await _auth.currentUser();
@@ -53,6 +53,18 @@ class DashboardViewModel {
       watchVehicles.state.value = const UiError(ValidationFailure('Usuário não autenticado'));
       return;
     }
+
+    // Observa foto local do usuário no banco
+    _watchUserSubscription?.cancel();
+    _watchUserSubscription = _userRepository.watchUser(uid).listen((either) {
+      either.fold(
+        (_) {},
+        (user) {
+          final path = user?.photoUrl;
+          _localAvatar.value = (path != null && path.isNotEmpty) ? File(path) : null;
+        },
+      );
+    });
 
     // Sync cloud ↔ local antes de carregar veículos
     dev.log('[Dashboard] triggering sync for user=$uid', name: 'sync');
@@ -95,17 +107,13 @@ class DashboardViewModel {
     }
   }
 
-  Future<Either<Failure, void>> logout() => _logout();
-
-  Future<Either<Failure, void>> deleteAccount() => _deleteAccount();
-
-  Future<Either<Failure, void>> updateDisplayName(String name) => _updateDisplayName(name);
-
   void retry() => init();
 
   void dispose() {
     _userChangesSubscription?.cancel();
+    _watchUserSubscription?.cancel();
     watchVehicles.dispose();
     _currentUser.dispose();
+    _localAvatar.dispose();
   }
 }

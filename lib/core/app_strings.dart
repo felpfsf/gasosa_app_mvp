@@ -57,6 +57,8 @@ abstract final class DashboardStrings {
 }
 
 abstract final class ProfileStrings {
+  static const screenTitle = 'Perfil';
+
   static const editNameMenuLabel = 'Editar nome';
   static const editNameDialogTitle = 'Editar nome';
   static const editNameHint = 'Seu nome';
@@ -64,6 +66,28 @@ abstract final class ProfileStrings {
   static const editNameSuccess = 'Nome atualizado com sucesso.';
   static const errorNameEmpty = 'O nome não pode ser vazio.';
   static const errorNameTooLong = 'O nome deve ter no máximo 50 caracteres.';
+
+  // Avatar
+  static const changePhotoMenuLabel = 'Alterar foto';
+  static const removePhotoMenuLabel = 'Remover foto';
+  static const changePhotoSuccess = 'Foto atualizada com sucesso.';
+  static const removePhotoSuccess = 'Foto removida com sucesso.';
+  static const changePhotoSourceTitle = 'Alterar foto de perfil';
+  static const changePhotoSourceCamera = 'Câmera';
+  static const changePhotoSourceGallery = 'Galeria';
+
+  // Account section
+  static const sectionAccount = 'Conta';
+  static const logoutLabel = 'Sair da conta';
+  static const deleteAccountLabel = 'Excluir conta';
+  static const deleteAccountDialogTitle = 'Excluir conta';
+  static const deleteAccountDialogContent =
+      'Todos os seus dados serão removidos permanentemente. Esta ação não pode ser desfeita.';
+  static const deleteAccountDialogConfirmLabel = 'Excluir';
+  static const deleteAccountSuccess = 'Conta excluída com sucesso.';
+  static const logoutDialogTitle = 'Sair da conta';
+  static const logoutDialogContent = 'Tem certeza que deseja sair?';
+  static const logoutDialogConfirmLabel = 'Sair';
 }
 
 abstract final class VehicleStrings {
@@ -222,6 +246,5 @@ abstract final class AuthErrorStrings {
   static const googleCredentialsMissingLink = 'Sem credenciais do Google';
   static const googleLinkFailed = 'Falha ao vincular com o Google';
   static const deleteAccountFailed = 'Erro ao excluir conta. Tente novamente.';
-  static const deleteAccountRequiresReauth =
-      'Por segurança, saia e entre novamente antes de excluir a conta.';
+  static const deleteAccountRequiresReauth = 'Por segurança, saia e entre novamente antes de excluir a conta.';
 }

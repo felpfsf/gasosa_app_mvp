@@ -5,6 +5,7 @@ abstract final class Routes {
   static const register = '/register';
   static const forgotPassword = '/forgot-password';
   static const dashboard = '/dashboard';
+  static const profile = '/profile';
 
   // Dev-only preview routes
   static const devRefuelPreview = '/dev/refuel-preview';

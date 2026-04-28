@@ -10,6 +10,7 @@ import 'package:gasosa_app/presentation/screens/auth/login_screen.dart';
 import 'package:gasosa_app/presentation/screens/auth/register_screen.dart';
 import 'package:gasosa_app/presentation/screens/dashboard/dashboard_screen.dart';
 import 'package:gasosa_app/presentation/screens/dev/refuel_list_preview_screen.dart';
+import 'package:gasosa_app/presentation/screens/profile/profile_screen.dart';
 import 'package:gasosa_app/presentation/screens/refuel/manage_refuel_screen.dart';
 import 'package:gasosa_app/presentation/screens/splash/splash_screen.dart';
 import 'package:gasosa_app/presentation/screens/vehicle/manage_vehicle_screen.dart';
@@ -127,6 +128,10 @@ GoRouter buildAppRouter(
             },
           ),
         ],
+      ),
+      GoRoute(
+        path: Routes.profile,
+        builder: (_, _) => const ProfileScreen(),
       ),
       GoRoute(
         path: Routes.devRefuelPreview,

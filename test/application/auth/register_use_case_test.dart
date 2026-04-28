@@ -3,6 +3,7 @@ import 'package:gasosa_app/application/auth/register_use_case.dart';
 import 'package:gasosa_app/core/either/either.dart';
 import 'package:gasosa_app/core/errors/failure.dart';
 import 'package:gasosa_app/core/services/observability/observability_service.dart';
+import 'package:gasosa_app/domain/repositories/user_repository.dart';
 import 'package:gasosa_app/domain/services/auth_service.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -10,22 +11,30 @@ class MockAuthService extends Mock implements AuthService {}
 
 class MockObservabilityService extends Mock implements ObservabilityService {}
 
+class MockUserRepository extends Mock implements UserRepository {}
+
 void main() {
   late MockAuthService mockAuthService;
   late MockObservabilityService mockObservability;
+  late MockUserRepository mockUserRepository;
   late RegisterUseCase command;
 
   setUpAll(() {
     registerFallbackValue(const UnexpectedFailure('', null, null));
+    registerFallbackValue(const AuthUser('', '', ''));
   });
 
   setUp(() {
     mockAuthService = MockAuthService();
     mockObservability = MockObservabilityService();
+    mockUserRepository = MockUserRepository();
     command = RegisterUseCase(
       auth: mockAuthService,
       observability: mockObservability,
+      userRepository: mockUserRepository,
     );
+
+    when(() => mockUserRepository.saveUser(any())).thenAnswer((_) async => right(unit));
 
     when(() => mockObservability.logBreadcrumb(any(), data: any(named: 'data'))).thenReturn(null);
     when(() => mockObservability.logEvent(any(), parameters: any(named: 'parameters'))).thenAnswer((_) async {});

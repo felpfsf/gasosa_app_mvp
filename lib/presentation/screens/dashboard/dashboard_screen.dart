@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gasosa_app/core/app_strings.dart';
@@ -10,11 +12,8 @@ import 'package:gasosa_app/presentation/screens/dashboard/viewmodel/dashboard_vi
 import 'package:gasosa_app/presentation/screens/dashboard/widgets/vehicle_list_card.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_appbar.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_avatar.dart';
-import 'package:gasosa_app/presentation/widgets/gasosa_confirm_dialog.dart';
-import 'package:gasosa_app/presentation/widgets/gasosa_edit_name_dialog.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_empty_state_widget.dart';
 import 'package:gasosa_app/presentation/widgets/gasosa_error_state_widget.dart';
-import 'package:gasosa_app/presentation/widgets/messages.dart';
 import 'package:gasosa_app/theme/app_colors.dart';
 import 'package:gasosa_app/theme/app_spacing.dart';
 import 'package:gasosa_app/theme/app_typography.dart';
@@ -38,59 +37,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _viewModel.init();
   }
 
-  Future<void> _logout() async {
-    final confirmed = await showGasosaConfirmDialog(
-      context,
-      title: DashboardStrings.logoutDialogTitle,
-      content: DashboardStrings.logoutDialogContent,
-      confirmLabel: DashboardStrings.logoutDialogConfirmLabel,
-      danger: true,
-    );
-    if (!confirmed) return;
-    await _viewModel.logout();
-    if (mounted) {
-      context.go(Routes.login);
-    }
-  }
-
-  Future<void> _deleteAccount() async {
-    final confirmed = await showGasosaConfirmDialog(
-      context,
-      title: DashboardStrings.deleteAccountDialogTitle,
-      content: DashboardStrings.deleteAccountDialogContent,
-      confirmLabel: DashboardStrings.deleteAccountDialogConfirmLabel,
-      danger: true,
-    );
-    if (!confirmed) return;
-
-    final result = await _viewModel.deleteAccount();
-    if (!mounted) return;
-
-    result.fold(
-      (failure) => Messages.showError(context, failure.message),
-      (_) {
-        Messages.showSuccess(context, DashboardStrings.deleteAccountSuccess);
-        context.go(Routes.login);
-      },
-    );
-  }
-
-  Future<void> _editName(String currentName) async {
-    final newName = await showGasosaEditNameDialog(context, currentName: currentName);
-    if (newName == null || !mounted) return;
-
-    final result = await _viewModel.updateDisplayName(newName);
-    if (!mounted) return;
-
-    result.fold(
-      (failure) => Messages.showError(context, failure.message),
-      (_) => Messages.showSuccess(context, ProfileStrings.editNameSuccess),
-    );
-  }
-
   Future<void> _goToCreateVehicle() async {
     await context.push(Routes.manageVehiclePath());
   }
+
+  void _goToProfile() => context.push(Routes.profile);
 
   @override
   void dispose() {
@@ -103,124 +54,96 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return ValueListenableBuilder<AuthUser?>(
       valueListenable: _viewModel.currentUser,
       builder: (context, user, _) {
-        return Scaffold(
-          appBar: GasosaAppbar(
-            title: DashboardStrings.greeting(user?.name),
-            leading: GasosaAvatar(photoUrl: user?.photoUrl, size: 32),
-            actions: [
-              if (kDebugMode)
-                IconButton(
-                  onPressed: () => context.push(Routes.devRefuelPreview),
-                  icon: const Icon(Icons.bug_report_outlined),
-                  tooltip: '[DEV] Scroll Preview',
-                ),
-              IconButton(
-                onPressed: () async => _logout(),
-                icon: const Icon(Icons.logout),
-                tooltip: DashboardStrings.logoutTooltip,
-              ),
-              PopupMenuButton<String>(
-                icon: const Icon(Icons.more_vert),
-                tooltip: 'Mais opções',
-                onSelected: (value) {
-                  if (value == 'edit_name') _editName(_viewModel.currentUser.value?.name ?? '');
-                  if (value == 'delete_account') _deleteAccount();
-                },
-                itemBuilder: (_) => [
-                  PopupMenuItem(
-                    value: 'edit_name',
-                    child: Row(
-                      spacing: 8,
-                      children: [
-                        const Icon(Icons.edit_outlined),
-                        Text(
-                          ProfileStrings.editNameMenuLabel,
-                          style: AppTypography.textSmRegular,
-                        ),
-                      ],
+        return ValueListenableBuilder<File?>(
+          valueListenable: _viewModel.localAvatar,
+          builder: (context, localAvatar, _) {
+            return Scaffold(
+              appBar: GasosaAppbar(
+                title: DashboardStrings.greeting(user?.name),
+                actions: [
+                  Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: GasosaAvatar(
+                      localFile: localAvatar,
+                      photoUrl: user?.photoUrl,
+                      size: 32,
+                      onTap: _goToProfile,
                     ),
                   ),
-                  PopupMenuItem(
-                    value: 'delete_account',
-                    child: Row(
-                      spacing: 8,
-                      children: [
-                        const Icon(Icons.delete_forever_outlined, color: AppColors.error),
-                        Text(
-                          DashboardStrings.deleteAccountMenuLabel,
-                          style: AppTypography.textSmRegular.copyWith(color: AppColors.error),
-                        ),
-                      ],
+                  if (kDebugMode)
+                    IconButton(
+                      onPressed: () => context.push(Routes.devRefuelPreview),
+                      icon: const Icon(Icons.bug_report_outlined),
+                      tooltip: '[DEV] Scroll Preview',
                     ),
-                  ),
                 ],
               ),
-            ],
-          ),
-          floatingActionButton: ValueListenableBuilder<UiState<List<VehicleEntity>>>(
-            valueListenable: _viewModel.watchVehicles.state,
-            builder: (_, uiState, _) {
-              final hasVehicles = uiState is UiData<List<VehicleEntity>> && uiState.data.isNotEmpty;
-              return hasVehicles
-                  ? FloatingActionButton.extended(
-                      onPressed: _goToCreateVehicle,
-                      icon: const Icon(Icons.directions_car_filled_rounded, color: AppColors.text),
-                      label: Text(
-                        DashboardStrings.addVehicleLabel,
-                        style: AppTypography.textSmBold.copyWith(color: AppColors.text),
+              floatingActionButton: ValueListenableBuilder<UiState<List<VehicleEntity>>>(
+                valueListenable: _viewModel.watchVehicles.state,
+                builder: (_, uiState, _) {
+                  final hasVehicles = uiState is UiData<List<VehicleEntity>> && uiState.data.isNotEmpty;
+                  return hasVehicles
+                      ? FloatingActionButton.extended(
+                          onPressed: _goToCreateVehicle,
+                          icon: const Icon(Icons.directions_car_filled_rounded, color: AppColors.text),
+                          label: Text(
+                            DashboardStrings.addVehicleLabel,
+                            style: AppTypography.textSmBold.copyWith(color: AppColors.text),
+                          ),
+                        )
+                      : const SizedBox.shrink();
+                },
+              ),
+              body: ValueListenableBuilder<UiState<List<VehicleEntity>>>(
+                valueListenable: _viewModel.watchVehicles.state,
+                builder: (_, uiState, _) {
+                  if (uiState is UiInitial || uiState is UiLoading) {
+                    return ColoredBox(
+                      color: AppColors.background.withValues(alpha: 0.8),
+                      child: Center(
+                        child: LoadingAnimationWidget.waveDots(color: AppColors.primary, size: 48),
                       ),
-                    )
-                  : const SizedBox.shrink();
-            },
-          ),
-          body: ValueListenableBuilder<UiState<List<VehicleEntity>>>(
-            valueListenable: _viewModel.watchVehicles.state,
-            builder: (_, uiState, _) {
-              if (uiState is UiInitial || uiState is UiLoading) {
-                return ColoredBox(
-                  color: AppColors.background.withValues(alpha: 0.8),
-                  child: Center(
-                    child: LoadingAnimationWidget.waveDots(color: AppColors.primary, size: 48),
-                  ),
-                );
-              }
-
-              if (uiState is UiError<List<VehicleEntity>>) {
-                return GasosaErrorStateWidget(
-                  errorMessage: uiState.message,
-                  onPressed: _viewModel.retry,
-                );
-              }
-
-              final vehicles = (uiState as UiData<List<VehicleEntity>>).data;
-
-              if (vehicles.isEmpty) {
-                return GasosaEmptyStateWidget(
-                  title: DashboardStrings.emptyStateTitle,
-                  message: DashboardStrings.emptyStateMessage,
-                  actionLabel: DashboardStrings.emptyStateAction,
-                  onPressed: _goToCreateVehicle,
-                );
-              }
-
-              return RefreshIndicator(
-                onRefresh: _viewModel.refresh,
-                child: ListView.separated(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: AppSpacing.paddingMd,
-                  itemCount: vehicles.length,
-                  separatorBuilder: (_, _) => AppSpacing.gap16,
-                  itemBuilder: (_, index) {
-                    final vehicle = vehicles[index];
-                    return VehicleCard(
-                      vehicle: vehicle,
-                      onTap: () => context.push(Routes.vehicleDetailPath(vehicle.id)),
                     );
-                  },
-                ),
-              );
-            },
-          ),
+                  }
+
+                  if (uiState is UiError<List<VehicleEntity>>) {
+                    return GasosaErrorStateWidget(
+                      errorMessage: uiState.message,
+                      onPressed: _viewModel.retry,
+                    );
+                  }
+
+                  final vehicles = (uiState as UiData<List<VehicleEntity>>).data;
+
+                  if (vehicles.isEmpty) {
+                    return GasosaEmptyStateWidget(
+                      title: DashboardStrings.emptyStateTitle,
+                      message: DashboardStrings.emptyStateMessage,
+                      actionLabel: DashboardStrings.emptyStateAction,
+                      onPressed: _goToCreateVehicle,
+                    );
+                  }
+
+                  return RefreshIndicator(
+                    onRefresh: _viewModel.refresh,
+                    child: ListView.separated(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      padding: AppSpacing.paddingMd,
+                      itemCount: vehicles.length,
+                      separatorBuilder: (_, _) => AppSpacing.gap16,
+                      itemBuilder: (_, index) {
+                        final vehicle = vehicles[index];
+                        return VehicleCard(
+                          vehicle: vehicle,
+                          onTap: () => context.push(Routes.vehicleDetailPath(vehicle.id)),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+            );
+          },
         );
       },
     );

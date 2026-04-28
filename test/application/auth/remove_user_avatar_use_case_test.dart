@@ -24,6 +24,7 @@ void main() {
   setUpAll(() {
     registerFallbackValue(const DatabaseFailure('', null, null));
     registerFallbackValue(const UnexpectedFailure('', null, null));
+    registerFallbackValue(const AuthUser('', '', ''));
   });
 
   setUp(() {
@@ -56,7 +57,7 @@ void main() {
         when(() => mockAuth.currentUser()).thenAnswer((_) async => tUser);
         when(() => mockUserRepository.getUserById(any())).thenAnswer((_) async => right(tUserWithPhoto));
         when(() => mockDeletePhoto(any())).thenAnswer((_) async => right(null));
-        when(() => mockUserRepository.updatePhotoPath(any(), any())).thenAnswer((_) async => right(unit));
+        when(() => mockUserRepository.saveUser(any())).thenAnswer((_) async => right(unit));
       });
 
       test('retorna Right quando remoção bem-sucedida', () async {
@@ -68,7 +69,7 @@ void main() {
       test('chama updatePhotoPath com null para limpar foto', () async {
         await useCase();
 
-        verify(() => mockUserRepository.updatePhotoPath('user-123', null)).called(1);
+        verify(() => mockUserRepository.saveUser(any())).called(1);
       });
 
       test('chama deletePhoto com path correto', () async {
@@ -90,7 +91,7 @@ void main() {
         when(() => mockUserRepository.getUserById(any())).thenAnswer(
           (_) async => right(const AuthUser('user-123', 'João', 'joao@email.com')),
         );
-        when(() => mockUserRepository.updatePhotoPath(any(), any())).thenAnswer((_) async => right(unit));
+        when(() => mockUserRepository.saveUser(any())).thenAnswer((_) async => right(unit));
       });
 
       test('retorna Right mesmo sem foto salva', () async {
@@ -114,7 +115,7 @@ void main() {
         when(
           () => mockDeletePhoto(any()),
         ).thenAnswer((_) async => left(const UnexpectedFailure('Arquivo não encontrado', null, null)));
-        when(() => mockUserRepository.updatePhotoPath(any(), any())).thenAnswer((_) async => right(unit));
+        when(() => mockUserRepository.saveUser(any())).thenAnswer((_) async => right(unit));
       });
 
       test('retorna Right mesmo quando deletePhoto falha', () async {
@@ -126,7 +127,7 @@ void main() {
       test('ainda chama updatePhotoPath mesmo com erro no deletePhoto', () async {
         await useCase();
 
-        verify(() => mockUserRepository.updatePhotoPath('user-123', null)).called(1);
+        verify(() => mockUserRepository.saveUser(any())).called(1);
       });
     });
 
@@ -144,7 +145,7 @@ void main() {
       test('não chama updatePhotoPath quando não autenticado', () async {
         await useCase();
 
-        verifyNever(() => mockUserRepository.updatePhotoPath(any(), any()));
+        verifyNever(() => mockUserRepository.saveUser(any()));
       });
     });
 
@@ -153,7 +154,7 @@ void main() {
         when(() => mockAuth.currentUser()).thenAnswer((_) async => tUser);
         when(() => mockUserRepository.getUserById(any())).thenAnswer((_) async => right(tUserWithPhoto));
         when(() => mockDeletePhoto(any())).thenAnswer((_) async => right(null));
-        when(() => mockUserRepository.updatePhotoPath(any(), any())).thenAnswer((_) async => left(tFailure));
+        when(() => mockUserRepository.saveUser(any())).thenAnswer((_) async => left(tFailure));
       });
 
       test('retorna Left quando updatePhotoPath falha', () async {

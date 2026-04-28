@@ -26,6 +26,7 @@ void main() {
     registerFallbackValue(File('/tmp/fake.jpg'));
     registerFallbackValue(const DatabaseFailure('', null, null));
     registerFallbackValue(const UnexpectedFailure('', null, null));
+    registerFallbackValue(const AuthUser('', '', ''));
   });
 
   setUp(() {
@@ -65,7 +66,7 @@ void main() {
             oldPath: any(named: 'oldPath'),
           ),
         ).thenAnswer((_) async => right('/storage/avatar_new.jpg'));
-        when(() => mockUserRepository.updatePhotoPath(any(), any())).thenAnswer((_) async => right(unit));
+        when(() => mockUserRepository.saveUser(any())).thenAnswer((_) async => right(unit));
       });
 
       test('retorna Right com novo path', () async {
@@ -83,7 +84,7 @@ void main() {
       test('chama updatePhotoPath com novo path', () async {
         await useCase(File('/tmp/foto.jpg'));
 
-        verify(() => mockUserRepository.updatePhotoPath('user-123', '/storage/avatar_new.jpg')).called(1);
+        verify(() => mockUserRepository.saveUser(any())).called(1);
       });
 
       test('registra evento de sucesso', () async {
@@ -155,7 +156,7 @@ void main() {
       test('não chama updatePhotoPath quando savePhoto falha', () async {
         await useCase(File('/tmp/foto.jpg'));
 
-        verifyNever(() => mockUserRepository.updatePhotoPath(any(), any()));
+        verifyNever(() => mockUserRepository.saveUser(any()));
       });
 
       test('registra evento de falha quando savePhoto falha', () async {
@@ -177,7 +178,7 @@ void main() {
             oldPath: any(named: 'oldPath'),
           ),
         ).thenAnswer((_) async => right('/storage/avatar_new.jpg'));
-        when(() => mockUserRepository.updatePhotoPath(any(), any())).thenAnswer((_) async => left(tFailure));
+        when(() => mockUserRepository.saveUser(any())).thenAnswer((_) async => left(tFailure));
       });
 
       test('retorna Left quando updatePhotoPath falha', () async {

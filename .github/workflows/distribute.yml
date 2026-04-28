@@ -71,10 +71,10 @@ jobs:
           storeFile=../upload-keystore.jks
           EOF
 
-      # ── Build AAB ─────────────────────────────────────────────────────────
-      - name: Build App Bundle
+      # ── Build APK (Firebase App Distribution requer APK, não AAB) ─────────
+      - name: Build APK
         run: |
-          flutter build appbundle \
+          flutter build apk \
             --dart-define-from-file=dart_defines.json \
             --release
 
@@ -85,5 +85,5 @@ jobs:
           appId: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
           serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           groups: testers
-          file: build/app/outputs/bundle/release/app-release.aab
+          file: build/app/outputs/flutter-apk/app-release.apk
           releaseNotesFile: .github/whatsnew/whatsnew-pt-BR

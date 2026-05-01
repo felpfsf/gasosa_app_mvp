@@ -27,11 +27,16 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      # ── Flutter ───────────────────────────────────────────────────────────
+      # ── Flutter (versão lida do .fvm/fvm_config.json) ────────────────────
+      - name: Read FVM config
+        uses: kuhnroyal/flutter-fvm-config-action@v2
+        id: fvm-config
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          flutter-version: ${{ steps.fvm-config.outputs.FLUTTER_VERSION }}
+          channel: ${{ steps.fvm-config.outputs.FLUTTER_CHANNEL }}
           cache: true
 
       # ── Dependencies ──────────────────────────────────────────────────────
@@ -83,7 +88,7 @@ jobs:
         run: |
           flutter build appbundle \
             --dart-define-from-file=dart_defines.json \
-            --release
+            --release 
 
       # ── Upload to Firebase App Distribution ───────────────────────────────
       - name: Upload to Firebase App Distribution

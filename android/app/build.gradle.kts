@@ -51,6 +51,11 @@ android {
     }
 
     buildTypes {
+        getByName("debug") {
+            ndk {
+                abiFilters += listOf("arm64-v8a", "x86_64")
+            }
+        }
         release {
             signingConfig = if (keyPropertiesFile.exists()) {
                 signingConfigs.getByName("release")

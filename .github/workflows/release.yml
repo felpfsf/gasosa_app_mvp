@@ -1,19 +1,20 @@
-name: Distribute to Firebase App Distribution
+name: Release to Google Play
 
-# Triggered only by Release Candidate tags (e.g. v1.0.0-rc1, v1.2.0-rc3)
+# Triggered only by stable release tags (e.g. v1.0.0, v1.2.3)
+# Tags with suffixes like -rc1, -beta are ignored here
 on:
   push:
     tags:
-      - 'v*-rc*'
+      - "v[0-9]+.[0-9]+.[0-9]+"
   workflow_dispatch:
 
 concurrency:
-  group: distribute-${{ github.ref }}
+  group: release-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  distribute:
-    name: Build & Distribute RC (Android → Firebase)
+  release:
+    name: Build & Release (Android → Google Play)
     runs-on: ubuntu-latest
 
     steps:
@@ -28,7 +29,7 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      # ── Flutter (versão lida do .fvm/fvm_config.json) ────────────────────
+      # ── Flutter ───────────────────────────────────────────────────────────
       - name: Read FVM config
         uses: kuhnroyal/flutter-fvm-config-action@v2
         id: fvm-config
@@ -77,19 +78,20 @@ jobs:
           storeFile=../upload-keystore.jks
           EOF
 
-      # ── Build APK (Firebase App Distribution) ────────────────────────────
-      - name: Build APK
+      # ── Build AAB (Google Play) ────────────────────────────────────────────
+      - name: Build App Bundle
         run: |
-          flutter build apk \
+          flutter build appbundle \
             --dart-define-from-file=dart_defines.json \
             --release
 
-      # ── Upload to Firebase App Distribution ───────────────────────────────
-      - name: Upload to Firebase App Distribution
-        uses: wzieba/Firebase-Distribution-Github-Action@v1
+      # ── Upload to Google Play Internal Track ──────────────────────────────
+      - name: Upload to Google Play (Internal Testing)
+        uses: r0adkll/upload-google-play@v1
         with:
-          appId: ${{ secrets.FIREBASE_ANDROID_APP_ID }}
-          serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          groups: testers
-          file: build/app/outputs/flutter-apk/app-release.apk
-          releaseNotes: "RC ${{ github.ref_name }}"
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
+          packageName: etherealarc.tech.gasosapp
+          releaseFiles: build/app/outputs/bundle/release/app-release.aab
+          track: internal
+          status: completed
+          whatsNewDirectory: .github/whatsnew

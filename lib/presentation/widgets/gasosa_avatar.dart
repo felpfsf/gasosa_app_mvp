@@ -34,7 +34,7 @@ class GasosaAvatar extends StatelessWidget {
         fit: BoxFit.cover,
         width: size,
         height: size,
-        errorBuilder: (_, __, ___) => _defaultAvatar(),
+        errorBuilder: (_, _, _) => _defaultAvatar(),
       );
     }
     if (photoUrl != null && photoUrl!.isNotEmpty) {
@@ -44,7 +44,7 @@ class GasosaAvatar extends StatelessWidget {
         fit: BoxFit.cover,
         width: size,
         height: size,
-        errorBuilder: (_, __, ___) => _defaultAvatar(),
+        errorBuilder: (_, _, _) => _defaultAvatar(),
       );
     }
     return _defaultAvatar();

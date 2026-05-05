@@ -87,7 +87,7 @@ jobs:
 
       # ── Upload to Google Play Internal Track ──────────────────────────────
       - name: Upload to Google Play (Internal Testing)
-        uses: r0adkll/upload-google-play@v1
+        uses: r0adkll/upload-google-play@v1.1.3
         with:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
           packageName: etherealarc.tech.gasosapp

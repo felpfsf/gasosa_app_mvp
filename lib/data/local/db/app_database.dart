@@ -1,15 +1,11 @@
-import 'dart:io';
-
 import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
+import 'package:drift_flutter/drift_flutter.dart';
 import 'package:gasosa_app/data/local/dao/refuel_dao.dart';
 import 'package:gasosa_app/data/local/dao/user_dao.dart';
 import 'package:gasosa_app/data/local/dao/vehicle_dao.dart';
 import 'package:gasosa_app/data/local/tables/refuel_table.dart';
 import 'package:gasosa_app/data/local/tables/user_table.dart';
 import 'package:gasosa_app/data/local/tables/vehicle_table.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 
 part 'app_database.g.dart';
 
@@ -18,7 +14,7 @@ part 'app_database.g.dart';
   daos: [UserDao, VehicleDao, RefuelDao],
 )
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(_open());
+  AppDatabase() : super(driftDatabase(name: 'gasosa_db'));
 
   @override
   int get schemaVersion => 2;
@@ -33,13 +29,4 @@ class AppDatabase extends _$AppDatabase {
       }
     },
   );
-}
-
-LazyDatabase _open() {
-  return LazyDatabase(() async {
-    final dir = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dir.path, 'gasosa_db'));
-
-    return NativeDatabase.createInBackground(file);
-  });
 }
